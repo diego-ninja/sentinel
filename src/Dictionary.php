@@ -40,7 +40,7 @@ final readonly class Dictionary
         /** @var string $dictionaryPath */
         $dictionaryPath = config('censor.dictionary_path');
 
-        return new self(self::read(sprintf('%s%s.php', $dictionaryPath, $language)));
+        return new self(self::read(sprintf('%s/%s.php', $dictionaryPath, $language)));
     }
 
     /**

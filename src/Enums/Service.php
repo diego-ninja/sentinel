@@ -4,10 +4,10 @@ namespace Ninja\Censor\Enums;
 
 enum Service: string
 {
-    case Perspective = 'perspective';
+    case Perspective = 'perspective_ai';
     case PurgoMalum = 'purgomalum';
-    case Tisane = 'tisane';
-    case Azure = 'azure';
+    case Tisane = 'tisane_ai';
+    case Azure = 'azure_ai';
     case Censor = 'censor';
 
     /**

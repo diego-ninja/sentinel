@@ -42,7 +42,12 @@ final class CensorServiceProvider extends ServiceProvider
 
         /** @var Service $default */
         $default = config('censor.default_service', Service::Censor);
-        $this->app->alias(ProfanityChecker::class, $default->value);
+        $this->app->bind(ProfanityChecker::class, function () use ($default): ProfanityChecker {
+            /** @var ProfanityChecker $service */
+            $service = app($default->value);
+
+            return $service;
+        });
 
         $this->app->bind('censor', function () {
             return new Censor;
@@ -57,6 +62,7 @@ final class CensorServiceProvider extends ServiceProvider
         foreach ($services as $service) {
             /** @var array<string,mixed> $config */
             $config = config(sprintf('censor.services.%s', $service->value));
+
             if ($config !== null) {
                 $this->app->singleton($service->value, function () use ($service, $config): ProfanityChecker {
                     return ProfanityCheckerFactory::create($service, $config);
