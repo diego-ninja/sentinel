@@ -1,0 +1,18 @@
+parameters:
+    paths:
+        - src/
+        - helpers.php
+    bootstrapFiles:
+        - vendor/autoload.php
+    level: max
+    scanDirectories:
+        - src
+    universalObjectCratesClasses:
+        - Illuminate\Support\Collection
+        - '#Access to an undefined property Illuminate\\Contracts\\Auth\\Authenticatable::#'
+    treatPhpDocTypesAsCertain: false
+
+includes:
+    - vendor/phpstan/phpstan-deprecation-rules/rules.neon
+    - vendor/phpstan/phpstan-strict-rules/rules.neon
+    - vendor/larastan/larastan/extension.neon
