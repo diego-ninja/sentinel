@@ -1,12 +1,12 @@
 # Censor - A censor and word filtering library for Laravel 10+
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/diego-ninja/banthis.svg?style=flat&color=blue)](https://packagist.org/packages/diego-ninja/banthis)
-[![Total Downloads](https://img.shields.io/packagist/dt/diego-ninja/banthis.svg?style=flat&color=blue)](https://packagist.org/packages/diego-ninja/banthis)
-![PHP Version](https://img.shields.io/packagist/php-v/diego-ninja/cosmic.svg?style=flat&color=blue)
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/diego-ninja/laravel-censor.svg?style=flat&color=blue)](https://packagist.org/packages/diego-ninja/laravel-censor)
+[![Total Downloads](https://img.shields.io/packagist/dt/diego-ninja/laravel-censor.svg?style=flat&color=blue)](https://packagist.org/packages/diego-ninja/laravel-censor)
+![PHP Version](https://img.shields.io/packagist/php-v/diego-ninja/laravel-censor.svg?style=flat&color=blue)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-![GitHub last commit](https://img.shields.io/github/last-commit/diego-ninja/banthis?color=blue)
-[![Hits-of-Code](https://hitsofcode.com/github/diego-ninja/banthis?branch=main&label=hits-of-code)](https://hitsofcode.com/github/diego-ninja/banthis/view?branch=main&label=hits-of-code)
-[![wakatime](https://wakatime.com/badge/user/bd65f055-c9f3-4f73-92aa-3c9810f70cc3/project/02bbbceb-47f9-482d-be0b-c1e2777eb463.svg)](https://wakatime.com/badge/user/bd65f055-c9f3-4f73-92aa-3c9810f70cc3/project/02bbbceb-47f9-482d-be0b-c1e2777eb463)
+![GitHub last commit](https://img.shields.io/github/last-commit/diego-ninja/laravel-censor?color=blue)
+[![Hits-of-Code](https://hitsofcode.com/github/diego-ninja/laravel-censor?branch=main&label=hits-of-code)](https://hitsofcode.com/github/diego-ninja/laravel-censor/view?branch=main&label=hits-of-code)
+[![wakatime](https://wakatime.com/badge/user/bd65f055-c9f3-4f73-92aa-3c9810f70cc3/project/f5c4a047-d754-4ef3-b7b0-89ff0099a601.svg)](https://wakatime.com/badge/user/bd65f055-c9f3-4f73-92aa-3c9810f70cc3/project/f5c4a047-d754-4ef3-b7b0-89ff0099a601)
 
 Censor is a PHP package for profanity filtering. The PHP script uses regex to intelligently look for "leetspeak"-style numeric or symbol replacements.
 
