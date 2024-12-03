@@ -19,7 +19,7 @@ final readonly class ProfanityCheckerFactory
     {
         /** @var class-string<ProfanityChecker> $class */
         $class = match ($service) {
-            Service::Censor => Censor::class,
+            Service::Local => Censor::class,
             Service::Perspective => PerspectiveAI::class,
             Service::PurgoMalum => PurgoMalum::class,
             Service::Tisane => TisaneAI::class,

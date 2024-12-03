@@ -8,7 +8,7 @@ enum Service: string
     case PurgoMalum = 'purgomalum';
     case Tisane = 'tisane_ai';
     case Azure = 'azure_ai';
-    case Censor = 'censor';
+    case Local = 'local';
 
     /**
      * @return array<Service>
@@ -20,7 +20,7 @@ enum Service: string
             self::PurgoMalum,
             self::Tisane,
             self::Azure,
-            self::Censor,
+            self::Local,
         ];
     }
 }

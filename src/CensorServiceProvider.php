@@ -41,7 +41,7 @@ final class CensorServiceProvider extends ServiceProvider
         $this->registerCheckers();
 
         /** @var Service $default */
-        $default = config('censor.default_service', Service::Censor);
+        $default = config('censor.default_service', Service::Local);
         $this->app->bind(ProfanityChecker::class, function () use ($default): ProfanityChecker {
             /** @var ProfanityChecker $service */
             $service = app($default->value);
