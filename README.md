@@ -12,9 +12,11 @@
 
 A powerful and flexible profanity filtering package for Laravel 10+ applications. Filter offensive content using multiple services or local dictionaries.
 
+This documentation has been generated almost in its entirety using 🦠 [Claude 3.5 Sonnet](https://claude.ai/) based on source code analysis. Some sections may be incomplete, outdated or may contain documentation for planned or not-released features. For the most accurate information, please refer to the source code or open an issue on the package repository.
+
 ## ❤️ Features
 
-- Multiple profanity checking services support (Local, PurgoMalum, Azure AI, Perspective AI, Tisane AI)
+- Multiple profanity checking services support (Local, [PurgoMalum](https://www.purgomalum.com/), [Azure AI](https://azure.microsoft.com/en-us/pricing/details/cognitive-services/content-safety/), [Perspective AI](https://perspectiveapi.com/), [Tisane AI](https://tisane.ai/))
 - Multi-language support
 - Whitelist functionality
 - Character replacement options
@@ -23,7 +25,7 @@ A powerful and flexible profanity filtering package for Laravel 10+ applications
 - Configurable dictionaries
 - Character substitution detection
 
-## Installation
+## 📦 Installation
 
 You can install the package via composer:
 
@@ -38,7 +40,7 @@ php artisan vendor:publish --tag="censor-config"
 php artisan vendor:publish --tag="censor-dictionaries"
 ```
 
-## Configuration
+## 🎛️ Configuration
 
 The package configuration file will be published at `config/censor.php`. Here you can configure:
 
@@ -62,7 +64,7 @@ AZURE_AI_API_KEY=your-azure-api-key
 AZURE_AI_ENDPOINT=your-azure-endpoint
 ```
 
-## Basic Usage
+## ⚙️ Basic Usage
 
 You can use Laravel Censor in three ways:
 
