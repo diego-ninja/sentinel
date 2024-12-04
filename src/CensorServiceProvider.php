@@ -19,7 +19,7 @@ final class CensorServiceProvider extends ServiceProvider
 
             $this->publishes([
                 __DIR__.'/../resources/dict' => resource_path('dict'),
-            ], 'laravel-censor-dictionaries');
+            ], 'censor-dictionaries');
         }
 
         app('validator')->extend(

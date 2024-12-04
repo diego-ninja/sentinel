@@ -4,12 +4,14 @@ namespace Ninja\Censor;
 
 final class Whitelist
 {
+    private const PLACEHOLDER_PREFIX = '__WHITELIST_TERM_';
+
+    private const PLACEHOLDER_SUFFIX = '__';
+
     /**
      * @var array<int, array<string, string>>
      */
     private array $whiteList = [];
-
-    private string $whiteListPlaceHolder = ' {whiteList[i]} ';
 
     /**
      * @param  string[]  $list
@@ -28,7 +30,7 @@ final class Whitelist
     public function replace(string $string, bool $reverse = false): string
     {
         foreach ($this->whiteList as $key => $list) {
-            $placeHolder = str_replace('[i]', (string) $key, $this->whiteListPlaceHolder);
+            $placeHolder = self::PLACEHOLDER_PREFIX.$key.self::PLACEHOLDER_SUFFIX;
             if ($reverse) {
                 $string = str_replace($placeHolder, $list['word'], $string);
             } else {

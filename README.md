@@ -1,4 +1,4 @@
-# Censor - A censor and word filtering library for Laravel 10+
+# 💀 Censor - A censor and word filtering library for Laravel 10+
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/diego-ninja/laravel-censor.svg?style=flat&color=blue)](https://packagist.org/packages/diego-ninja/laravel-censor)
 [![Total Downloads](https://img.shields.io/packagist/dt/diego-ninja/laravel-censor.svg?style=flat&color=blue)](https://packagist.org/packages/diego-ninja/laravel-censor)
@@ -8,110 +8,201 @@
 [![Hits-of-Code](https://hitsofcode.com/github/diego-ninja/laravel-censor?branch=main&label=hits-of-code)](https://hitsofcode.com/github/diego-ninja/laravel-censor/view?branch=main&label=hits-of-code)
 [![wakatime](https://wakatime.com/badge/user/bd65f055-c9f3-4f73-92aa-3c9810f70cc3/project/f5c4a047-d754-4ef3-b7b0-89ff0099a601.svg)](https://wakatime.com/badge/user/bd65f055-c9f3-4f73-92aa-3c9810f70cc3/project/f5c4a047-d754-4ef3-b7b0-89ff0099a601)
 
-Censor is a PHP package for profanity filtering. The PHP script uses regex to intelligently look for "leetspeak"-style numeric or symbol replacements.
+# Introduction
 
-This package is an evolution of [snipe/banbuilder](https://github.com/snipe/banbuilder) adapted and refactored to modern php versions.
+A powerful and flexible profanity filtering package for Laravel 10+ applications. Filter offensive content using multiple services or local dictionaries.
 
-## 📦 Installation
+## ❤️ Features
 
-To install Censor, simply include it in your projects's `composer.json`. 
+- Multiple profanity checking services support (Local, PurgoMalum, Azure AI, Perspective AI, Tisane AI)
+- Multi-language support
+- Whitelist functionality
+- Character replacement options
+- Laravel Facade and helper functions
+- Custom validation rule
+- Configurable dictionaries
+- Character substitution detection
 
-	"diego-ninja/laravel-censor": "^1",
+## Installation
 
-There are no additional dependencies required for this package to work.
+You can install the package via composer:
 
-## 🚀 Usage with l
-
-```php
-use Ninja\Censor\Checkers\Censor;
-use Ninja\Censor\Dictionary;
-
-$dictionary = Dictionary::withLanguage('en-us');
-
-$censor = new Censor($dictionary);
-$string = $censor->clean('A very offensive string with the bad word dick on it');
-print_r($string)
-
-Array
-(
-    [orig] => A very offensive string with the bad word dick on it
-    [clean] => A very offensive string with the bad word **** on it
-    [matched] => Array
-        (
-            [0] => dick
-        )
-
-)
-
+```bash
+composer require diego-ninja/laravel-censor
 ```
 
-### Setting the Dictionary
+After installing, publish the configuration file and dictionaries:
 
-You can set or add dictionaries to the Censor instance.
-
-```php
-// Set a new dictionary
-$censor->setDictionary($dictionary);
-
-// Add words from another dictionary
-$additionalDictionary = Dictionary::withLanguage('fr');
-$censor->addDictionary($additionalDictionary);
+```bash
+php artisan vendor:publish --tag="censor-config"
+php artisan vendor:publish --tag="censor-dictionaries"
 ```
 
-### Adding words from an array
+## Configuration
 
-You can add words directly from an array.
+The package configuration file will be published at `config/censor.php`. Here you can configure:
 
-```php
-$words = ['badword1', 'badword2'];
-$censor->addWords($words);
+- Default language
+- Available languages
+- Default profanity service
+- Mask character for censored words
+- Character replacements for evasion detection
+- Whitelist of allowed words
+- Dictionary path
+- Service-specific configurations
+
+### API Keys Configuration
+
+Some services require API keys. Add these to your `.env` file:
+
+```env
+PERSPECTIVE_AI_API_KEY=your-perspective-api-key
+TISANE_AI_API_KEY=your-tisane-api-key
+AZURE_AI_API_KEY=your-azure-api-key
+AZURE_AI_ENDPOINT=your-azure-endpoint
 ```
 
-### Managing the whitelist
+## Basic Usage
 
-You can add words to the whitelist to exclude them from being censored.
+You can use Laravel Censor in three ways:
 
-```php
-$whitelist = ['goodword1', 'goodword2'];
-$censor->whitelist($whitelist);
-```
-
-### Setting the replacement character
-
-You can set the character or string that will replace the censored words.
+### 1. Facade
 
 ```php
-$censor->setReplaceChar('*');
+use Ninja\Censor\Facades\Censor;
+
+// Check if text contains offensive content
+$isOffensive = Censor::offensive('some text');
+
+// Get cleaned version of text
+$cleanText = Censor::clean('some text');
+
+// Get detailed analysis
+$result = Censor::check('some text');
 ```
 
+### 2. Helper Functions
 
-## ⚙️ How it works
+```php
+// Check if text is offensive
+$isOffensive = is_offensive('some text');
 
-In a nutshell, this code takes an array of bad words and compares it to an array of common filter-evasion tactics. It then does a string replacement to insert regex parameters into your badwords array, and then evaluates your input string to that expanded banned word list.
+// Clean offensive content
+$cleanText = clean('some text');
+```
 
-So in your bad words array, you might have:
+### 3. Validation Rule
 
-     [0] => 'ass'
+```php
+$rules = [
+    'comment' => ['required', 'string', 'censor_check']
+];
+```
 
-The `preg_replace` functions replace all of the possible shenanigan letters with regex patterns (in lieu of adding the variants onto the end of the array), so the 'ass' in your array gets turned into this, right before the `preg_replace` checks for matches:
+## Available Services
 
-     [0] => /(a|a\.|a\-|4|@|Á|á|À|Â|à|Â|â|Ä|ä|Ã|ã|Å|å|α)(s|s\.|s\-|5|\$|§)(s|s\.|s\-|5|\$|§)/i
+### Local Censor
 
-This means that a word can have none, one or any variety of leet replacements and it will still trip the trigger. Part of the leet filter includes stripping out letter-dash and letter-dots.
+Uses local dictionaries for offline profanity checking.
 
-This means that the following all evaluate to the "bitch":
+```php
+use Ninja\Censor\Enums\Service;
 
-- B1tch
-- bi7tch
-- b.i.t.c.h.
-- b-i-t-c-h
-- b.1.t.c.h.
-- ßitch
-- and so on....
+$result = Censor::with(Service::Local, 'text to check');
+```
 
-## 🔬 Tests
-To run the unit tests on this package, run `vendor/bin/phpunit` from the package directory.
+### PurgoMalum
 
+Free web service for profanity filtering.
+
+```php
+$result = Censor::with(Service::PurgoMalum, 'text to check');
+```
+
+### Azure AI Content Safety
+
+Uses Azure's AI content moderation service.
+
+```php
+$result = Censor::with(Service::Azure, 'text to check');
+```
+
+### Perspective AI
+
+Uses Google's Perspective API for content analysis.
+
+```php
+$result = Censor::with(Service::Perspective, 'text to check');
+```
+
+### Tisane AI
+
+Natural language processing service for content moderation.
+
+```php
+$result = Censor::with(Service::Tisane, 'text to check');
+```
+
+## Working with Results
+
+All services return a Result object with consistent methods:
+
+```php
+$result = Censor::check('some text');
+
+$result->offensive();    // bool: whether the text contains offensive content
+$result->words();        // array: list of matched offensive words
+$result->replaced();     // string: text with offensive words replaced
+$result->original();     // string: original text
+$result->score();        // ?float: offensive content score (if available)
+$result->confidence();   // ?float: confidence level (if available)
+$result->categories();   // ?array: detected categories (if available)
+```
+
+## Custom Dictionaries
+
+You can add your own dictionaries or modify existing ones:
+
+1. Create a new PHP file in your `resources/dict` directory
+2. Return an array of words to be censored
+3. Update your config to include the new language
+
+```php
+// resources/dict/custom.php
+return [
+    'word1',
+    'word2',
+    // ...
+];
+
+// config/censor.php
+'languages' => ['en', 'custom'],
+```
+
+## Whitelist
+
+You can whitelist words to prevent them from being censored:
+
+```php
+// config/censor.php
+'whitelist' => [
+    'word1',
+    'word2',
+],
+```
+
+## Character Substitution
+
+The package detects common character substitutions (e.g., @ for a, 1 for i). Configure these in:
+
+```php
+// config/censor.php
+'replacements' => [
+    'a' => '(a|@|4)',
+    'i' => '(i|1|!)',
+    // ...
+],
+```
 
 ## 🙏 Credits
 
@@ -119,7 +210,8 @@ This project is developed and maintained by 🥷 [Diego Rin](https://diego.ninja
 
 Special thanks to:
 
-- [snipe](https://github.com/snipe) for developing the [inital code](https://github.com/snipe/banbuilder) that serves BanThis as starting point.
+- [Laravel Framework](https://laravel.com/) for providing the most exciting and well-crafted PHP framework.
+- [Snipe](https://github.com/snipe) for developing the [inital code](https://github.com/snipe/banbuilder) that serves Laravel Censor as starting point.
 - All the contributors and testers who have helped to improve this project through their contributions.
 
 If you find this project useful, please consider giving it a ⭐ on GitHub!

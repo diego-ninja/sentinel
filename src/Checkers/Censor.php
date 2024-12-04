@@ -18,9 +18,9 @@ final class Censor implements ProfanityChecker
     private string $replacer;
 
     /**
-     * @var array<int,string>|null
+     * @var array<string>
      */
-    private static ?array $checks = null;
+    private array $patterns = [];
 
     private Whitelist $whitelist;
 
@@ -39,11 +39,31 @@ final class Censor implements ProfanityChecker
         foreach ($languages as $language) {
             $this->addDictionary(Dictionary::withLanguage($language));
         }
+
+        $this->generatePatterns();
+    }
+
+    private function generatePatterns(bool $fullWords = false): void
+    {
+        /** @var array<string, string> $replacements */
+        $replacements = config('censor.replacements', []);
+
+        $this->patterns = array_map(function ($word) use ($replacements, $fullWords) {
+            $escaped = preg_quote($word, '/');
+            $pattern = str_ireplace(
+                array_map(fn ($key) => preg_quote($key, '/'), array_keys($replacements)),
+                array_values($replacements),
+                $escaped
+            );
+
+            return $fullWords ? '/\b'.$pattern.'\b/iu' : '/'.$pattern.'/iu';
+        }, $this->words);
     }
 
     public function setDictionary(Dictionary $dictionary): self
     {
         $this->words = $dictionary->words();
+        $this->generatePatterns();
 
         return $this;
     }
@@ -51,6 +71,8 @@ final class Censor implements ProfanityChecker
     public function addDictionary(Dictionary $dictionary): self
     {
         $this->words = array_merge($this->words, $dictionary->words());
+        $this->words = array_unique($this->words);
+        $this->generatePatterns();
 
         return $this;
     }
@@ -60,8 +82,8 @@ final class Censor implements ProfanityChecker
      */
     public function addWords(array $words): self
     {
-        $words = array_merge($this->words, $words);
-        $this->words = array_keys(array_count_values($words));
+        $this->words = array_unique(array_merge($this->words, $words));
+        $this->generatePatterns();
 
         return $this;
     }
@@ -76,51 +98,16 @@ final class Censor implements ProfanityChecker
         return $this;
     }
 
-    public function setReplaceChar(string $replacer): self
-    {
-        $this->replacer = $replacer;
-
-        return $this;
-    }
-
-    /**
-     *  Generates a random string.
-     *
-     * @param  string  $chars  Chars that can be used.
-     * @param  int  $len  Length of the output string.
-     */
-    public function rand(string $chars, int $len): string
-    {
-        return str_shuffle(
-            str_repeat($chars, (int) ($len / strlen($chars))).
-            substr($chars, 0, $len % strlen($chars))
-        );
-    }
-
-    private function generate(bool $fullWords = false): void
-    {
-        $badwords = $this->words;
-
-        /** @var array<string, string> $replacements */
-        $replacements = config('censor.replacements');
-
-        $censorChecks = [];
-        for ($x = 0, $xMax = count($badwords); $x < $xMax; $x++) {
-            $censorChecks[$x] = $fullWords
-                ? '/\b'.str_ireplace(array_keys($replacements), array_values($replacements), $badwords[$x]).'\b/i'
-                : '/'.str_ireplace(array_keys($replacements), array_values($replacements), $badwords[$x]).'/i';
-        }
-
-        self::$checks = $censorChecks;
-    }
-
     /**
      * @return array<string, mixed>
      */
     public function clean(string $string, bool $fullWords = false): array
     {
-        if (self::$checks !== null) {
-            $this->generate($fullWords);
+        $currentPattern = $this->patterns[0] ?? '';
+        $isCurrentlyFullWords = str_contains($currentPattern, '\b');
+
+        if ($fullWords !== $isCurrentlyFullWords) {
+            $this->generatePatterns($fullWords);
         }
 
         $newstring = [
@@ -133,18 +120,17 @@ final class Censor implements ProfanityChecker
         $counter = 0;
 
         $newstring['clean'] = preg_replace_callback(
-            self::$checks ?? [],
+            $this->patterns,
             function ($matches) use (&$counter, &$newstring) {
                 $newstring['matched'][$counter++] = $matches[0];
 
-                return (strlen($this->replacer) === 1)
-                    ? str_repeat($this->replacer, strlen($matches[0]))
-                    : $this->rand($this->replacer, strlen($matches[0]));
+                return str_repeat($this->replacer, mb_strlen($matches[0]));
             },
             $original
         );
 
         $newstring['clean'] = $this->whitelist->replace($newstring['clean'] ?? '', true);
+        $newstring['matched'] = array_unique($newstring['matched']);
 
         return $newstring;
     }
@@ -154,5 +140,12 @@ final class Censor implements ProfanityChecker
         $result = $this->clean($text);
 
         return CensorResult::fromResponse($text, $result);
+    }
+
+    public function setReplaceChar(string $replacer): self
+    {
+        $this->replacer = $replacer;
+
+        return $this;
     }
 }
