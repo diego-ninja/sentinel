@@ -26,6 +26,4 @@ jobs:
         run: composer install --no-interaction --prefer-dist
 
       - name: PHPStan
-        uses: docker://oskarstark/phpstan-ga
-        with:
-          args: analyse src/ --level=10
+        run: php ./vendor/bin/phpstan analyse --level=max
