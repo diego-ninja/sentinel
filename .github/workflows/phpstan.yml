@@ -4,7 +4,7 @@ on:
       - main
   pull_request:
 
-name: Static Analysis
+name: Test
 
 jobs:
   phpstan:
@@ -17,6 +17,6 @@ jobs:
         uses: actions/checkout@v3
 
       - name: PHPStan
-        uses: OskarStark/phpstan-ga@1.13.0
+        uses: docker://oskarstark/phpstan-ga
         with:
           args: analyse src/ --level=10
