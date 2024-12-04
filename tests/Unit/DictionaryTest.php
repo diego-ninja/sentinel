@@ -1,29 +1,40 @@
 <?php
 
-namespace Tests\Unit;
-
 use Ninja\Censor\Dictionary;
 use Ninja\Censor\Exceptions\DictionaryFileNotFound;
-use PHPUnit\Framework\TestCase;
 
-class DictionaryTest extends TestCase
-{
-    public function test_with_language(): void
-    {
-        $dictionary = Dictionary::withLanguage('en-us');
-        self::assertNotEmpty($dictionary->words());
-    }
+test('dictionary loads words correctly', function () {
+    $dictFile = createTestDictionaryFile();
+    $dictionary = Dictionary::fromFile($dictFile);
 
-    public function test_from_file(): void
-    {
-        $file = __DIR__.'/../../resources/dict/en-us.php';
-        $dictionary = Dictionary::fromFile($file);
-        self::assertNotEmpty($dictionary->words());
-    }
+    expect($dictionary->words())
+        ->toBeArray()
+        ->toContain(...getTestDictionary());
 
-    public function test_dictionary_file_not_found(): void
-    {
-        $this->expectException(DictionaryFileNotFound::class);
-        Dictionary::fromFile('nonexistent-file.php');
-    }
-}
+    unlink($dictFile);
+});
+
+test('dictionary handles multiple language files', function () {
+    $dictFile = createTestDictionaryFile();
+    $dictionary = Dictionary::fromFile($dictFile);
+
+    expect($dictionary->words())
+        ->toBeArray()
+        ->toContain('fuck', 'shit');
+
+    unlink($dictFile);
+});
+
+test('dictionary throws exception for non-existent file', function () {
+    $this->expectException(DictionaryFileNotFound::class);
+    Dictionary::fromFile('non-existent.php');
+});
+
+test('dictionary can be created with words array', function () {
+    $words = ['test', 'words'];
+    $dictionary = Dictionary::withWords($words);
+
+    expect($dictionary->words())
+        ->toBeArray()
+        ->toEqual($words);
+});

@@ -15,6 +15,7 @@
     "prefer-stable": true,
     "require": {
         "php": "^8.2",
+        "ext-intl": "*",
         "guzzlehttp/guzzle": "^7",
         "illuminate/contracts": "^10.0|^11.0",
         "illuminate/http": "^10.0|^11.0",
@@ -31,8 +32,6 @@
         "phpstan/phpstan": "^2",
         "phpstan/phpstan-deprecation-rules": "^2",
         "phpstan/phpstan-strict-rules": "^2"
-
-
     },
     "autoload": {
         "psr-4": {

@@ -3,7 +3,7 @@
 namespace Ninja\Censor;
 
 use Illuminate\Support\ServiceProvider;
-use InvalidArgumentException;
+use Illuminate\Validation\Validator;
 use Ninja\Censor\Contracts\ProfanityChecker;
 use Ninja\Censor\Enums\Service;
 use Ninja\Censor\Factories\ProfanityCheckerFactory;
@@ -24,13 +24,20 @@ final class CensorServiceProvider extends ServiceProvider
 
         app('validator')->extend(
             rule: 'censor_check',
-            extension: function ($attribute, $value, $parameters, $validator) {
-                $censor = new Censor;
-                if (is_string($value)) {
-                    return $censor->check($value)->offensive();
+            extension: function ($attribute, $value, $parameters, Validator $validator) {
+                if ($value === null) {
+                    return true;
                 }
 
-                throw new InvalidArgumentException('The value must be a string.');
+                if (! is_string($value)) {
+                    $validator->addReplacer('censor_check', function () {
+                        return 'The :attribute must be a string.';
+                    });
+
+                    return false;
+                }
+
+                return ! \Ninja\Censor\Facades\Censor::check($value)->offensive();
             },
             message: 'The :attribute contains offensive language.'
         );

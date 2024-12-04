@@ -1,35 +1,28 @@
 <?php
 
-namespace Tests\Unit;
-
 use Ninja\Censor\Whitelist;
-use PHPUnit\Framework\TestCase;
 
-class WhitelistTest extends TestCase
-{
-    public function test_add(): void
-    {
-        $whitelist = new Whitelist;
-        $whitelist->add(['test', 'example']);
+test('whitelist correctly protects words', function () {
+    $whitelist = new Whitelist;
+    $whitelist->add(['good', 'assistant']);
 
-        self::assertNotEmpty($whitelist->replace('This is a test string'));
-    }
+    $text = 'You are a good assistant';
+    expect($whitelist->replace($text))
+        ->not->toBe($text)
+        ->and($whitelist->replace($whitelist->replace($text), true))
+        ->toBe($text);
+});
 
-    public function test_replace(): void
-    {
-        $whitelist = new Whitelist;
-        $whitelist->add(['test']);
+test('whitelist handles empty list', function () {
+    $whitelist = new Whitelist;
+    $text = 'test text';
 
-        $result = $whitelist->replace('This is a test string');
-        self::assertStringContainsString('{whiteList0}', $result);
-    }
+    expect($whitelist->replace($text))->toBe($text);
+});
 
-    public function test_replace_reverse(): void
-    {
-        $whitelist = new Whitelist;
-        $whitelist->add(['test']);
+test('whitelist handles non-string values', function () {
+    $whitelist = new Whitelist;
+    $whitelist->add(['word', 123, null, true]);
 
-        $result = $whitelist->replace('This is a {whiteList0} string', true);
-        self::assertStringContainsString('test', $result);
-    }
-}
+    expect($whitelist->replace('test word'))->not->toBe('test word');
+});

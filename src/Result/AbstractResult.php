@@ -65,8 +65,11 @@ abstract readonly class AbstractResult implements Result
      */
     protected static function clean(string $text, array $words): string
     {
+        /** @var string $replaceChar */
+        $replaceChar = config('censor.mask_char', '*');
+
         foreach ($words as $word) {
-            $text = str_replace($word, str_repeat('*', strlen($word)), $text);
+            $text = str_replace($word, str_repeat($replaceChar, strlen($word)), $text);
         }
 
         return $text;

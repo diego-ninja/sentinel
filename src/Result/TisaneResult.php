@@ -46,6 +46,10 @@ final readonly class TisaneResult extends AbstractResult
      */
     private static function calculateScore(array $abuses): float
     {
+        if (count($abuses) === 0) {
+            return 0.0;
+        }
+
         $scores = array_map(function ($severity) {
             return match ($severity) {
                 'low' => 0.10,

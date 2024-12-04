@@ -1,0 +1,69 @@
+<?php
+
+use GuzzleHttp\Client;
+use GuzzleHttp\Handler\MockHandler;
+use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Psr7\Response;
+use Ninja\Censor\Checkers\PerspectiveAI;
+
+test('perspective detects toxic content', function () {
+    $mock = new MockHandler([
+        new Response(200, [], json_encode([
+            'attributeScores' => [
+                'TOXICITY' => [
+                    'summaryScore' => [
+                        'value' => 0.9,
+                        'confidence' => 0.8,
+                    ],
+                ],
+                'SEVERE_TOXICITY' => [
+                    'summaryScore' => [
+                        'value' => 0.85,
+                        'confidence' => 0.75,
+                    ],
+                ],
+            ],
+        ])),
+    ]);
+
+    $client = new Client(['handler' => HandlerStack::create($mock)]);
+    $checker = new PerspectiveAI('fake-key', $client);
+
+    $result = $checker->check('toxic content');
+
+    expect($result)
+        ->toBeOffensive()
+        ->and($result->score())->toBeGreaterThan(0.7)
+        ->and($result->confidence())->toBeGreaterThan(0.7)
+        ->and($result->categories())->toContain('toxicity');
+});
+
+test('perspective handles clean content', function () {
+    $mock = new MockHandler([
+        new Response(200, [], json_encode([
+            'attributeScores' => [
+                'TOXICITY' => [
+                    'summaryScore' => [
+                        'value' => 0.1,
+                        'confidence' => 0.9,
+                    ],
+                ],
+            ],
+        ])),
+    ]);
+
+    $client = new Client(['handler' => HandlerStack::create($mock)]);
+    $checker = new PerspectiveAI('fake-key', $client);
+
+    $result = $checker->check('clean content');
+
+    expect($result)
+        ->toBeClean()
+        ->and($result->score())->toBeLessThan(0.7)
+        ->and($result->confidence())->toBeGreaterThan(0.7)
+        ->and($result->categories())->toBeEmpty()
+        ->and($result->replaced())->toBe('clean content')
+        ->and($result->original())->toBe('clean content')
+        ->and($result->words())->toBeEmpty();
+
+});

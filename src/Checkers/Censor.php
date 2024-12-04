@@ -6,6 +6,7 @@ use Ninja\Censor\Contracts\ProfanityChecker;
 use Ninja\Censor\Contracts\Result;
 use Ninja\Censor\Dictionary;
 use Ninja\Censor\Result\CensorResult;
+use Ninja\Censor\Support\TextNormalizer;
 use Ninja\Censor\Whitelist;
 
 final class Censor implements ProfanityChecker
@@ -31,7 +32,7 @@ final class Censor implements ProfanityChecker
         $this->whitelist = (new Whitelist)->add($whitelist);
 
         /** @var string $replaceChar */
-        $replaceChar = config('censor.replace_char', '*');
+        $replaceChar = config('censor.mask_char', '*');
         $this->replacer = $replaceChar;
 
         /** @var string[] $languages */
@@ -94,7 +95,6 @@ final class Censor implements ProfanityChecker
     public function whitelist(array $list): self
     {
         $this->whitelist->add($list);
-
         return $this;
     }
 
@@ -116,7 +116,7 @@ final class Censor implements ProfanityChecker
             'matched' => [],
         ];
 
-        $original = $this->whitelist->replace($newstring['orig']);
+        $original = TextNormalizer::normalize($this->whitelist->replace($newstring['orig']));
         $counter = 0;
 
         $newstring['clean'] = preg_replace_callback(
