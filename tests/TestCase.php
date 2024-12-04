@@ -28,6 +28,7 @@ abstract class TestCase extends BaseTestCase
         $app['config']->set('censor.languages', ['en']);
         $app['config']->set('censor.dictionary_path', __DIR__.'/../resources/dict');
         $app['config']->set('censor.default_service', 'local');
+        $app['config']->set('censor.cache.enabled', false);
         $app['config']->set('censor.replacements', [
             'a' => '(a|a\.|a\-|4|@|Á|á|À|Â|à|Â|â|Ä|ä|Ã|ã|Å|å|α|Δ|Λ|λ)',
             'b' => '(b|b\.|b\-|8|\|3|ß|Β|β)',

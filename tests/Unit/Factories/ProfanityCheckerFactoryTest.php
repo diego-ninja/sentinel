@@ -24,3 +24,22 @@ test('factory creates correct service instances', function (Service $service, st
     [Service::Perspective, PerspectiveAI::class],
     [Service::Tisane, TisaneAI::class],
 ]);
+
+test('factory creates cached decorator when cache is enabled', function (Service $service, string $expectedClass) {
+    config(['censor.cache.enabled' => true]);
+    $config = match ($service) {
+        Service::Azure => ['endpoint' => 'test', 'key' => 'test', 'version' => '2024-09-01'],
+        Service::Perspective, Service::Tisane => ['key' => 'test'],
+        default => []
+    };
+
+    $checker = ProfanityCheckerFactory::create($service, $config, true);
+    expect($checker)->toBeInstanceOf(\Ninja\Censor\Decorators\CachedProfanityChecker::class);
+
+})->with([
+    [Service::Local, Censor::class],
+    [Service::PurgoMalum, PurgoMalum::class],
+    [Service::Azure, AzureAI::class],
+    [Service::Perspective, PerspectiveAI::class],
+    [Service::Tisane, TisaneAI::class],
+]);

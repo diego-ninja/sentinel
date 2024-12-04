@@ -8,6 +8,7 @@ use Ninja\Censor\Checkers\PerspectiveAI;
 use Ninja\Censor\Checkers\PurgoMalum;
 use Ninja\Censor\Checkers\TisaneAI;
 use Ninja\Censor\Contracts\ProfanityChecker;
+use Ninja\Censor\Decorators\CachedProfanityChecker;
 use Ninja\Censor\Enums\Service;
 
 final readonly class ProfanityCheckerFactory
@@ -25,6 +26,15 @@ final readonly class ProfanityCheckerFactory
             Service::Tisane => TisaneAI::class,
             Service::Azure => AzureAI::class,
         };
+
+        if (config('censor.cache.enabled', false) === true) {
+            $ttl = config('censor.cache.ttl', 3600);
+            if (is_int($ttl) === false) {
+                $ttl = 3600;
+            }
+
+            return new CachedProfanityChecker(new $class(...$config), $ttl);
+        }
 
         return new $class(...$config);
     }
