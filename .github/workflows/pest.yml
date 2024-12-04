@@ -1,0 +1,27 @@
+name: Run Tests
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Check out the repository
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Step 2: Set up PHP
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2" # Set your desired PHP version
+          extensions: mbstring, dom, zip, intl
+
+      # Step 3: Install Composer dependencies
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist
+
+      # Step 4: Run Pest tests
+      - name: Run tests
+        run: php ./vendor/bin/pest
