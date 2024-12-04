@@ -1,4 +1,4 @@
-# 💀 Censor - A censor and word filtering library for Laravel 10+
+# 💀 Censor - Profanity and word filtering library for Laravel 10+
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/diego-ninja/laravel-censor.svg?style=flat&color=blue)](https://packagist.org/packages/diego-ninja/laravel-censor)
 [![Total Downloads](https://img.shields.io/packagist/dt/diego-ninja/laravel-censor.svg?style=flat&color=blue)](https://packagist.org/packages/diego-ninja/laravel-censor)
