@@ -127,4 +127,16 @@ return [
         'censor' => [],
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Cache configuration
+    |--------------------------------------------------------------------------
+    | Define the configuration for the cache
+    |
+    */
+    'cache' => [
+        'enabled' => env('CENSOR_CACHE_ENABLED', true),
+        'store' => env('CENSOR_CACHE_STORE', 'file'),
+        'ttl' => env('CENSOR_CACHE_TTL', 60),
+    ],
 ];

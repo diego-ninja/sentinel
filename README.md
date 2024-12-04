@@ -161,6 +161,51 @@ $result->confidence();   // ?float: confidence level (if available)
 $result->categories();   // ?array: detected categories (if available)
 ```
 
+## Response Caching
+
+External service responses are automatically cached to improve performance and reduce API calls. By default, all external services (PurgoMalum, Azure AI, Perspective AI, and Tisane AI) will cache their responses for 1 hour.
+
+The local censor service is not cached as it's already performant enough.
+
+### Configuring Cache
+
+You can configure the cache TTL and cache store in your `.env` file:
+
+```env
+CENSOR_CACHE_ENABLED=true # Enable caching (default: true)
+CENSOR_CACHE_TTL=3600 # Cache duration in seconds (default: 1 hour)
+CENSOR_CACHE_STORE=redis # Cache store (default: file)
+```
+
+Or in your `config/censor.php`:
+
+```php
+    'cache' => [
+        'enabled' => env('CENSOR_CACHE_ENABLED', true),
+        'store' => env('CENSOR_CACHE_STORE', 'file'),
+        'ttl' => env('CENSOR_CACHE_TTL', 60),
+    ],
+```
+
+The caching system uses Laravel's cache system, so it will respect your cache driver configuration (`config/cache.php`). You can use any cache driver supported by Laravel (Redis, Memcached, file, etc.).
+
+### Cache Keys
+
+Cache keys are generated using the following format:
+```
+censor:{ServiceName}:{md5(text)}
+```
+
+For example:
+```
+censor:PurgoMalum:a1b2c3d4e5f6g7h8i9j0
+```
+
+This ensures unique caching for:
+- Different services checking the same text
+- Same service checking different texts
+- Different environments using the same cache store
+
 ## Custom Dictionaries
 
 You can add your own dictionaries or modify existing ones:
