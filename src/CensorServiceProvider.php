@@ -7,6 +7,7 @@ use Illuminate\Validation\Validator;
 use Ninja\Censor\Contracts\ProfanityChecker;
 use Ninja\Censor\Enums\Service;
 use Ninja\Censor\Factories\ProfanityCheckerFactory;
+use Ninja\Censor\Support\PatternGenerator;
 
 final class CensorServiceProvider extends ServiceProvider
 {
@@ -54,6 +55,13 @@ final class CensorServiceProvider extends ServiceProvider
             $service = app($default->value);
 
             return $service;
+        });
+
+        $this->app->singleton(PatternGenerator::class, function () {
+            /** @var array<string, string> $replacements */
+            $replacements = config('censor.replacements', []);
+
+            return new PatternGenerator($replacements);
         });
 
         $this->app->bind('censor', function () {

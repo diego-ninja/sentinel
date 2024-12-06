@@ -3,6 +3,7 @@
 namespace Tests\Unit\EdgeCases;
 
 use Ninja\Censor\Checkers\Censor;
+use Ninja\Censor\Support\PatternGenerator;
 use Ninja\Censor\Whitelist;
 
 test('whitelist handles special regex characters', function () {
@@ -17,7 +18,7 @@ test('whitelist handles special regex characters', function () {
 });
 
 test('whitelist handles overlapping terms', function () {
-    $censor = new Censor;
+    $censor = new Censor(new PatternGenerator(config('censor.replacements')));
     $whitelist = [
         'assessment',
         'assess',

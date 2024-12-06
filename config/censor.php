@@ -58,7 +58,7 @@ return [
         'b' => '(b|b\.|b\-|8|\|3|ß|Β|β)',
         'c' => '(c|c\.|c\-|Ç|ç|¢|€|<|\(|{|©)',
         'd' => '(d|d\.|d\-|&part;|\|\)|Þ|��|Ð|ð)',
-        'e' => '(e|e\.|e\-|3|€|È|è|É|é|Ê|ê|∑)',
+        'e' => '(e|e\.|e\-|3|€|È|è|É|é|Ê|ê|∑|ë|Ë)',
         'f' => '(f|f\.|f\-|ƒ)',
         'g' => '(g|g\.|g\-|6|9)',
         'h' => '(h|h\.|h\-|Η)',
@@ -74,7 +74,7 @@ return [
         'r' => '(r|r\.|r\-|®)',
         's' => '(s|s\.|s\-|5|\$|§)',
         't' => '(t|t\.|t\-|Τ|τ|7)',
-        'u' => '(u|u\.|u\-|υ|µ)',
+        'u' => '(u|u\.|u\-|υ|µ|û|ü|ù|ú|ū|ů)',
         'v' => '(v|v\.|v\-|υ|ν)',
         'w' => '(w|w\.|w\-|ω|ψ|Ψ)',
         'x' => '(x|x\.|x\-|Χ|χ)',
@@ -124,7 +124,9 @@ return [
             'version' => env('AZURE_AI_VERSION', \Ninja\Censor\Checkers\AzureAI::DEFAULT_API_VERSION),
         ],
         'purgomalum' => [],
-        'censor' => [],
+        'local' => [
+            'levenshtein_threshold' => env('CENSOR_LEVENSHTEIN_THRESHOLD', 1),
+        ],
     ],
 
     /*

@@ -10,6 +10,8 @@ use Ninja\Censor\Checkers\TisaneAI;
 use Ninja\Censor\Contracts\ProfanityChecker;
 use Ninja\Censor\Decorators\CachedProfanityChecker;
 use Ninja\Censor\Enums\Service;
+use Ninja\Censor\Support\PatternGenerator;
+use RuntimeException;
 
 final readonly class ProfanityCheckerFactory
 {
@@ -27,15 +29,25 @@ final readonly class ProfanityCheckerFactory
             Service::Azure => AzureAI::class,
         };
 
+        if (class_exists($class) === false) {
+            throw new RuntimeException(sprintf('The class %s does not exist.', $class));
+        }
+
+        if ($service === Service::Local) {
+            $checker = new $class(app(PatternGenerator::class), ...$config);
+        } else {
+            $checker = new $class(...$config);
+        }
+
         if (config('censor.cache.enabled', false) === true) {
             $ttl = config('censor.cache.ttl', 3600);
             if (is_int($ttl) === false) {
                 $ttl = 3600;
             }
 
-            return new CachedProfanityChecker(new $class(...$config), $ttl);
+            return new CachedProfanityChecker($checker, $ttl);
         }
 
-        return new $class(...$config);
+        return new $checker;
     }
 }
