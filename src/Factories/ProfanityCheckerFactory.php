@@ -48,6 +48,6 @@ final readonly class ProfanityCheckerFactory
             return new CachedProfanityChecker($checker, $ttl);
         }
 
-        return new $checker;
+        return $checker;
     }
 }

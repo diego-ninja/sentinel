@@ -7,7 +7,7 @@ use Ninja\Censor\Support\TextAnalyzer;
 
 final readonly class VariationStrategy implements DetectionStrategy
 {
-    public function __construct(private string $replacer) {}
+    public function __construct(private string $replacer, private bool $fullWords = false) {}
 
     public function detect(string $text, array $words): array
     {
@@ -15,8 +15,12 @@ final readonly class VariationStrategy implements DetectionStrategy
         $clean = $text;
 
         foreach ($words as $badWord) {
-            $pattern = '/\b'.implode('\s+', str_split(preg_quote($badWord, '/'))).'\b/iu';
-
+            $pattern = implode('\s*', str_split(preg_quote($badWord, '/')));
+            if ($this->fullWords) {
+                $pattern = '/\b'.$pattern.'\b/iu';
+            } else {
+                $pattern = '/'.$pattern.'/iu';
+            }
             if (preg_match_all($pattern, $text, $found) !== false) {
                 foreach ($found[0] as $match) {
                     $matches[] = ['word' => $match, 'type' => 'variation'];

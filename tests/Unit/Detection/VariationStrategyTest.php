@@ -5,7 +5,7 @@ namespace Tests\Unit\Detection;
 use Ninja\Censor\Detection\VariationStrategy;
 
 test('variation strategy detects separated characters', function () {
-    $strategy = new VariationStrategy('*');
+    $strategy = new VariationStrategy('*', true);
     $result = $strategy->detect('f u c k this', ['fuck']);
 
     expect($result['matches'])
@@ -19,7 +19,7 @@ test('variation strategy detects separated characters', function () {
 });
 
 test('variation strategy handles multiple separators', function () {
-    $strategy = new VariationStrategy('*');
+    $strategy = new VariationStrategy('*', true);
     $variations = [
         'f.u.c.k',
         'f-u-c-k',
@@ -35,7 +35,7 @@ test('variation strategy handles multiple separators', function () {
 });
 
 test('variation strategy handles multiple spaces between characters', function () {
-    $strategy = new VariationStrategy('*');
+    $strategy = new VariationStrategy('*', true);
     $result = $strategy->detect('f  u  c  k', ['fuck']);
 
     expect($result['matches'])
@@ -44,7 +44,7 @@ test('variation strategy handles multiple spaces between characters', function (
 });
 
 test('variation strategy preserves other words', function () {
-    $strategy = new VariationStrategy('*');
+    $strategy = new VariationStrategy('*', true);
     $result = $strategy->detect('this f.u.c.k test', ['fuck']);
 
     expect($result['matches'])
