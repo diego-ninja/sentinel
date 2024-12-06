@@ -123,7 +123,7 @@ final class Censor implements ProfanityChecker
         $strategies = [
             new PatternStrategy($this->patterns, $this->replacer),
             new NGramStrategy($this->replacer),
-            new VariationStrategy($this->replacer),
+            new VariationStrategy($this->replacer, $fullWords),
             new RepeatedCharStrategy($this->replacer),
             new LevenshteinStrategy($this->replacer, $this->levenshtein_threshold),
         ];

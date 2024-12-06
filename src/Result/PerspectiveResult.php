@@ -33,7 +33,7 @@ final readonly class PerspectiveResult extends AbstractResult
         }
 
         return new self(
-            offensive: ($score ?? 0) > 0.7,
+            offensive: ($score ?? 0) > config('censor.threshold_score'),
             words: [],
             replaced: $text,
             original: $text,

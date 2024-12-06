@@ -58,6 +58,7 @@ The package configuration file will be published at `config/censor.php`. Here yo
 Some services require API keys. Add these to your `.env` file:
 
 ```env
+CENSOR_THRESHOLD_SCORE=0.5
 PERSPECTIVE_AI_API_KEY=your-perspective-api-key
 TISANE_AI_API_KEY=your-tisane-api-key
 AZURE_AI_API_KEY=your-azure-api-key
@@ -205,6 +206,22 @@ This ensures unique caching for:
 - Different services checking the same text
 - Same service checking different texts
 - Different environments using the same cache store
+
+## Detection Mechanism
+
+The local checker uses a multi-strategy approach to detect offensive content accurately. Each piece of text is processed through different detection strategies in sequence:
+
+1. **Pattern Strategy**: Handles exact matches and character substitutions (like '@' for 'a', '1' for 'i'). This is the primary detection method and uses precompiled regular expressions for efficiency.
+
+2. **NGram Strategy**: Detects offensive phrases by analyzing word combinations. Unlike single-word detection, this strategy can identify offensive content that spans multiple words.
+
+3. **Variation Strategy**: Catches attempts to evade detection through character separation (like 'f u c k' or 'f.u.c.k'). This strategy understands various separator patterns while respecting word boundaries.
+
+4. **Repeated Chars Strategy**: Identifies words with intentionally repeated characters (like 'fuuuck'). This helps catch common obfuscation techniques.
+
+5. **Levenshtein Strategy**: Uses string distance comparison to find words that are similar to offensive terms, helping catch typos and intentional misspellings.
+
+Each strategy can operate in either full word or partial matching mode, with full word mode ensuring that matches are not part of larger words (preventing false positives like 'class' matching 'ass'). Results from all strategies are combined, deduplicated, and scored based on the type and quantity of matches found.
 
 ## Custom Dictionaries
 

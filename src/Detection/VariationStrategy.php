@@ -15,12 +15,9 @@ final readonly class VariationStrategy implements DetectionStrategy
         $clean = $text;
 
         foreach ($words as $badWord) {
-            $pattern = implode('\s*', str_split(preg_quote($badWord, '/')));
-            if ($this->fullWords) {
-                $pattern = '/\b'.$pattern.'\b/iu';
-            } else {
-                $pattern = '/'.$pattern.'/iu';
-            }
+            $spacedPattern = implode('\s*', str_split(preg_quote($badWord, '/')));
+            $pattern = $this->fullWords ? '/\b'.$spacedPattern.'\b/iu' : '/'.$spacedPattern.'/iu';
+
             if (preg_match_all($pattern, $text, $found) !== false) {
                 foreach ($found[0] as $match) {
                     $matches[] = ['word' => $match, 'type' => 'variation'];
@@ -31,12 +28,11 @@ final readonly class VariationStrategy implements DetectionStrategy
                     );
                 }
             }
-        }
 
-        foreach ($words as $badWord) {
-            foreach (TextAnalyzer::getSeparatorVariations($badWord) as $variation) {
-                if (! str_contains($variation, ' ')) {
-                    if (mb_stripos($clean, $variation) !== false) {
+            if (! $this->fullWords) {
+                foreach (TextAnalyzer::getSeparatorVariations($badWord) as $variation) {
+                    if (! str_contains($variation, ' ') &&
+                        mb_stripos($clean, $variation) !== false) {
                         $matches[] = ['word' => $variation, 'type' => 'variation'];
                         $clean = str_replace(
                             $variation,

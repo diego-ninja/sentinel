@@ -48,7 +48,7 @@ final readonly class CensorResult extends AbstractResult
         $isOffensive = (
             count($words) > 0 && (
                 count($words) > 1 ||
-                ($score !== null && $score >= 0.5) ||
+                ($score !== null && $score >= config('censor.threshold_score')) ||
                 array_any($matchDetails, fn ($m) => in_array($m['type'], ['exact', 'ngram'], true))
             )
         );
