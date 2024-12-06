@@ -9,7 +9,7 @@ test('levenshtein strategy detects similar words', function () {
     $variations = [
         'fuk',
         'phuck',
-        'fück'
+        'fück',
     ];
 
     foreach ($variations as $text) {
@@ -17,7 +17,7 @@ test('levenshtein strategy detects similar words', function () {
         expect($result['matches'])
             ->toHaveCount(1)
             ->sequence(
-                fn($match) => $match
+                fn ($match) => $match
                     ->word->toBe($text)
                     ->type->toBe('levenshtein')
             );
@@ -59,7 +59,7 @@ test('levenshtein strategy preserves original case in matches', function () {
     expect($result['matches'])
         ->toHaveCount(2)
         ->sequence(
-            fn($match) => $match->word->toBe('FuK'),
-            fn($match) => $match->word->toBe('ShEt')
+            fn ($match) => $match->word->toBe('FuK'),
+            fn ($match) => $match->word->toBe('ShEt')
         );
 });

@@ -78,6 +78,7 @@ abstract class TestCase extends BaseTestCase
         $app->singleton('local', function () {
             /** @var array<string, string> $replacements */
             $replacements = config('censor.replacements');
+
             return new LocalCensor(new PatternGenerator($replacements), 1);
         });
 

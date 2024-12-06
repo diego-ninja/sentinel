@@ -13,7 +13,6 @@ return [
     */
     'threshold_score' => env('CENSOR_THRESHOLD_SCORE', 0.5),
 
-
     /*
     |--------------------------------------------------------------------------
     | Default language
