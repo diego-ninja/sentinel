@@ -3,6 +3,7 @@
 namespace Tests\Unit\EdgeCases;
 
 use Ninja\Censor\Checkers\Censor;
+use Ninja\Censor\Support\PatternGenerator;
 
 beforeEach(function () {
     config([
@@ -20,7 +21,7 @@ beforeEach(function () {
 });
 
 test('handles unicode characters correctly', function () {
-    $censor = new Censor;
+    $censor = new Censor(new PatternGenerator(config('censor.replacements')));
 
     $texts = [
         'fūćk' => 'fūćk',  // Not matched because ū,ć not in replacements
@@ -39,7 +40,7 @@ test('handles unicode characters correctly', function () {
 });
 
 test('handles emojis correctly', function () {
-    $censor = new Censor;
+    $censor = new Censor(new PatternGenerator(config('censor.replacements')));
 
     $texts = [
         'fuck 🤬' => '**** 🤬',
@@ -54,7 +55,8 @@ test('handles emojis correctly', function () {
 });
 
 test('handles zero-width characters', function () {
-    $censor = new Censor;
+    $censor = new Censor(new PatternGenerator(config('censor.replacements')));
+
     $text = "f\u{200B}u\u{200B}c\u{200B}k"; // Zero-width spaces between letters
 
     expect($censor->check($text)->offensive())->toBeTrue()
@@ -62,7 +64,7 @@ test('handles zero-width characters', function () {
 });
 
 test('handles mixed case with accents correctly', function () {
-    $censor = new Censor;
+    $censor = new Censor(new PatternGenerator(config('censor.replacements')));
 
     $texts = [
         'FüCk' => '****',
@@ -77,12 +79,12 @@ test('handles mixed case with accents correctly', function () {
 });
 
 test('respects word boundaries with unicode', function () {
-    $censor = new Censor;
+    $censor = new Censor(new PatternGenerator(config('censor.replacements')));
 
     $texts = [
-        'classification' => 'classification',  // Should not censor 'ass'
-        'räpeseed' => 'räpeseed',           // Should not censor 'rape'
         'scrapped' => 'scrapped',           // Should not censor 'crap'
+        'räpeseed' => 'räpeseed',           // Should not censor 'rape'
+        'classification' => 'classification',  // Should not censor 'ass'
     ];
 
     foreach ($texts as $input => $expected) {

@@ -4,8 +4,15 @@ namespace Ninja\Censor\Checkers;
 
 use Ninja\Censor\Contracts\ProfanityChecker;
 use Ninja\Censor\Contracts\Result;
+use Ninja\Censor\Detection\LevenshteinStrategy;
+use Ninja\Censor\Detection\NGramStrategy;
+use Ninja\Censor\Detection\PatternStrategy;
+use Ninja\Censor\Detection\RepeatedCharStrategy;
+use Ninja\Censor\Detection\VariationStrategy;
 use Ninja\Censor\Dictionary;
 use Ninja\Censor\Result\CensorResult;
+use Ninja\Censor\Support\PatternGenerator;
+use Ninja\Censor\Support\TextAnalyzer;
 use Ninja\Censor\Support\TextNormalizer;
 use Ninja\Censor\Whitelist;
 
@@ -25,7 +32,7 @@ final class Censor implements ProfanityChecker
 
     private Whitelist $whitelist;
 
-    public function __construct()
+    public function __construct(private readonly PatternGenerator $generator, private readonly int $levenshtein_threshold = 1)
     {
         /** @var string[] $whitelist */
         $whitelist = config('censor.whitelist', []);
@@ -46,19 +53,8 @@ final class Censor implements ProfanityChecker
 
     private function generatePatterns(bool $fullWords = false): void
     {
-        /** @var array<string, string> $replacements */
-        $replacements = config('censor.replacements', []);
-
-        $this->patterns = array_map(function ($word) use ($replacements, $fullWords) {
-            $escaped = preg_quote($word, '/');
-            $pattern = str_ireplace(
-                array_map(fn ($key) => preg_quote($key, '/'), array_keys($replacements)),
-                array_values($replacements),
-                $escaped
-            );
-
-            return $fullWords ? '/\b'.$pattern.'\b/iu' : '/'.$pattern.'/iu';
-        }, $this->words);
+        $this->generator->setFullWords($fullWords);
+        $this->patterns = $this->generator->forWords($this->words);
     }
 
     public function setDictionary(Dictionary $dictionary): self
@@ -95,11 +91,12 @@ final class Censor implements ProfanityChecker
     public function whitelist(array $list): self
     {
         $this->whitelist->add($list);
+
         return $this;
     }
 
     /**
-     * @return array<string, mixed>
+     * @return array{orig: string, clean: string, matched: array<int, string>, score?: float}
      */
     public function clean(string $string, bool $fullWords = false): array
     {
@@ -114,23 +111,57 @@ final class Censor implements ProfanityChecker
             'orig' => html_entity_decode($string),
             'clean' => '',
             'matched' => [],
+            'details' => [],
         ];
 
         $original = TextNormalizer::normalize($this->whitelist->replace($newstring['orig']));
-        $counter = 0;
+        $processedWords = [];
+        $allMatches = [];
+        $finalText = $original;
 
-        $newstring['clean'] = preg_replace_callback(
-            $this->patterns,
-            function ($matches) use (&$counter, &$newstring) {
-                $newstring['matched'][$counter++] = $matches[0];
+        // Configure detection strategies
+        $strategies = [
+            new PatternStrategy($this->patterns, $this->replacer),
+            new NGramStrategy($this->replacer),
+            new VariationStrategy($this->replacer, $fullWords),
+            new RepeatedCharStrategy($this->replacer),
+            new LevenshteinStrategy($this->replacer, $this->levenshtein_threshold),
+        ];
 
-                return str_repeat($this->replacer, mb_strlen($matches[0]));
-            },
-            $original
-        );
+        // Apply each detection strategy
+        foreach ($strategies as $strategy) {
+            $result = $strategy->detect($original, $this->words);
 
-        $newstring['clean'] = $this->whitelist->replace($newstring['clean'] ?? '', true);
-        $newstring['matched'] = array_unique($newstring['matched']);
+            // Filter out already processed words and censored content
+            $newMatches = array_filter(
+                $result['matches'],
+                function ($match) use ($processedWords) {
+                    return ! in_array($match['word'], $processedWords, true) &&
+                        ! str_contains($match['word'], $this->replacer);
+                }
+            );
+
+            if (count($newMatches) > 0) {
+                $allMatches = array_merge($allMatches, $newMatches);
+                $processedWords = array_merge(
+                    $processedWords,
+                    array_column($newMatches, 'word')
+                );
+
+                foreach ($newMatches as $match) {
+                    $finalText = str_replace(
+                        $match['word'],
+                        str_repeat($this->replacer, mb_strlen($match['word'])),
+                        $finalText
+                    );
+                }
+            }
+        }
+
+        $newstring['clean'] = $this->whitelist->replace($finalText, true);
+        $newstring['matched'] = array_values(array_unique($processedWords));
+        $newstring['details'] = $allMatches;
+        $newstring['score'] = TextAnalyzer::calculateScore($allMatches, $newstring['orig']);
 
         return $newstring;
     }
@@ -140,12 +171,5 @@ final class Censor implements ProfanityChecker
         $result = $this->clean($text);
 
         return CensorResult::fromResponse($text, $result);
-    }
-
-    public function setReplaceChar(string $replacer): self
-    {
-        $this->replacer = $replacer;
-
-        return $this;
     }
 }

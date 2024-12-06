@@ -14,5 +14,4 @@ parameters:
 
 includes:
     - vendor/phpstan/phpstan-deprecation-rules/rules.neon
-    - vendor/phpstan/phpstan-strict-rules/rules.neon
     - vendor/larastan/larastan/extension.neon

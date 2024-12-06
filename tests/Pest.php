@@ -46,7 +46,8 @@ function getTestDictionary(): array
 
 function createTestDictionaryFile(): string
 {
-    $path = sys_get_temp_dir() . '/test_dict.php';
-    file_put_contents($path, '<?php return ' . var_export(getTestDictionary(), true) . ';');
+    $path = sys_get_temp_dir().'/test_dict.php';
+    file_put_contents($path, '<?php return '.var_export(getTestDictionary(), true).';');
+
     return $path;
 }

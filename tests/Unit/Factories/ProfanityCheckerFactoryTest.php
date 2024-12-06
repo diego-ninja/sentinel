@@ -5,6 +5,7 @@ use Ninja\Censor\Checkers\Censor;
 use Ninja\Censor\Checkers\PerspectiveAI;
 use Ninja\Censor\Checkers\PurgoMalum;
 use Ninja\Censor\Checkers\TisaneAI;
+use Ninja\Censor\Decorators\CachedProfanityChecker;
 use Ninja\Censor\Enums\Service;
 use Ninja\Censor\Factories\ProfanityCheckerFactory;
 
@@ -12,6 +13,7 @@ test('factory creates correct service instances', function (Service $service, st
     $config = match ($service) {
         Service::Azure => ['endpoint' => 'test', 'key' => 'test', 'version' => '2024-09-01'],
         Service::Perspective, Service::Tisane => ['key' => 'test'],
+        Service::Local => ['levenshtein_threshold' => 1],
         default => []
     };
 
@@ -30,11 +32,12 @@ test('factory creates cached decorator when cache is enabled', function (Service
     $config = match ($service) {
         Service::Azure => ['endpoint' => 'test', 'key' => 'test', 'version' => '2024-09-01'],
         Service::Perspective, Service::Tisane => ['key' => 'test'],
+        Service::Local => ['levenshtein_threshold' => 1],
         default => []
     };
 
     $checker = ProfanityCheckerFactory::create($service, $config, true);
-    expect($checker)->toBeInstanceOf(\Ninja\Censor\Decorators\CachedProfanityChecker::class);
+    expect($checker)->toBeInstanceOf(CachedProfanityChecker::class);
 
 })->with([
     [Service::Local, Censor::class],

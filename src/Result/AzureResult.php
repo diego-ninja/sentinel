@@ -56,7 +56,7 @@ final readonly class AzureResult extends AbstractResult
         $confidence = count($confidences) > 0 ? array_sum($confidences) / count($confidences) : null;
 
         return new self(
-            offensive: $score >= 0.6 || count($words) > 0,
+            offensive: $score >= config('censor.threshold_score') || count($words) > 0,
             words: $words,
             replaced: self::clean($text, $words),
             original: $text,

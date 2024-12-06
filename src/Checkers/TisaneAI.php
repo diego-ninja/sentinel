@@ -35,6 +35,7 @@ final class TisaneAI extends AbstractProfanityChecker
                     'snippets' => true,
                     'abuse' => true,
                     'sentiment' => true,
+                    'document_sentiment' => true,
                     'profanity' => true,
                 ],
             ],

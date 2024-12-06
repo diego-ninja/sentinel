@@ -30,12 +30,14 @@ final readonly class TisaneResult extends AbstractResult
         /** @var string[] $categories */
         $categories = array_unique($categories);
 
+        $score = self::calculateScore($abuses);
+
         return new self(
-            offensive: count($words) > 0,
+            offensive: $score >= config('censor.threshold_score') || count($words) > 0,
             words: $words,
             replaced: self::clean($text, $words),
             original: $text,
-            score: self::calculateScore($abuses),
+            score: $score,
             confidence: null,
             categories: $categories
         );
