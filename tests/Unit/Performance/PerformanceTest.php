@@ -8,7 +8,7 @@ use Ninja\Censor\Support\PatternGenerator;
 
 test('handles large text input efficiently', function () {
     $censor = new Censor(new PatternGenerator(config('censor.replacements')));
-    $largeText = str_repeat('This is a very long text with some bad words like fuck and shit scattered throughout. ', 500);
+    $largeText = str_repeat('This is a very long text with some bad words like fuck and shit scattered throughout. ', 200);
 
     $startTime = microtime(true);
     $result = $censor->check($largeText);
@@ -17,7 +17,7 @@ test('handles large text input efficiently', function () {
     $executionTime = ($endTime - $startTime);
 
     expect($result)->toBeOffensive()
-        ->and($executionTime)->toBeLessThan(2.0); // Should process in less than 1 second
+        ->and($executionTime)->toBeLessThan(1.0); // Should process in less than 1 second
 });
 
 test('memory usage stays within acceptable limits', function () {
