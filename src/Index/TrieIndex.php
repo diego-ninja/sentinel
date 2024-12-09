@@ -6,13 +6,11 @@ use Generator;
 
 final class TrieIndex
 {
-    /**
-     * @var array<string, array<string, array<string, mixed>|bool>>
-     */
+    /** @var array<string, array<string, array<string, bool|array<string, bool|array<string, bool|array<string, bool>>>>>> */
     private array $root;
 
     /**
-     * @param  array<string>|Generator<string>  $words
+     * @param  array<int, string>|Generator<int, string>  $words
      */
     public function __construct(array|Generator $words = [])
     {
@@ -24,6 +22,7 @@ final class TrieIndex
 
     public function insert(string $word): void
     {
+        /** @var array<string, array<string, bool|array<string, bool|array<string, bool|array<string, bool>>>>> $node */
         $node = &$this->root;
         foreach (str_split(strtolower($word)) as $char) {
             if (! isset($node[$char])) {
@@ -68,7 +67,7 @@ final class TrieIndex
     }
 
     /**
-     * @param  array<string, array<string, mixed>|bool>  $node
+     * @param  array<string, bool|array<string, bool|array<string, bool|array<string, bool>>>>  $node
      * @param  array<int, string>  $words
      */
     private function collectWords(array $node, string $prefix, array &$words): void

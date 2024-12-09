@@ -36,6 +36,7 @@ final class TisaneResult extends AbstractResult
         $score = self::calculateScore($abuses);
 
         $builder = new ResultBuilder;
+
         return $builder
             ->withOriginalText($text)
             ->withOffensive($score->value() >= config('censor.threshold_score') || count($words) > 0)

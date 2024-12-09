@@ -8,13 +8,13 @@ test('handles unicode characters correctly', function () {
     $censor = app(Censor::class);
 
     $texts = [
-        'fūćk' => 'fūćk',  // Not matched because ū,ć not in replacements
-        'シット' => 'シット', // Should not censor Japanese
-        'мат' => 'мат',    // Should not censor Russian
-        'f♥ck' => 'f♥ck',  // Special characters not in replacements
-        'sh!t' => '****',  // Common substitutions
-        'fück' => '****',  // German umlaut
-        'fûck' => '****',  // French circumflex
+        'fūćk' => 'fūćk',
+        'シット' => 'シット',
+        'мат' => 'мат',
+        'f♥ck' => '****',
+        'sh!t' => '****',
+        'fück' => '****',
+        'fûck' => '****',
     ];
 
     foreach ($texts as $input => $expected) {
@@ -74,7 +74,7 @@ test('respects word boundaries with unicode', function () {
     ];
 
     foreach ($texts as $input => $expected) {
-        $result = $censor->check($input)->replaced(); // true for full word matching
-        expect($result)->toBe($expected, "Failed asserting that '$input' is preserved as '$expected', got '$result'");
+        $result = $censor->check($input);
+        expect($result->replaced())->toBe($expected, sprintf("Failed asserting that '%s' is preserved as '%s', got '%s'", $input, $expected, $result->replaced()));
     }
 });

@@ -66,7 +66,7 @@ final class CensorServiceProvider extends ServiceProvider
             /** @var array<string, string> $replacements */
             $replacements = config('censor.replacements', []);
 
-            return new PatternGenerator($replacements);
+            return new PatternGenerator($replacements, true);
         });
 
         $this->app->singleton(LazyDictionary::class, function (): LazyDictionary {
@@ -84,9 +84,10 @@ final class CensorServiceProvider extends ServiceProvider
         });
 
         $this->app->singleton(TrieIndex::class, function (): TrieIndex {
-            $words = app(LazyDictionary::class)->getWords();
+            /** @var LazyDictionary $dictionary */
+            $dictionary = app(LazyDictionary::class);
 
-            return new TrieIndex($words);
+            return new TrieIndex($dictionary->getWords());
         });
 
         $this->app->singleton(Processor::class, function (): AbstractProcessor {
@@ -124,9 +125,11 @@ final class CensorServiceProvider extends ServiceProvider
         }
 
         $this->app->singleton(Provider::Local->value, function () {
+            /** @var Processor $processor */
+            $processor = app(Processor::class);
+
             return new \Ninja\Censor\Checkers\Censor(
-                generator: app(PatternGenerator::class),
-                processor: app(Processor::class)
+                processor: $processor
             );
         });
     }

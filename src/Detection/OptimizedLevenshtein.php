@@ -23,7 +23,7 @@ final class OptimizedLevenshtein
     }
 
     /**
-     * @return array<string>
+     * @return array<array{word: string, distance: int}>
      */
     public function findSimilar(string $word, int $threshold): array
     {
@@ -55,17 +55,43 @@ final class OptimizedLevenshtein
         return $matches;
     }
 
+    private function uniLevenshtein(string $str1, string $str2): int
+    {
+        $s1 = mb_str_split($str1);
+        $s2 = mb_str_split($str2);
+
+        $m = count($s1);
+        $n = count($s2);
+
+        $d = array_fill(0, $m + 1, array_fill(0, $n + 1, 0));
+
+        for ($i = 1; $i <= $m; $i++) {
+            $d[$i][0] = $i;
+        }
+        for ($j = 1; $j <= $n; $j++) {
+            $d[0][$j] = $j;
+        }
+
+        for ($i = 1; $i <= $m; $i++) {
+            for ($j = 1; $j <= $n; $j++) {
+                $cost = (mb_strtolower($s1[$i - 1]) === mb_strtolower($s2[$j - 1])) ? 0 : 1;
+                $d[$i][$j] = min(
+                    $d[$i - 1][$j] + 1,     // deletion
+                    $d[$i][$j - 1] + 1,     // insertion
+                    $d[$i - 1][$j - 1] + $cost // substitution
+                );
+            }
+        }
+
+        return $d[$m][$n];
+    }
+
     public function distance(string $str1, string $str2): int
     {
         $key = $str1 < $str2 ? "$str1:$str2" : "$str2:$str1";
 
         if (! isset($this->cache[$key])) {
-            $lenDiff = abs(mb_strlen($str1) - mb_strlen($str2));
-            if ($lenDiff > 3) {
-                return $lenDiff;
-            }
-
-            $this->cache[$key] = levenshtein($str1, $str2);
+            $this->cache[$key] = $this->uniLevenshtein($str1, $str2);
         }
 
         return $this->cache[$key];

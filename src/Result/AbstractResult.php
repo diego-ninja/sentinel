@@ -64,7 +64,7 @@ abstract class AbstractResult implements Result
         return $this->categories ?? [];
     }
 
-    public function matches(): MatchCollection
+    public function matches(): ?MatchCollection
     {
         return $this->matches;
     }

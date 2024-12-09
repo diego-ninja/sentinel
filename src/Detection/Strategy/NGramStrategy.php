@@ -21,11 +21,16 @@ final readonly class NGramStrategy implements DetectionStrategy
             if (preg_match_all($pattern, mb_strtolower($text), $found, PREG_OFFSET_CAPTURE) !== false) {
                 foreach ($found[0] as $match) {
                     $originalText = substr($text, $match[1], strlen($match[0]));
-                    $matches->add(new Coincidence($originalText, MatchType::NGram));
+                    $matches->addCoincidence(new Coincidence($originalText, MatchType::NGram));
                 }
             }
         }
 
         return $matches;
+    }
+
+    public function weight(): float
+    {
+        return MatchType::NGram->weight();
     }
 }

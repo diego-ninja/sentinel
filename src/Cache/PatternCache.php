@@ -31,6 +31,7 @@ final class PatternCache
             $oldest = array_key_first(
                 array_filter(
                     $this->lastUsed,
+                    // @phpstan-ignore argument.type
                     fn ($time) => $time === min(array_values($this->lastUsed))
                 )
             );

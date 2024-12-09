@@ -22,17 +22,18 @@ final class AffixStrategy implements DetectionStrategy
     {
         $matches = new MatchCollection;
 
-        $textWords = array_unique(
-            preg_split('/\b|\s+/', $text, -1, PREG_SPLIT_NO_EMPTY)
-        );
+        $textWords = preg_split('/\b|\s+/', $text, -1, PREG_SPLIT_NO_EMPTY);
+        if (! $textWords) {
+            return $matches;
+        }
 
         $index = $this->buildIndex($words);
 
-        foreach ($textWords as $textWord) {
+        foreach (array_unique($textWords) as $textWord) {
             /** @var string $textWord */
             $lowerTextWord = mb_strtolower($textWord);
             if (isset($index[$lowerTextWord])) {
-                $matches->add(new Coincidence($textWord, MatchType::Variation));
+                $matches->addCoincidence(new Coincidence($textWord, MatchType::Variation));
             }
         }
 
@@ -65,18 +66,16 @@ final class AffixStrategy implements DetectionStrategy
     private function generateVariants(string $word): array
     {
         $variants = [];
+        $mb_word = mb_strtolower($word);
 
         foreach ($this->prefixes as $prefix) {
-            $variants[] = $prefix.$word;
-
-            foreach ($this->generateSuffixVariants($word) as $suffixVariant) {
+            $variants[] = $prefix.$mb_word;
+            foreach ($this->generateSuffixVariants($mb_word) as $suffixVariant) {
                 $variants[] = $prefix.$suffixVariant;
             }
         }
 
-        $variants = array_merge($variants, $this->generateSuffixVariants($word));
-
-        return array_unique($variants);
+        return array_merge($variants, $this->generateSuffixVariants($mb_word));
     }
 
     /**
@@ -130,5 +129,10 @@ final class AffixStrategy implements DetectionStrategy
         }
 
         return $this->cache[$key];
+    }
+
+    public function weight(): float
+    {
+        return MatchType::Variation->weight();
     }
 }

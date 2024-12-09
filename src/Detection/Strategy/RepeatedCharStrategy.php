@@ -27,7 +27,7 @@ final readonly class RepeatedCharStrategy implements DetectionStrategy
             if (preg_match_all($pattern, $text, $found) !== false) {
                 foreach ($found[0] as $match) {
                     if ($this->hasRepeatedChars($match)) {
-                        $matches->add(new Coincidence($match, MatchType::Repeated));
+                        $matches->addCoincidence(new Coincidence($match, MatchType::Repeated));
                     }
                 }
             }
@@ -39,5 +39,10 @@ final readonly class RepeatedCharStrategy implements DetectionStrategy
     private function hasRepeatedChars(string $text): bool
     {
         return (bool) preg_match('/(.)\1+/u', $text);
+    }
+
+    public function weight(): float
+    {
+        return MatchType::Repeated->weight();
     }
 }

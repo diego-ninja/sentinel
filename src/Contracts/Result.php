@@ -28,5 +28,5 @@ interface Result
      */
     public function categories(): array;
 
-    public function matches(): MatchCollection;
+    public function matches(): ?MatchCollection;
 }

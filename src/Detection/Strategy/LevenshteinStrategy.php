@@ -35,11 +35,16 @@ final readonly class LevenshteinStrategy implements DetectionStrategy
         foreach ($textWords as $textWord) {
             $similarWords = $levenshtein->findSimilar($textWord, $this->threshold);
             if (! empty($similarWords)) {
-                $matches->add(new Coincidence($textWord, MatchType::Levenshtein));
+                $matches->addCoincidence(new Coincidence($textWord, MatchType::Levenshtein));
             }
 
         }
 
         return $matches;
+    }
+
+    public function weight(): float
+    {
+        return MatchType::Levenshtein->weight();
     }
 }

@@ -8,19 +8,12 @@ use Ninja\Censor\Contracts\ProfanityChecker;
 use Ninja\Censor\Contracts\Result;
 use Ninja\Censor\Result\AbstractResult;
 use Ninja\Censor\Result\Builder\ResultBuilder;
-use Ninja\Censor\Support\PatternGenerator;
-use Ninja\Censor\Support\TextCleaner;
-use Ninja\Censor\ValueObject\Confidence;
-use Ninja\Censor\ValueObject\Score;
 
 final class Censor implements ProfanityChecker
 {
     private const CHUNK_SIZE = 1000;
 
-    private bool $fullWords = false;
-
     public function __construct(
-        private readonly PatternGenerator $generator,
         private readonly Processor $processor
     ) {}
 
@@ -34,13 +27,6 @@ final class Censor implements ProfanityChecker
         $results = $this->processor->process($chunks);
 
         return $this->mergeResults($results, $text);
-    }
-
-    public function setFullWords(bool $fullWords): self
-    {
-        $this->fullWords = $fullWords;
-
-        return $this;
     }
 
     /**
@@ -81,7 +67,7 @@ final class Censor implements ProfanityChecker
         $processedWords = [];
 
         foreach ($results as $result) {
-            $matches = $matches->merge($result->matches());
+            $matches = $matches->merge($result->matches() ?? new MatchCollection);
             $processedWords = array_merge($processedWords, $result->words());
         }
 

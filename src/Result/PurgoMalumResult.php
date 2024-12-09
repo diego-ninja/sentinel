@@ -13,7 +13,6 @@ final class PurgoMalumResult extends AbstractResult
          *     result: string
          * } $response
          */
-
         $builder = new ResultBuilder;
 
         return $builder

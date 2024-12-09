@@ -9,13 +9,13 @@ test('word variant strategy detects suffixes', function () {
     $suffixes = config('censor.suffixes');
     $prefixes = config('censor.prefixes');
 
-    $strategy = new AffixStrategy($prefixes,$suffixes);
+    $strategy = new AffixStrategy($prefixes, $suffixes);
     $variations = [
         'fucking',
         'fucked',
         'fucker',
         'fuckers',
-        'fucks'
+        'fucks',
     ];
 
     foreach ($variations as $text) {
@@ -34,13 +34,13 @@ test('word variant strategy detects prefixes', function () {
     $suffixes = config('censor.suffixes');
     $prefixes = config('censor.prefixes');
 
-    $strategy = new AffixStrategy($prefixes,$suffixes);
+    $strategy = new AffixStrategy($prefixes, $suffixes);
     $variations = [
         'unfuck',
         'refuck',
         'superfuck',
         'antifuck',
-        'outfuck'
+        'outfuck',
     ];
 
     foreach ($variations as $text) {
@@ -59,13 +59,13 @@ test('word variant strategy detects prefix-suffix combinations', function () {
     $suffixes = config('censor.suffixes');
     $prefixes = config('censor.prefixes');
 
-    $strategy = new AffixStrategy($prefixes,$suffixes);
+    $strategy = new AffixStrategy($prefixes, $suffixes);
     $variations = [
         'unfucking',
         'refucked',
         'superfucker',
         'antifuckers',
-        'outfucked'
+        'outfucked',
     ];
 
     foreach ($variations as $text) {
@@ -84,7 +84,7 @@ test('word variant strategy handles special ending rules', function () {
     $suffixes = config('censor.suffixes');
     $prefixes = config('censor.prefixes');
 
-    $strategy = new AffixStrategy($prefixes,$suffixes);
+    $strategy = new AffixStrategy($prefixes, $suffixes);
 
     $result = $strategy->detect('bitchiest', ['bitchy']);
     expect($result)
@@ -101,7 +101,7 @@ test('word variant strategy preserves case', function () {
     $suffixes = config('censor.suffixes');
     $prefixes = config('censor.prefixes');
 
-    $strategy = new AffixStrategy($prefixes,$suffixes);
+    $strategy = new AffixStrategy($prefixes, $suffixes);
 
     $text = 'UnFucking REFUCKED superFUCKER';
     $result = $strategy->detect($text, ['fuck']);
@@ -115,12 +115,11 @@ test('word variant strategy preserves case', function () {
         );
 });
 
-
 test('word variant strategy handles multiple words in text', function () {
     $suffixes = config('censor.suffixes');
     $prefixes = config('censor.prefixes');
 
-    $strategy = new AffixStrategy($prefixes,$suffixes);
+    $strategy = new AffixStrategy($prefixes, $suffixes);
 
     $text = 'unfucking shitting superfucker';
     $result = $strategy->detect($text, ['fuck', 'shit']);

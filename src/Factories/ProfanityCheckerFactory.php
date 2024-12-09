@@ -11,7 +11,6 @@ use Ninja\Censor\Contracts\Processor;
 use Ninja\Censor\Contracts\ProfanityChecker;
 use Ninja\Censor\Decorators\CachedProfanityChecker;
 use Ninja\Censor\Enums\Provider;
-use Ninja\Censor\Support\PatternGenerator;
 use RuntimeException;
 
 final readonly class ProfanityCheckerFactory
@@ -35,7 +34,7 @@ final readonly class ProfanityCheckerFactory
         }
 
         if ($service === Provider::Local) {
-            $checker = new $class(app(PatternGenerator::class), app(Processor::class));
+            $checker = new $class(app(Processor::class));
         } else {
             $checker = new $class(...$config);
         }

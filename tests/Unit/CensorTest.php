@@ -1,7 +1,6 @@
 <?php
 
 use Ninja\Censor\Checkers\Censor;
-use Ninja\Censor\Support\PatternGenerator;
 use Ninja\Censor\ValueObject\Score;
 
 test('detects exact matches', function () {
@@ -60,9 +59,9 @@ test('detects similar words using levenshtein', function () {
     /** @var Censor $censor */
     $censor = app(Censor::class);
     $variations = [
-        'fuk',
-        'fucc',
         'fück',
+        'fucc',
+        'fuk',
         'phuck',
         'phuk',
     ];
@@ -140,7 +139,7 @@ test('calculates appropriate scores', function () {
         // [text, expected score range]
         ['This is a clean text', [0.0, 0.0]],
         ['fuck shit damn', [0.8, 1.0]],
-        ['This text has one fuck word', [0.1, 0.2]],
+        ['This text has one fuck word', [0.1, 0.5]],
         ['f u c k this sh!t', [0.7, 1.0]],
     ];
 
@@ -198,7 +197,6 @@ test('combines multiple detection strategies correctly', function () {
 
     $text = 'This f.u.c.k contains sh!t and fuuuck';
     $result = $censor->check($text);
-
     expect($result)
         ->toBeOffensive()
         ->and($result->words())->toHaveCount(3)

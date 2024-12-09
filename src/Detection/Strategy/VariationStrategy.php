@@ -15,28 +15,39 @@ final readonly class VariationStrategy implements DetectionStrategy
     public function detect(string $text, iterable $words): MatchCollection
     {
         $matches = new MatchCollection;
-        $clean = $text;
 
         foreach ($words as $badWord) {
-            $spacedPattern = implode('\s*', str_split(preg_quote($badWord, '/')));
-            $pattern = $this->fullWords ? '/\b'.$spacedPattern.'\b/iu' : '/'.$spacedPattern.'/iu';
+            $chars = preg_split('//u', $badWord, -1, PREG_SPLIT_NO_EMPTY);
+            if ($chars === false) {
+                continue;
+            }
+
+            $pattern = '/\b'.implode('[\s\.\-_\/]*', array_map(
+                fn ($c) => preg_quote($c, '/'),
+                $chars
+            )).'\b/iu';
 
             if (preg_match_all($pattern, $text, $found) !== false) {
                 foreach ($found[0] as $match) {
-                    $matches->add(new Coincidence($match, MatchType::Variation));
+                    $matches->addCoincidence(new Coincidence($match, MatchType::Variation));
                 }
             }
 
             if (! $this->fullWords) {
                 foreach (TextAnalyzer::getSeparatorVariations($badWord) as $variation) {
                     if (! str_contains($variation, ' ') &&
-                        mb_stripos($clean, $variation) !== false) {
-                        $matches->add(new Coincidence($variation, MatchType::Variation));
+                        mb_stripos($text, $variation) !== false) {
+                        $matches->addCoincidence(new Coincidence($variation, MatchType::Variation));
                     }
                 }
             }
         }
 
         return $matches;
+    }
+
+    public function weight(): float
+    {
+        return MatchType::Variation->weight();
     }
 }

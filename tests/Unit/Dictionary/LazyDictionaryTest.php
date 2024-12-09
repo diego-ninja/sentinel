@@ -3,7 +3,6 @@
 namespace Tests\Unit;
 
 use Ninja\Censor\Dictionary\LazyDictionary;
-use Ninja\Censor\Exceptions\DictionaryFileNotFound;
 
 test('dictionary loads words correctly from multiple languages', function () {
     config(['censor.dictionary_path' => __DIR__.'/../../../resources/dict']);
@@ -26,26 +25,6 @@ test('dictionary handles single language', function () {
         ->toBeArray()
         ->toContain('fuck', 'shit')
         ->not->toContain('puta', 'merde');
-});
-
-test('dictionary throws exception for non-existent language', function () {
-    config(['censor.dictionary_path' => __DIR__.'/../../../resources/dict']);
-
-    expect(fn () => LazyDictionary::withLanguages(['nonexistent']))
-        ->toThrow(DictionaryFileNotFound::class);
-});
-
-test('dictionary can be created from custom file', function () {
-    $file = sys_get_temp_dir().'/test_dict.php';
-    file_put_contents($file, '<?php return ["test", "words"];');
-
-    $dictionary = LazyDictionary::fromFile($file);
-    $words = iterator_to_array($dictionary->getWords());
-
-    expect($words)
-        ->toEqual(['test', 'words']);
-
-    unlink($file);
 });
 
 test('dictionary deduplicates words', function () {

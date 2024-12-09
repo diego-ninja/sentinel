@@ -49,7 +49,7 @@ final readonly class PatternStrategy implements DetectionStrategy
 
                 if (preg_match_all($cachedPattern, $text, $found) > 0) {
                     foreach ($found[0] as $match) {
-                        $matches->add(new Coincidence($match, MatchType::Pattern));
+                        $matches->addCoincidence(new Coincidence($match, MatchType::Pattern));
                     }
                 }
             }
@@ -58,5 +58,10 @@ final readonly class PatternStrategy implements DetectionStrategy
         }
 
         return $matches;
+    }
+
+    public function weight(): float
+    {
+        return MatchType::Pattern->weight();
     }
 }

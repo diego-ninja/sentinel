@@ -27,6 +27,7 @@ final readonly class Coincidence
         $replacer = config('censor.mask_char', '*');
 
         $clean = $text;
+
         return str_replace(
             $this->word,
             str_repeat($replacer, mb_strlen($this->word)),

@@ -77,3 +77,19 @@ test('levenshtein strategy preserves original case in matches', function () {
             fn ($match) => $match->word->toBe('ShEt')
         );
 });
+
+test('levenshtein handles unicode chars', function () {
+    $strategy = new LevenshteinStrategy;
+
+    $variations = [
+        'fück' => true,
+        'føck' => true,
+        'f♥ck' => true,
+        'food' => false,
+    ];
+
+    foreach ($variations as $text => $shouldMatch) {
+        $result = $strategy->detect($text, ['fuck']);
+        expect($result->isEmpty())->toBe(! $shouldMatch);
+    }
+});

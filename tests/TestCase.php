@@ -11,7 +11,6 @@ use Ninja\Censor\Checkers\Censor as LocalCensor;
 use Ninja\Censor\Contracts\Processor;
 use Ninja\Censor\Contracts\ProfanityChecker;
 use Ninja\Censor\Processors\DefaultProcessor;
-use Ninja\Censor\Support\PatternGenerator;
 use Orchestra\Testbench\TestCase as BaseTestCase;
 
 abstract class TestCase extends BaseTestCase
@@ -83,7 +82,6 @@ abstract class TestCase extends BaseTestCase
             $replacements = config('censor.replacements');
 
             return new LocalCensor(
-                app(PatternGenerator::class),
                 app(Processor::class)
             );
         });

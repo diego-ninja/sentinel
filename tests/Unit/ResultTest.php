@@ -6,7 +6,6 @@ use Ninja\Censor\Result\AbstractResult;
 test('censor result provides all required information', function () {
     $censor = app(Censor::class);
     $result = $censor->check('fuck this shit');
-
     expect($result)
         ->toBeInstanceOf(AbstractResult::class)
         ->toBeOffensive()

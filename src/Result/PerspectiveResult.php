@@ -37,6 +37,7 @@ final class PerspectiveResult extends AbstractResult
         }
 
         $builder = new ResultBuilder;
+
         return $builder
             ->withOriginalText($text)
             ->withOffensive(($score ?? 0) > config('censor.threshold_score'))

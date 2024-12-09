@@ -81,18 +81,4 @@ final class LazyDictionary
     {
         return new self($languages);
     }
-
-    /**
-     * @param  string|string[]  $file
-     */
-    public static function fromFile(string|array $file): self
-    {
-        $path = is_array($file) ? implode(DIRECTORY_SEPARATOR, $file) : $file;
-
-        if (! file_exists($path)) {
-            throw DictionaryFileNotFound::withFile($path);
-        }
-
-        return new self(['custom'], dirname($path), basename($path));
-    }
 }

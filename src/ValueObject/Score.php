@@ -4,6 +4,7 @@ namespace Ninja\Censor\ValueObject;
 
 use InvalidArgumentException;
 use Ninja\Censor\Collections\MatchCollection;
+use Ninja\Censor\Enums\MatchType;
 
 final readonly class Score
 {
@@ -43,8 +44,16 @@ final readonly class Score
             }
 
             $coveredWords = array_merge($coveredWords, $words);
-            $typeWeight = $match->type->weight();
-            $lengthMultiplier = count($words) > 1 ? 1.2 : 1.0;
+
+            $typeWeight = match ($match->type) {
+                MatchType::Exact => 2.0,
+                MatchType::Trie => 1.8,
+                MatchType::Pattern => 1.5,
+                MatchType::NGram => 1.3,
+                default => $match->type->weight()
+            };
+
+            $lengthMultiplier = count($words) > 1 ? 1.5 : 1.2;
             $weightedScore += $typeWeight * $lengthMultiplier * count($words);
             $offensiveWords += count($words);
         }
@@ -54,7 +63,7 @@ final readonly class Score
         }
 
         $baseScore = $weightedScore / max($totalWords, 1);
-        $densityMultiplier = min(1.5, 1 + ($offensiveWords / max($totalWords, 1)));
+        $densityMultiplier = min(2.0, 1 + ($offensiveWords / max($totalWords, 1)));
 
         return new self(min(1.0, $baseScore * $densityMultiplier));
     }

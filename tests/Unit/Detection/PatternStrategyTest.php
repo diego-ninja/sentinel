@@ -76,3 +76,20 @@ test('pattern strategy validates all patterns on construction', function () {
     ], '*'))
         ->toThrow(InvalidArgumentException::class);
 });
+
+test('pattern strategy handles unicode and special chars', function () {
+    $patterns = ['/f(u|ü|ù)ck/iu'];
+    $strategy = new PatternStrategy($patterns);
+
+    $variations = [
+        'fück' => true,
+        'fùck' => true,
+        'føck' => false,
+        'f♥ck' => false,
+    ];
+
+    foreach ($variations as $text => $shouldMatch) {
+        $result = $strategy->detect($text, ['fuck']);
+        expect($result->isEmpty())->toBe(! $shouldMatch);
+    }
+});
