@@ -2,7 +2,11 @@
 
 namespace Ninja\Censor\Result;
 
-final readonly class PerspectiveResult extends AbstractResult
+use Ninja\Censor\Result\Builder\ResultBuilder;
+use Ninja\Censor\ValueObject\Confidence;
+use Ninja\Censor\ValueObject\Score;
+
+final class PerspectiveResult extends AbstractResult
 {
     public static function fromResponse(string $text, array $response): AbstractResult
     {
@@ -32,14 +36,16 @@ final readonly class PerspectiveResult extends AbstractResult
             }
         }
 
-        return new self(
-            offensive: ($score ?? 0) > config('censor.threshold_score'),
-            words: [],
-            replaced: $text,
-            original: $text,
-            score: $score,
-            confidence: $confidence,
-            categories: $categories
-        );
+        $builder = new ResultBuilder;
+        return $builder
+            ->withOriginalText($text)
+            ->withOffensive(($score ?? 0) > config('censor.threshold_score'))
+            ->withWords([])
+            ->withReplaced($text)
+            ->withScore(new Score($score ?? 0))
+            ->withConfidence(new Confidence($confidence ?? 0))
+            ->withCategories($categories)
+            ->build();
+
     }
 }

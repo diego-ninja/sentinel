@@ -2,7 +2,11 @@
 
 namespace Ninja\Censor\Result;
 
-final readonly class AzureResult extends AbstractResult
+use Ninja\Censor\Result\Builder\ResultBuilder;
+use Ninja\Censor\ValueObject\Confidence;
+use Ninja\Censor\ValueObject\Score;
+
+final class AzureResult extends AbstractResult
 {
     private const SEVERITY_THRESHOLDS = [
         'Safe' => 0,
@@ -35,6 +39,8 @@ final readonly class AzureResult extends AbstractResult
         $categories = [];
         $maxSeverity = 0;
 
+        $builder = new ResultBuilder;
+
         foreach ($response['categoriesAnalysis'] ?? [] as $category) {
             $severity = self::SEVERITY_THRESHOLDS[$category['severity']] ?? 0;
 
@@ -50,19 +56,19 @@ final readonly class AzureResult extends AbstractResult
             $response['blocklistsMatch'] ?? []
         );
 
-        $score = $maxSeverity / 6;
+        $score = new Score($maxSeverity / 6);
 
         $confidences = array_column($response['categoriesAnalysis'] ?? [], 'confidence');
-        $confidence = count($confidences) > 0 ? array_sum($confidences) / count($confidences) : null;
+        $confidence = count($confidences) > 0 ? new Confidence(array_sum($confidences) / count($confidences)) : null;
 
-        return new self(
-            offensive: $score >= config('censor.threshold_score') || count($words) > 0,
-            words: $words,
-            replaced: self::clean($text, $words),
-            original: $text,
-            score: $score,
-            confidence: $confidence,
-            categories: $categories
-        );
+        return $builder
+            ->withOriginalText($text)
+            ->withReplaced(self::clean($text, $words))
+            ->withScore($score)
+            ->withConfidence($confidence)
+            ->withCategories($categories)
+            ->withOffensive($score->value() >= config('censor.threshold_score') || count($words) > 0)
+            ->withWords($words)
+            ->build();
     }
 }

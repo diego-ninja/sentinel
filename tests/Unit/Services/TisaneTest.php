@@ -34,7 +34,7 @@ test('tisane detects abuse and profanity', function () {
         ->toBeOffensive()
         ->and($result->categories())->toContain('hate_speech', 'profanity')
         ->and($result->words())->toContain('offensive', 'badword')
-        ->and($result->score())->toBeGreaterThan(0.7);
+        ->and($result->score()->value())->toBeGreaterThan(0.7);
 });
 
 test('tisane handles clean content', function () {
@@ -54,5 +54,5 @@ test('tisane handles clean content', function () {
         ->toBeClean()
         ->and($result->categories())->toBeEmpty()
         ->and($result->words())->toBeEmpty()
-        ->and($result->score())->toBe(0.0);
+        ->and($result->score()->value())->toBe(0.0);
 });

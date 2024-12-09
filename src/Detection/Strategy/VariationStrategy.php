@@ -1,17 +1,20 @@
 <?php
 
-namespace Ninja\Censor\Detection;
+namespace Ninja\Censor\Detection\Strategy;
 
+use Ninja\Censor\Collections\MatchCollection;
 use Ninja\Censor\Contracts\DetectionStrategy;
+use Ninja\Censor\Enums\MatchType;
 use Ninja\Censor\Support\TextAnalyzer;
+use Ninja\Censor\ValueObject\Coincidence;
 
 final readonly class VariationStrategy implements DetectionStrategy
 {
-    public function __construct(private string $replacer, private bool $fullWords = false) {}
+    public function __construct(private bool $fullWords = false) {}
 
-    public function detect(string $text, array $words): array
+    public function detect(string $text, iterable $words): MatchCollection
     {
-        $matches = [];
+        $matches = new MatchCollection;
         $clean = $text;
 
         foreach ($words as $badWord) {
@@ -20,12 +23,7 @@ final readonly class VariationStrategy implements DetectionStrategy
 
             if (preg_match_all($pattern, $text, $found) !== false) {
                 foreach ($found[0] as $match) {
-                    $matches[] = ['word' => $match, 'type' => 'variation'];
-                    $clean = str_replace(
-                        $match,
-                        str_repeat($this->replacer, mb_strlen($match)),
-                        $clean
-                    );
+                    $matches->add(new Coincidence($match, MatchType::Variation));
                 }
             }
 
@@ -33,20 +31,12 @@ final readonly class VariationStrategy implements DetectionStrategy
                 foreach (TextAnalyzer::getSeparatorVariations($badWord) as $variation) {
                     if (! str_contains($variation, ' ') &&
                         mb_stripos($clean, $variation) !== false) {
-                        $matches[] = ['word' => $variation, 'type' => 'variation'];
-                        $clean = str_replace(
-                            $variation,
-                            str_repeat($this->replacer, mb_strlen($variation)),
-                            $clean
-                        );
+                        $matches->add(new Coincidence($variation, MatchType::Variation));
                     }
                 }
             }
         }
 
-        return [
-            'clean' => $clean,
-            'matches' => $matches,
-        ];
+        return $matches;
     }
 }

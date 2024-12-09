@@ -1,5 +1,7 @@
 <?php
 
+use Ninja\Censor\Processors\DefaultProcessor;
+
 return [
 
     /*
@@ -42,7 +44,7 @@ return [
     | Define the default profanity service to use
     |
     */
-    'default_service' => \Ninja\Censor\Enums\Service::PurgoMalum,
+    'default_service' => \Ninja\Censor\Enums\Provider::Local,
 
     /*
     |--------------------------------------------------------------------------
@@ -95,6 +97,71 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Word suffixes
+    |--------------------------------------------------------------------------
+    |
+    | Define the list of word suffixes used to generate the regular expression
+    | to match the profanity
+    |
+    */
+    'suffixes' => [
+        'ing',
+        'ed',
+        'er',
+        's',
+        'ers',
+        "'s",
+        'es',
+        'est',
+        'ly',
+        'ier',
+        'iest',
+    ],
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Word prefixes
+    |--------------------------------------------------------------------------
+    |
+    | Define the list of word prefixes used to generate the regular expression
+    | to match the profanity
+    |
+    */
+    'prefixes' => [
+        'un',
+        're',
+        'dis',
+        'mis',
+        'pre',
+        'over',
+        'under',
+        'sub',
+        'super',
+        'anti',
+        'auto',
+        'bi',
+        'co',
+        'de',
+        'en',
+        'ex',
+        'fore',
+        'in',
+        'inter',
+        'mid',
+        'non',
+        'out',
+        'post',
+        'semi',
+        'tri',
+        'un',
+        'under',
+        'up',
+        'with',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Whitelisted words
     |--------------------------------------------------------------------------
     |
@@ -137,6 +204,7 @@ return [
         'purgomalum' => [],
         'local' => [
             'levenshtein_threshold' => env('CENSOR_LEVENSHTEIN_THRESHOLD', 1),
+            'processor' => \Ninja\Censor\Processors\OctaneProcessor::class,
         ],
     ],
 

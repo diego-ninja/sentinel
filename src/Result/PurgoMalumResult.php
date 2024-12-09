@@ -2,24 +2,26 @@
 
 namespace Ninja\Censor\Result;
 
-final readonly class PurgoMalumResult extends AbstractResult
+use Ninja\Censor\Result\Builder\ResultBuilder;
+
+final class PurgoMalumResult extends AbstractResult
 {
-    public static function fromResponse(string $text, array $response): self
+    public static function fromResponse(string $text, array $response): AbstractResult
     {
         /**
          * @var array{
          *     result: string
          * } $response
          */
-        return new self(
-            offensive: $text !== $response['result'],
-            words: self::extractWords($text, $response['result']),
-            replaced: $response['result'],
-            original: $text,
-            score: null,
-            confidence: null,
-            categories: null
-        );
+
+        $builder = new ResultBuilder;
+
+        return $builder
+            ->withOriginalText($text)
+            ->withOffensive($text !== $response['result'])
+            ->withWords(self::extractWords($text, $response['result']))
+            ->withReplaced($response['result'])
+            ->build();
     }
 
     /**

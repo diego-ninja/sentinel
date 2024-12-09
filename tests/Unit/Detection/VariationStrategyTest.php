@@ -2,24 +2,25 @@
 
 namespace Tests\Unit\Detection;
 
-use Ninja\Censor\Detection\VariationStrategy;
+use Ninja\Censor\Detection\Strategy\VariationStrategy;
+use Ninja\Censor\Enums\MatchType;
 
 test('variation strategy detects separated characters', function () {
-    $strategy = new VariationStrategy('*', false);
+    $strategy = new VariationStrategy(false);
     $result = $strategy->detect('f u c k this', ['fuck']);
 
-    expect($result['matches'])
+    expect($result)
         ->toHaveCount(1)
         ->sequence(
             fn ($match) => $match
                 ->word->toBe('f u c k')
-                ->type->toBe('variation')
-        )
-        ->and($result['clean'])->toBe('******* this');
+                ->type->toBe(MatchType::Variation)
+        );
+
 });
 
 test('variation strategy handles multiple separators', function () {
-    $strategy = new VariationStrategy('*', false);
+    $strategy = new VariationStrategy(false);
     $variations = [
         'f.u.c.k',
         'f-u-c-k',
@@ -28,26 +29,23 @@ test('variation strategy handles multiple separators', function () {
 
     foreach ($variations as $text) {
         $result = $strategy->detect($text, ['fuck']);
-        expect($result['matches'])
-            ->toHaveCount(1)
-            ->and($result['clean'])->toBe(str_repeat('*', strlen($text)));
+        expect($result)
+            ->toHaveCount(1);
     }
 });
 
 test('variation strategy handles multiple spaces between characters', function () {
-    $strategy = new VariationStrategy('*', false);
+    $strategy = new VariationStrategy(false);
     $result = $strategy->detect('f  u  c  k', ['fuck']);
 
-    expect($result['matches'])
-        ->toHaveCount(1)
-        ->and($result['clean'])->toBe('**********');
+    expect($result)
+        ->toHaveCount(1);
 });
 
 test('variation strategy preserves other words', function () {
-    $strategy = new VariationStrategy('*', false);
+    $strategy = new VariationStrategy(false);
     $result = $strategy->detect('this f.u.c.k test', ['fuck']);
 
-    expect($result['matches'])
-        ->toHaveCount(1)
-        ->and($result['clean'])->toBe('this ******* test');
+    expect($result)
+        ->toHaveCount(1);
 });

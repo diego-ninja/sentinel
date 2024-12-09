@@ -2,174 +2,96 @@
 
 namespace Ninja\Censor\Checkers;
 
+use Ninja\Censor\Collections\MatchCollection;
+use Ninja\Censor\Contracts\Processor;
 use Ninja\Censor\Contracts\ProfanityChecker;
 use Ninja\Censor\Contracts\Result;
-use Ninja\Censor\Detection\LevenshteinStrategy;
-use Ninja\Censor\Detection\NGramStrategy;
-use Ninja\Censor\Detection\PatternStrategy;
-use Ninja\Censor\Detection\RepeatedCharStrategy;
-use Ninja\Censor\Detection\VariationStrategy;
-use Ninja\Censor\Dictionary;
-use Ninja\Censor\Result\CensorResult;
+use Ninja\Censor\Result\AbstractResult;
+use Ninja\Censor\Result\Builder\ResultBuilder;
 use Ninja\Censor\Support\PatternGenerator;
-use Ninja\Censor\Support\TextAnalyzer;
-use Ninja\Censor\Support\TextNormalizer;
-use Ninja\Censor\Whitelist;
+use Ninja\Censor\Support\TextCleaner;
+use Ninja\Censor\ValueObject\Confidence;
+use Ninja\Censor\ValueObject\Score;
 
 final class Censor implements ProfanityChecker
 {
-    /**
-     * @var string[]
-     */
-    private array $words = [];
+    private const CHUNK_SIZE = 1000;
 
-    private string $replacer;
+    private bool $fullWords = false;
 
-    /**
-     * @var array<string>
-     */
-    private array $patterns = [];
-
-    private Whitelist $whitelist;
-
-    public function __construct(private readonly PatternGenerator $generator, private readonly int $levenshtein_threshold = 1)
-    {
-        /** @var string[] $whitelist */
-        $whitelist = config('censor.whitelist', []);
-        $this->whitelist = (new Whitelist)->add($whitelist);
-
-        /** @var string $replaceChar */
-        $replaceChar = config('censor.mask_char', '*');
-        $this->replacer = $replaceChar;
-
-        /** @var string[] $languages */
-        $languages = config('censor.languages', [config('app.locale')]);
-        foreach ($languages as $language) {
-            $this->addDictionary(Dictionary::withLanguage($language));
-        }
-
-        $this->generatePatterns();
-    }
-
-    private function generatePatterns(bool $fullWords = false): void
-    {
-        $this->generator->setFullWords($fullWords);
-        $this->patterns = $this->generator->forWords($this->words);
-    }
-
-    public function setDictionary(Dictionary $dictionary): self
-    {
-        $this->words = $dictionary->words();
-        $this->generatePatterns();
-
-        return $this;
-    }
-
-    public function addDictionary(Dictionary $dictionary): self
-    {
-        $this->words = array_merge($this->words, $dictionary->words());
-        $this->words = array_unique($this->words);
-        $this->generatePatterns();
-
-        return $this;
-    }
-
-    /**
-     * @param  string[]  $words
-     */
-    public function addWords(array $words): self
-    {
-        $this->words = array_unique(array_merge($this->words, $words));
-        $this->generatePatterns();
-
-        return $this;
-    }
-
-    /**
-     * @param  string[]  $list
-     */
-    public function whitelist(array $list): self
-    {
-        $this->whitelist->add($list);
-
-        return $this;
-    }
-
-    /**
-     * @return array{orig: string, clean: string, matched: array<int, string>, score?: float}
-     */
-    public function clean(string $string, bool $fullWords = false): array
-    {
-        $currentPattern = $this->patterns[0] ?? '';
-        $isCurrentlyFullWords = str_contains($currentPattern, '\b');
-
-        if ($fullWords !== $isCurrentlyFullWords) {
-            $this->generatePatterns($fullWords);
-        }
-
-        $newstring = [
-            'orig' => html_entity_decode($string),
-            'clean' => '',
-            'matched' => [],
-            'details' => [],
-        ];
-
-        $original = TextNormalizer::normalize($this->whitelist->replace($newstring['orig']));
-        $processedWords = [];
-        $allMatches = [];
-        $finalText = $original;
-
-        // Configure detection strategies
-        $strategies = [
-            new PatternStrategy($this->patterns, $this->replacer),
-            new NGramStrategy($this->replacer),
-            new VariationStrategy($this->replacer, $fullWords),
-            new RepeatedCharStrategy($this->replacer),
-            new LevenshteinStrategy($this->replacer, $this->levenshtein_threshold),
-        ];
-
-        // Apply each detection strategy
-        foreach ($strategies as $strategy) {
-            $result = $strategy->detect($original, $this->words);
-
-            // Filter out already processed words and censored content
-            $newMatches = array_filter(
-                $result['matches'],
-                function ($match) use ($processedWords) {
-                    return ! in_array($match['word'], $processedWords, true) &&
-                        ! str_contains($match['word'], $this->replacer);
-                }
-            );
-
-            if (count($newMatches) > 0) {
-                $allMatches = array_merge($allMatches, $newMatches);
-                $processedWords = array_merge(
-                    $processedWords,
-                    array_column($newMatches, 'word')
-                );
-
-                foreach ($newMatches as $match) {
-                    $finalText = str_replace(
-                        $match['word'],
-                        str_repeat($this->replacer, mb_strlen($match['word'])),
-                        $finalText
-                    );
-                }
-            }
-        }
-
-        $newstring['clean'] = $this->whitelist->replace($finalText, true);
-        $newstring['matched'] = array_values(array_unique($processedWords));
-        $newstring['details'] = $allMatches;
-        $newstring['score'] = TextAnalyzer::calculateScore($allMatches, $newstring['orig']);
-
-        return $newstring;
-    }
+    public function __construct(
+        private readonly PatternGenerator $generator,
+        private readonly Processor $processor
+    ) {}
 
     public function check(string $text): Result
     {
-        $result = $this->clean($text);
+        if (mb_strlen($text) < self::CHUNK_SIZE) {
+            return $this->processor->process([$text])[0];
+        }
 
-        return CensorResult::fromResponse($text, $result);
+        $chunks = $this->split($text);
+        $results = $this->processor->process($chunks);
+
+        return $this->mergeResults($results, $text);
+    }
+
+    public function setFullWords(bool $fullWords): self
+    {
+        $this->fullWords = $fullWords;
+
+        return $this;
+    }
+
+    /**
+     * @return array<string>
+     */
+    private function split(string $text): array
+    {
+        $sentences = preg_split('/(?<=[.!?])\s+/', $text, -1, PREG_SPLIT_NO_EMPTY);
+        if (! $sentences) {
+            return [$text];
+        }
+
+        $chunks = [];
+        $currentChunk = '';
+
+        foreach ($sentences as $sentence) {
+            if (mb_strlen($currentChunk.$sentence) > self::CHUNK_SIZE) {
+                $chunks[] = trim($currentChunk);
+                $currentChunk = $sentence;
+            } else {
+                $currentChunk .= ' '.$sentence;
+            }
+        }
+
+        if (! empty($currentChunk)) {
+            $chunks[] = trim($currentChunk);
+        }
+
+        return $chunks;
+    }
+
+    /**
+     * @param  array<AbstractResult>  $results
+     */
+    private function mergeResults(array $results, string $originalText): Result
+    {
+        $matches = new MatchCollection;
+        $processedWords = [];
+
+        foreach ($results as $result) {
+            $matches = $matches->merge($result->matches());
+            $processedWords = array_merge($processedWords, $result->words());
+        }
+
+        return (new ResultBuilder)
+            ->withOriginalText($originalText)
+            ->withWords(array_unique($processedWords))
+            ->withReplaced($matches->clean($originalText))
+            ->withScore($matches->score($originalText))
+            ->withOffensive(! $matches->isEmpty())
+            ->withConfidence($matches->confidence())
+            ->build();
     }
 }

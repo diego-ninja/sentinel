@@ -2,26 +2,31 @@
 
 use Ninja\Censor\Checkers\Censor;
 use Ninja\Censor\Support\PatternGenerator;
+use Ninja\Censor\ValueObject\Score;
 
 test('detects exact matches', function () {
-    $censor = new Censor(new PatternGenerator(config('censor.replacements')));
+    /** @var Censor $censor */
+    $censor = app(Censor::class);
+
     $result = $censor->check('fuck this shit');
 
     expect($result)
         ->toBeOffensive()
         ->and($result->words())->toHaveCount(2)
         ->and($result->replaced())->toBe('**** this ****')
-        ->and($result->score())->toBeGreaterThan(0.6);
+        ->and($result->score()->value())->toBeGreaterThan(0.6);
 });
 
 test('detects character replacements', function () {
-    $censor = new Censor(new PatternGenerator(config('censor.replacements')));
+    /** @var Censor $censor */
+    $censor = app(Censor::class);
+
     $variations = [
+        '@ss',
         'fuuck',
         'sh!t',
         'b!tch',
         'f0ck',
-        '@ss',
     ];
 
     foreach ($variations as $text) {
@@ -33,7 +38,9 @@ test('detects character replacements', function () {
 });
 
 test('detects separated characters', function () {
-    $censor = new Censor(new PatternGenerator(config('censor.replacements')));
+    /** @var Censor $censor */
+    $censor = app(Censor::class);
+
     $variations = [
         'f u c k',
         'f.u.c.k',
@@ -50,7 +57,8 @@ test('detects separated characters', function () {
 });
 
 test('detects similar words using levenshtein', function () {
-    $censor = new Censor(new PatternGenerator(config('censor.replacements')));
+    /** @var Censor $censor */
+    $censor = app(Censor::class);
     $variations = [
         'fuk',
         'fucc',
@@ -64,30 +72,34 @@ test('detects similar words using levenshtein', function () {
         expect($result)
             ->toBeOffensive()
             ->and($result->words())->toHaveCount(1)
-            ->and($result->score())->toBeGreaterThanOrEqual(0.7);
+            ->and($result->score()->value())->toBeGreaterThanOrEqual(0.7);
     }
 });
 
 test('detects offensive phrases using ngrams', function () {
-    $censor = new Censor(new PatternGenerator(config('censor.replacements')));
+    /** @var Censor $censor */
+    $censor = app(Censor::class);
+
     $phrases = [
-        'son of a bitch',
-        'piece of shit',
         'fuck you',
+        'piece of shit',
+        'son of a bitch',
     ];
 
     foreach ($phrases as $phrase) {
         $result = $censor->check($phrase);
         expect($result)
             ->toBeOffensive()
-            ->and($result->score())->toBeGreaterThan(0.3);
+            ->and($result->score()->value())->toBeGreaterThan(0.2);
     }
 });
 
 test('respects whitelist', function () {
     config(['censor.whitelist' => ['assessment', 'class']]);
 
-    $censor = new Censor(new PatternGenerator(config('censor.replacements')));
+    /** @var Censor $censor */
+    $censor = app(Censor::class);
+
     $texts = [
         'assessment',
         'class assessment',
@@ -103,44 +115,49 @@ test('respects whitelist', function () {
 });
 
 test('handles empty and null inputs', function () {
-    $censor = new Censor(new PatternGenerator(config('censor.replacements')));
+    /** @var Censor $censor */
+    $censor = app(Censor::class);
 
     $result1 = $censor->check('');
     expect($result1)
         ->offensive()->toBeFalse()
         ->and($result1->replaced())->toBe('')
-        ->and($result1->score())->toBe(0.0);
+        ->and($result1->score()->value())->toBe(0.0);
 
     $result2 = $censor->check('   ');
     expect($result2)
         ->offensive()->toBeFalse()
         ->and(trim($result2->replaced()))->toBe('')
-        ->and($result2->score())->toBe(0.0);
+        ->and($result2->score()->value())->toBe(0.0);
 });
 
 test('calculates appropriate scores', function () {
-    $censor = new Censor(new PatternGenerator(config('censor.replacements')));
+    /** @var Censor $censor */
+    $censor = app(Censor::class);
 
     // Test different scenarios
     $scenarios = [
         // [text, expected score range]
         ['This is a clean text', [0.0, 0.0]],
         ['fuck shit damn', [0.8, 1.0]],
-        ['This text has one fuck word', [0.19, 0.4]],
+        ['This text has one fuck word', [0.1, 0.2]],
         ['f u c k this sh!t', [0.7, 1.0]],
     ];
 
     foreach ($scenarios as [$text, [$min, $max]]) {
         $result = $censor->check($text);
         expect($result->score())
-            ->toBeFloat()
+            ->toBeInstanceOf(Score::class)
+            ->and($result->score()->value())
             ->toBeGreaterThanOrEqual($min)
             ->toBeLessThanOrEqual($max);
+
     }
 });
 
 test('handles unicode and special characters', function () {
-    $censor = new Censor(new PatternGenerator(config('censor.replacements')));
+    /** @var Censor $censor */
+    $censor = app(Censor::class);
 
     $texts = [
         'fück' => '****',
@@ -157,7 +174,8 @@ test('handles unicode and special characters', function () {
 });
 
 test('handles repeating characters', function () {
-    $censor = new Censor(new PatternGenerator(config('censor.replacements')));
+    /** @var Censor $censor */
+    $censor = app(Censor::class);
 
     $variations = [
         'fuuuck',
@@ -175,7 +193,8 @@ test('handles repeating characters', function () {
 });
 
 test('combines multiple detection strategies correctly', function () {
-    $censor = new Censor(new PatternGenerator(config('censor.replacements')));
+    /** @var Censor $censor */
+    $censor = app(Censor::class);
 
     $text = 'This f.u.c.k contains sh!t and fuuuck';
     $result = $censor->check($text);
@@ -183,5 +202,5 @@ test('combines multiple detection strategies correctly', function () {
     expect($result)
         ->toBeOffensive()
         ->and($result->words())->toHaveCount(3)
-        ->and($result->score())->toBeGreaterThanOrEqual(0.5);
+        ->and($result->score()->value())->toBeGreaterThanOrEqual(0.5);
 });

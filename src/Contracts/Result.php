@@ -2,6 +2,10 @@
 
 namespace Ninja\Censor\Contracts;
 
+use Ninja\Censor\Collections\MatchCollection;
+use Ninja\Censor\ValueObject\Confidence;
+use Ninja\Censor\ValueObject\Score;
+
 interface Result
 {
     public function offensive(): bool;
@@ -15,12 +19,14 @@ interface Result
 
     public function original(): string;
 
-    public function score(): ?float;
+    public function score(): ?Score;
 
-    public function confidence(): ?float;
+    public function confidence(): ?Confidence;
 
     /**
-     * @return string[]|null
+     * @return string[]
      */
-    public function categories(): ?array;
+    public function categories(): array;
+
+    public function matches(): MatchCollection;
 }

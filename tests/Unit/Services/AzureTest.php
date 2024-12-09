@@ -36,7 +36,7 @@ test('azure detects harmful content', function () {
         ->toBeOffensive()
         ->and($result->categories())->toContain('hate_speech', 'violence')
         ->and($result->words())->toContain('offensive')
-        ->and($result->confidence())->toBeGreaterThan(0.8);
+        ->and($result->confidence()->value())->toBeGreaterThan(0.8);
 });
 
 test('azure handles clean content', function () {
@@ -62,7 +62,7 @@ test('azure handles clean content', function () {
         ->toBeClean()
         ->and($result->categories())->toBeEmpty()
         ->and($result->words())->toBeEmpty()
-        ->and($result->confidence())->toBeGreaterThan(0.8)
-        ->and($result->score())->toBeLessThan(0.7);
+        ->and($result->confidence()->value())->toBeGreaterThan(0.8)
+        ->and($result->score()->value())->toBeLessThan(0.7);
 
 });

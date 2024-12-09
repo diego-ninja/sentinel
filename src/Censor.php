@@ -4,7 +4,7 @@ namespace Ninja\Censor;
 
 use Ninja\Censor\Contracts\ProfanityChecker;
 use Ninja\Censor\Contracts\Result;
-use Ninja\Censor\Enums\Service;
+use Ninja\Censor\Enums\Provider;
 
 class Censor
 {
@@ -32,7 +32,7 @@ class Censor
         return $service->check($text)->replaced();
     }
 
-    public function with(Service $service, string $text): ?Result
+    public function with(Provider $service, string $text): ?Result
     {
         /** @var ProfanityChecker $checker */
         $checker = app($service->value);

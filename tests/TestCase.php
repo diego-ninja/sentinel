@@ -8,7 +8,9 @@ use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
 use Ninja\Censor\CensorServiceProvider;
 use Ninja\Censor\Checkers\Censor as LocalCensor;
+use Ninja\Censor\Contracts\Processor;
 use Ninja\Censor\Contracts\ProfanityChecker;
+use Ninja\Censor\Processors\DefaultProcessor;
 use Ninja\Censor\Support\PatternGenerator;
 use Orchestra\Testbench\TestCase as BaseTestCase;
 
@@ -71,6 +73,7 @@ abstract class TestCase extends BaseTestCase
             'purgomalum' => [],
             'local' => [
                 'levenshtein_threshold' => 1,
+                'processor' => DefaultProcessor::class,
             ],
         ]);
 
@@ -79,7 +82,10 @@ abstract class TestCase extends BaseTestCase
             /** @var array<string, string> $replacements */
             $replacements = config('censor.replacements');
 
-            return new LocalCensor(new PatternGenerator($replacements), 1);
+            return new LocalCensor(
+                app(PatternGenerator::class),
+                app(Processor::class)
+            );
         });
 
         // Bind the default profanity checker

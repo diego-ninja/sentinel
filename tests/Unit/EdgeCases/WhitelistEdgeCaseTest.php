@@ -18,7 +18,7 @@ test('whitelist handles special regex characters', function () {
 });
 
 test('whitelist handles overlapping terms', function () {
-    $censor = new Censor(new PatternGenerator(config('censor.replacements')));
+    $censor = app(Censor::class);
     $whitelist = [
         'assessment',
         'assess',
@@ -27,5 +27,7 @@ test('whitelist handles overlapping terms', function () {
     ];
 
     $text = 'This class assessment will assess your assessment skills';
-    expect($censor->whitelist($whitelist)->check($text)->offensive())->toBeFalse();
+    $result = $censor->check($text);
+
+    expect($result->offensive())->toBeFalse();
 });

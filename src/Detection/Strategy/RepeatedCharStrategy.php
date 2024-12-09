@@ -1,17 +1,17 @@
 <?php
 
-namespace Ninja\Censor\Detection;
+namespace Ninja\Censor\Detection\Strategy;
 
+use Ninja\Censor\Collections\MatchCollection;
 use Ninja\Censor\Contracts\DetectionStrategy;
+use Ninja\Censor\Enums\MatchType;
+use Ninja\Censor\ValueObject\Coincidence;
 
 final readonly class RepeatedCharStrategy implements DetectionStrategy
 {
-    public function __construct(private string $replacer) {}
-
-    public function detect(string $text, array $words): array
+    public function detect(string $text, iterable $words): MatchCollection
     {
-        $matches = [];
-        $clean = $text;
+        $matches = new MatchCollection;
 
         foreach ($words as $badWord) {
             if (! $this->hasRepeatedChars($text)) {
@@ -27,24 +27,13 @@ final readonly class RepeatedCharStrategy implements DetectionStrategy
             if (preg_match_all($pattern, $text, $found) !== false) {
                 foreach ($found[0] as $match) {
                     if ($this->hasRepeatedChars($match)) {
-                        $matches[] = [
-                            'word' => $match,
-                            'type' => 'repeated',
-                        ];
-                        $clean = str_replace(
-                            $match,
-                            str_repeat($this->replacer, mb_strlen($match)),
-                            $clean
-                        );
+                        $matches->add(new Coincidence($match, MatchType::Repeated));
                     }
                 }
             }
         }
 
-        return [
-            'clean' => $clean,
-            'matches' => $matches,
-        ];
+        return $matches;
     }
 
     private function hasRepeatedChars(string $text): bool
