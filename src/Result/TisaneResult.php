@@ -2,7 +2,10 @@
 
 namespace Ninja\Censor\Result;
 
-final readonly class TisaneResult extends AbstractResult
+use Ninja\Censor\Result\Builder\ResultBuilder;
+use Ninja\Censor\ValueObject\Score;
+
+final class TisaneResult extends AbstractResult
 {
     public static function fromResponse(string $text, array $response): AbstractResult
     {
@@ -32,24 +35,25 @@ final readonly class TisaneResult extends AbstractResult
 
         $score = self::calculateScore($abuses);
 
-        return new self(
-            offensive: $score >= config('censor.threshold_score') || count($words) > 0,
-            words: $words,
-            replaced: self::clean($text, $words),
-            original: $text,
-            score: $score,
-            confidence: null,
-            categories: $categories
-        );
+        $builder = new ResultBuilder;
+
+        return $builder
+            ->withOriginalText($text)
+            ->withOffensive($score->value() >= config('censor.threshold_score') || count($words) > 0)
+            ->withWords($words)
+            ->withReplaced(self::clean($text, $words))
+            ->withScore($score)
+            ->withCategories($categories)
+            ->build();
     }
 
     /**
      * @param  array<int, array<string, mixed>>  $abuses
      */
-    private static function calculateScore(array $abuses): float
+    private static function calculateScore(array $abuses): Score
     {
         if (count($abuses) === 0) {
-            return 0.0;
+            return new Score(0.0);
         }
 
         $scores = array_map(function ($severity) {
@@ -62,6 +66,6 @@ final readonly class TisaneResult extends AbstractResult
             };
         }, array_column($abuses, 'severity'));
 
-        return array_sum($scores) / count($scores);
+        return new Score(array_sum($scores) / count($scores));
     }
 }

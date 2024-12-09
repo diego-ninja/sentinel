@@ -33,8 +33,8 @@ test('perspective detects toxic content', function () {
 
     expect($result)
         ->toBeOffensive()
-        ->and($result->score())->toBeGreaterThan(0.7)
-        ->and($result->confidence())->toBeGreaterThan(0.7)
+        ->and($result->score()->value())->toBeGreaterThan(0.7)
+        ->and($result->confidence()->value())->toBeGreaterThan(0.7)
         ->and($result->categories())->toContain('toxicity');
 });
 
@@ -59,8 +59,8 @@ test('perspective handles clean content', function () {
 
     expect($result)
         ->toBeClean()
-        ->and($result->score())->toBeLessThan(0.7)
-        ->and($result->confidence())->toBeGreaterThan(0.7)
+        ->and($result->score()->value())->toBeLessThan(0.7)
+        ->and($result->confidence()->value())->toBeGreaterThan(0.7)
         ->and($result->categories())->toBeEmpty()
         ->and($result->replaced())->toBe('clean content')
         ->and($result->original())->toBe('clean content')

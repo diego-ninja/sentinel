@@ -4,7 +4,7 @@ namespace Tests\Feature;
 
 use Ninja\Censor\Checkers\PurgoMalum;
 use Ninja\Censor\Contracts\Result;
-use Ninja\Censor\Enums\Service;
+use Ninja\Censor\Enums\Provider;
 use Ninja\Censor\Facades\Censor;
 
 test('facade check method returns result instance', function () {
@@ -34,7 +34,7 @@ test('facade with method returns correct service result', function () {
         );
     });
 
-    $result = Censor::with(Service::PurgoMalum, 'bad text');
+    $result = Censor::with(Provider::PurgoMalum, 'bad text');
     expect($result)
         ->toBeInstanceOf(Result::class)
         ->and($result->replaced())->toBe('**** text');
@@ -54,7 +54,7 @@ test('facade can switch between services while maintaining state', function () {
         );
     });
 
-    $result2 = Censor::with(Service::PurgoMalum, 'bad text');
+    $result2 = Censor::with(Provider::PurgoMalum, 'bad text');
     expect($result2->replaced())->toBe('**** text');
 
     // Test we can still use default service

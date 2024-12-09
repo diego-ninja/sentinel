@@ -3,7 +3,8 @@
 namespace Tests\Unit\Detection;
 
 use InvalidArgumentException;
-use Ninja\Censor\Detection\PatternStrategy;
+use Ninja\Censor\Detection\Strategy\PatternStrategy;
+use Ninja\Censor\Enums\MatchType;
 
 test('pattern strategy detects exact matches', function () {
     $patterns = [
@@ -11,20 +12,20 @@ test('pattern strategy detects exact matches', function () {
         '/\bshit\b/iu',
     ];
 
-    $strategy = new PatternStrategy($patterns, '*');
+    $strategy = new PatternStrategy($patterns);
     $result = $strategy->detect('fuck this shit', ['fuck', 'shit']);
 
-    expect($result['matches'])
+    expect($result)
         ->toHaveCount(2)
         ->sequence(
             fn ($match) => $match
                 ->word->toBe('fuck')
-                ->type->toBe('exact'),
+                ->type->toBe(MatchType::Pattern),
             fn ($match) => $match
                 ->word->toBe('shit')
-                ->type->toBe('exact')
-        )
-        ->and($result['clean'])->toBe('**** this ****');
+                ->type->toBe(MatchType::Pattern)
+        );
+
 });
 
 test('pattern strategy handles character substitutions', function () {
@@ -33,10 +34,10 @@ test('pattern strategy handles character substitutions', function () {
         '/sh(i|1|!)t/iu',
     ];
 
-    $strategy = new PatternStrategy($patterns, '*');
+    $strategy = new PatternStrategy($patterns);
     $result = $strategy->detect('fvck this sh!t', ['fuck', 'shit']);
 
-    expect($result['matches'])
+    expect($result)
         ->toHaveCount(2)
         ->sequence(
             fn ($match) => $match->word->toBe('fvck'),
@@ -47,19 +48,17 @@ test('pattern strategy handles character substitutions', function () {
 test('pattern strategy respects word boundaries', function () {
     $patterns = ['/\bass\b/iu'];
 
-    $strategy = new PatternStrategy($patterns, '*');
+    $strategy = new PatternStrategy($patterns);
     $result = $strategy->detect('class assignment', ['ass']);
 
-    expect($result['matches'])->toBeEmpty()
-        ->and($result['clean'])->toBe('class assignment');
+    expect($result)->toBeEmpty();
 });
 
 test('pattern strategy handles empty patterns', function () {
-    $strategy = new PatternStrategy([], '*');
+    $strategy = new PatternStrategy([]);
     $result = $strategy->detect('some text', []);
 
-    expect($result['matches'])->toBeEmpty()
-        ->and($result['clean'])->toBe('some text');
+    expect($result)->toBeEmpty();
 });
 
 test('pattern strategy throws exception for invalid patterns', function () {
@@ -76,4 +75,21 @@ test('pattern strategy validates all patterns on construction', function () {
         '/also-invalid[/',
     ], '*'))
         ->toThrow(InvalidArgumentException::class);
+});
+
+test('pattern strategy handles unicode and special chars', function () {
+    $patterns = ['/f(u|ü|ù)ck/iu'];
+    $strategy = new PatternStrategy($patterns);
+
+    $variations = [
+        'fück' => true,
+        'fùck' => true,
+        'føck' => false,
+        'f♥ck' => false,
+    ];
+
+    foreach ($variations as $text => $shouldMatch) {
+        $result = $strategy->detect($text, ['fuck']);
+        expect($result->isEmpty())->toBe(! $shouldMatch);
+    }
 });

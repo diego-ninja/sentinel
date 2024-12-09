@@ -109,9 +109,9 @@ $rules = [
 Uses local dictionaries for offline profanity checking.
 
 ```php
-use Ninja\Censor\Enums\Service;
+use Ninja\Censor\Enums\Provider;
 
-$result = Censor::with(Service::Local, 'text to check');
+$result = Censor::with(Provider::Local, 'text to check');
 ```
 
 ### PurgoMalum

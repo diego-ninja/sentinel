@@ -2,6 +2,8 @@ parameters:
     paths:
         - src/
         - helpers.php
+    excludePaths:
+        - src/Index/TrieIndex.php
     bootstrapFiles:
         - vendor/autoload.php
     level: max

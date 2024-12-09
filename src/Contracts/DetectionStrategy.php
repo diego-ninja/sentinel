@@ -2,14 +2,14 @@
 
 namespace Ninja\Censor\Contracts;
 
+use Ninja\Censor\Collections\MatchCollection;
+
 interface DetectionStrategy
 {
     /**
      * @param  array<string>  $words
-     * @return array{
-     *     clean: string,
-     *     matches: array<int, array{word: string, type: string}>
-     * }
      */
-    public function detect(string $text, array $words): array;
+    public function detect(string $text, iterable $words): MatchCollection;
+
+    public function weight(): float;
 }

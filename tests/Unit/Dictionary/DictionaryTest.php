@@ -1,6 +1,6 @@
 <?php
 
-use Ninja\Censor\Dictionary;
+use Ninja\Censor\Dictionary\Dictionary;
 use Ninja\Censor\Exceptions\DictionaryFileNotFound;
 
 test('dictionary loads words correctly', function () {

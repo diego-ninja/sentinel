@@ -42,7 +42,7 @@ return [
     | Define the default profanity service to use
     |
     */
-    'default_service' => \Ninja\Censor\Enums\Service::PurgoMalum,
+    'default_service' => \Ninja\Censor\Enums\Provider::Local,
 
     /*
     |--------------------------------------------------------------------------
@@ -85,12 +85,76 @@ return [
         'r' => '(r|r\.|r\-|®)',
         's' => '(s|s\.|s\-|5|\$|§)',
         't' => '(t|t\.|t\-|Τ|τ|7)',
-        'u' => '(u|u\.|u\-|υ|µ|û|ü|ù|ú|ū|ů)',
+        'u' => '(u|u\.|u\-|υ|µ|û|ü|ù|ú|ū|ů|Ú|Ù|Û|Ü)',
         'v' => '(v|v\.|v\-|υ|ν)',
         'w' => '(w|w\.|w\-|ω|ψ|Ψ)',
         'x' => '(x|x\.|x\-|Χ|χ)',
         'y' => '(y|y\.|y\-|¥|γ|ÿ|ý|Ÿ|Ý)',
         'z' => '(z|z\.|z\-|Ζ)',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Word suffixes
+    |--------------------------------------------------------------------------
+    |
+    | Define the list of word suffixes used to generate the regular expression
+    | to match the profanity
+    |
+    */
+    'suffixes' => [
+        'ing',
+        'ed',
+        'er',
+        's',
+        'ers',
+        "'s",
+        'es',
+        'est',
+        'ly',
+        'ier',
+        'iest',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Word prefixes
+    |--------------------------------------------------------------------------
+    |
+    | Define the list of word prefixes used to generate the regular expression
+    | to match the profanity
+    |
+    */
+    'prefixes' => [
+        'un',
+        're',
+        'dis',
+        'mis',
+        'pre',
+        'over',
+        'under',
+        'sub',
+        'super',
+        'anti',
+        'auto',
+        'bi',
+        'co',
+        'de',
+        'en',
+        'ex',
+        'fore',
+        'in',
+        'inter',
+        'mid',
+        'non',
+        'out',
+        'post',
+        'semi',
+        'tri',
+        'un',
+        'under',
+        'up',
+        'with',
     ],
 
     /*
@@ -137,6 +201,7 @@ return [
         'purgomalum' => [],
         'local' => [
             'levenshtein_threshold' => env('CENSOR_LEVENSHTEIN_THRESHOLD', 1),
+            'processor' => \Ninja\Censor\Processors\OctaneProcessor::class,
         ],
     ],
 

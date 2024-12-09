@@ -2,7 +2,7 @@
 
 namespace Ninja\Censor\Enums;
 
-enum Service: string
+enum Provider: string
 {
     case Perspective = 'perspective_ai';
     case PurgoMalum = 'purgomalum';
@@ -11,7 +11,7 @@ enum Service: string
     case Local = 'local';
 
     /**
-     * @return array<Service>
+     * @return array<Provider>
      */
     public static function values(): array
     {
@@ -20,7 +20,6 @@ enum Service: string
             self::PurgoMalum,
             self::Tisane,
             self::Azure,
-            self::Local,
         ];
     }
 }

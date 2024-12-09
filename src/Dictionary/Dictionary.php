@@ -1,6 +1,6 @@
 <?php
 
-namespace Ninja\Censor;
+namespace Ninja\Censor\Dictionary;
 
 use Ninja\Censor\Exceptions\DictionaryFileNotFound;
 

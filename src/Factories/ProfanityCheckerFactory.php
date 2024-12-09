@@ -7,10 +7,10 @@ use Ninja\Censor\Checkers\Censor;
 use Ninja\Censor\Checkers\PerspectiveAI;
 use Ninja\Censor\Checkers\PurgoMalum;
 use Ninja\Censor\Checkers\TisaneAI;
+use Ninja\Censor\Contracts\Processor;
 use Ninja\Censor\Contracts\ProfanityChecker;
 use Ninja\Censor\Decorators\CachedProfanityChecker;
-use Ninja\Censor\Enums\Service;
-use Ninja\Censor\Support\PatternGenerator;
+use Ninja\Censor\Enums\Provider;
 use RuntimeException;
 
 final readonly class ProfanityCheckerFactory
@@ -18,23 +18,23 @@ final readonly class ProfanityCheckerFactory
     /**
      * @param  array<string,mixed>  $config
      */
-    public static function create(Service $service, array $config = []): ProfanityChecker
+    public static function create(Provider $service, array $config = []): ProfanityChecker
     {
         /** @var class-string<ProfanityChecker> $class */
         $class = match ($service) {
-            Service::Local => Censor::class,
-            Service::Perspective => PerspectiveAI::class,
-            Service::PurgoMalum => PurgoMalum::class,
-            Service::Tisane => TisaneAI::class,
-            Service::Azure => AzureAI::class,
+            Provider::Local => Censor::class,
+            Provider::Perspective => PerspectiveAI::class,
+            Provider::PurgoMalum => PurgoMalum::class,
+            Provider::Tisane => TisaneAI::class,
+            Provider::Azure => AzureAI::class,
         };
 
         if (class_exists($class) === false) {
             throw new RuntimeException(sprintf('The class %s does not exist.', $class));
         }
 
-        if ($service === Service::Local) {
-            $checker = new $class(app(PatternGenerator::class), ...$config);
+        if ($service === Provider::Local) {
+            $checker = new $class(app(Processor::class));
         } else {
             $checker = new $class(...$config);
         }
