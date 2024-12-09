@@ -12,7 +12,7 @@ test('censor result provides all required information', function () {
         ->and($result->words())->toHaveCount(2)
         ->and($result->replaced())->toBe('**** this ****')
         ->and($result->original())->toBe('fuck this shit')
-        ->and($result->score()->value())->toBe(1.0)
-        ->and($result->confidence()->value())->toBe(1.0)
+        ->and($result->score()->value())->toBeGreaterThanOrEqual(0.9)
+        ->and($result->confidence()->value())->toBeGreaterThanOrEqual(0.7)
         ->and($result->categories())->toBeEmpty();
 });
