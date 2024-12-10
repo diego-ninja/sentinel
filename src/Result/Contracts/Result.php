@@ -1,6 +1,6 @@
 <?php
 
-namespace Ninja\Censor\Contracts;
+namespace Ninja\Censor\Result\Contracts;
 
 use Ninja\Censor\Collections\MatchCollection;
 use Ninja\Censor\ValueObject\Confidence;

@@ -3,8 +3,8 @@
 namespace Ninja\Censor\Checkers;
 
 use GuzzleHttp\ClientInterface;
-use Ninja\Censor\Contracts\Result;
 use Ninja\Censor\Exceptions\ClientException;
+use Ninja\Censor\Result\Contracts\Result;
 use Ninja\Censor\Result\TisaneResult;
 
 final class TisaneAI extends AbstractProfanityChecker

@@ -4,6 +4,7 @@ namespace Ninja\Censor;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Validator;
+use Ninja\Censor\Cache\Contracts\PatternCache;
 use Ninja\Censor\Contracts\Processor;
 use Ninja\Censor\Contracts\ProfanityChecker;
 use Ninja\Censor\Dictionary\LazyDictionary;
@@ -62,11 +63,20 @@ final class CensorServiceProvider extends ServiceProvider
             return $service;
         });
 
-        $this->app->singleton(PatternGenerator::class, function () {
-            /** @var array<string, string> $replacements */
-            $replacements = config('censor.replacements', []);
+        $this->app->singleton(PatternCache::class, function () {
+            /** @var string $cache */
+            $cache = config('censor.cache', 'file');
+            return match ($cache) {
+                'redis' => new Cache\RedisPatternCache,
+                'octane' => new Cache\OctanePatternCache,
+                default => new Cache\MemoryPatternCache,
+            };
+        });
 
-            return new PatternGenerator($replacements, true);
+        $this->app->singleton(PatternGenerator::class, function () {
+            /** @var LazyDictionary $dictionary */
+            $dictionary = app(LazyDictionary::class);
+            return PatternGenerator::withDictionary($dictionary);
         });
 
         $this->app->singleton(LazyDictionary::class, function (): LazyDictionary {
@@ -95,10 +105,8 @@ final class CensorServiceProvider extends ServiceProvider
             $processorClass = config('censor.services.local.processor', DefaultProcessor::class);
 
             return new $processorClass(
-                app(PatternGenerator::class),
                 app(Whitelist::class),
-                app(LazyDictionary::class),
-                app(TrieIndex::class)
+                app(LazyDictionary::class)
             );
 
         });

@@ -201,7 +201,16 @@ return [
         'purgomalum' => [],
         'local' => [
             'levenshtein_threshold' => env('CENSOR_LEVENSHTEIN_THRESHOLD', 1),
-            'processor' => \Ninja\Censor\Processors\OctaneProcessor::class,
+            'processor' => \Ninja\Censor\Processors\DefaultProcessor::class,
+            'strategies' => [
+                \Ninja\Censor\Detection\Strategy\IndexStrategy::class,
+                \Ninja\Censor\Detection\Strategy\PatternStrategy::class,
+                \Ninja\Censor\Detection\Strategy\NGramStrategy::class,
+                \Ninja\Censor\Detection\Strategy\AffixStrategy::class,
+                \Ninja\Censor\Detection\Strategy\VariationStrategy::class,
+                \Ninja\Censor\Detection\Strategy\RepeatedCharStrategy::class,
+                \Ninja\Censor\Detection\Strategy\LevenshteinStrategy::class,
+            ],
         ],
     ],
 

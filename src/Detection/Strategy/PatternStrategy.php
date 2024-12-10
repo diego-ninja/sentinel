@@ -4,23 +4,23 @@ namespace Ninja\Censor\Detection\Strategy;
 
 use Exception;
 use InvalidArgumentException;
-use Ninja\Censor\Cache\PatternCache;
+use Ninja\Censor\Cache\Contracts\PatternCache;
 use Ninja\Censor\Collections\MatchCollection;
 use Ninja\Censor\Contracts\DetectionStrategy;
 use Ninja\Censor\Enums\MatchType;
+use Ninja\Censor\Support\PatternGenerator;
 use Ninja\Censor\ValueObject\Coincidence;
 
 final readonly class PatternStrategy implements DetectionStrategy
 {
-    private PatternCache $cache;
+    /** @var array<string> */
+    private array $patterns;
 
-    /**
-     * @param  array<string>  $patterns
-     */
     public function __construct(
-        private array $patterns
+        private PatternGenerator $generator,
+        private PatternCache $cache
     ) {
-        $this->cache = new PatternCache;
+        $this->patterns = $this->generator->getPatterns();
 
         foreach ($this->patterns as $pattern) {
             if (@preg_match($pattern, '') === false) {

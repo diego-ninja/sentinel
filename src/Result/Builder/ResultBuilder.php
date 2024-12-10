@@ -3,8 +3,8 @@
 namespace Ninja\Censor\Result\Builder;
 
 use Ninja\Censor\Collections\MatchCollection;
-use Ninja\Censor\Contracts\ResultBuilder as ResultBuilderContract;
 use Ninja\Censor\Result\AbstractResult;
+use Ninja\Censor\Result\Contracts\ResultBuilder as ResultBuilderContract;
 use Ninja\Censor\ValueObject\Confidence;
 use Ninja\Censor\ValueObject\Score;
 use RuntimeException;

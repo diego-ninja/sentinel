@@ -2,7 +2,9 @@
 
 namespace Ninja\Censor\Cache;
 
-final class PatternCache
+use Ninja\Censor\Cache\Contracts\PatternCache;
+
+final class MemoryPatternCache implements PatternCache
 {
     /** @var array<string, string> */
     private array $patterns = [];

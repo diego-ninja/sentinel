@@ -3,8 +3,8 @@
 namespace Ninja\Censor;
 
 use Ninja\Censor\Contracts\ProfanityChecker;
-use Ninja\Censor\Contracts\Result;
 use Ninja\Censor\Enums\Provider;
+use Ninja\Censor\Result\Contracts\Result;
 
 class Censor
 {

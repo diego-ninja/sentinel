@@ -4,7 +4,7 @@ namespace Ninja\Censor\Decorators;
 
 use Illuminate\Support\Facades\Cache;
 use Ninja\Censor\Contracts\ProfanityChecker;
-use Ninja\Censor\Contracts\Result;
+use Ninja\Censor\Result\Contracts\Result;
 
 final readonly class CachedProfanityChecker implements ProfanityChecker
 {

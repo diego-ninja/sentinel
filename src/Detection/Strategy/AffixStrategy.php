@@ -12,11 +12,22 @@ final class AffixStrategy implements DetectionStrategy
     /** @var array<string, array<string>> */
     private array $cache = [];
 
-    /**
-     * @param  array<string>  $prefixes
-     * @param  array<string>  $suffixes
-     */
-    public function __construct(private readonly array $prefixes = [], private readonly array $suffixes = []) {}
+    /** @var array<string> */
+    private array $prefixes;
+
+    /** @var array<string> */
+    private array $suffixes;
+
+    public function __construct()
+    {
+        /** @var array<string> $prefixes */
+        $prefixes = config('censor.prefixes', []);
+        $this->prefixes = $prefixes;
+
+        /** @var array<string> $suffixes */
+        $suffixes = config('censor.suffixes', []);
+        $this->suffixes = $suffixes;
+    }
 
     public function detect(string $text, iterable $words): MatchCollection
     {

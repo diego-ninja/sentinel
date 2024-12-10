@@ -10,7 +10,7 @@ use Ninja\Censor\ValueObject\Coincidence;
 
 final readonly class VariationStrategy implements DetectionStrategy
 {
-    public function __construct(private bool $fullWords = false) {}
+    public function __construct(private bool $fullWords = true) {}
 
     public function detect(string $text, iterable $words): MatchCollection
     {

@@ -3,7 +3,7 @@
 namespace Ninja\Censor\Result;
 
 use Ninja\Censor\Collections\MatchCollection;
-use Ninja\Censor\Contracts\Result;
+use Ninja\Censor\Result\Contracts\Result;
 use Ninja\Censor\ValueObject\Confidence;
 use Ninja\Censor\ValueObject\Score;
 

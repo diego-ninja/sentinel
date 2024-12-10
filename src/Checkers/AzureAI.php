@@ -3,8 +3,8 @@
 namespace Ninja\Censor\Checkers;
 
 use GuzzleHttp\ClientInterface;
-use Ninja\Censor\Contracts\Result;
 use Ninja\Censor\Result\AzureResult;
+use Ninja\Censor\Result\Contracts\Result;
 
 final class AzureAI extends AbstractProfanityChecker
 {

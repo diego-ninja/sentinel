@@ -7,9 +7,6 @@ use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
 use Ninja\Censor\CensorServiceProvider;
-use Ninja\Censor\Checkers\Censor as LocalCensor;
-use Ninja\Censor\Contracts\Processor;
-use Ninja\Censor\Contracts\ProfanityChecker;
 use Ninja\Censor\Processors\DefaultProcessor;
 use Orchestra\Testbench\TestCase as BaseTestCase;
 
@@ -52,7 +49,7 @@ abstract class TestCase extends BaseTestCase
             'r' => '(r|r\.|r\-|®)',
             's' => '(s|s\.|s\-|5|\$|§)',
             't' => '(t|t\.|t\-|Τ|τ|7)',
-            'u' => '(u|u\.|u\-|υ|µ|û|ü|ù|ú|ū|ů)',
+            'u' => '(u|u\.|u\-|υ|µ|û|ü|ù|ú|ū|ů|v|Ú|Ù|Û|Ü)',
             'v' => '(v|v\.|v\-|υ|ν)',
             'w' => '(w|w\.|w\-|ω|ψ|Ψ)',
             'x' => '(x|x\.|x\-|Χ|χ)',
@@ -73,23 +70,17 @@ abstract class TestCase extends BaseTestCase
             'local' => [
                 'levenshtein_threshold' => 1,
                 'processor' => DefaultProcessor::class,
+                'strategies' => [
+                    \Ninja\Censor\Detection\Strategy\IndexStrategy::class,
+                    \Ninja\Censor\Detection\Strategy\PatternStrategy::class,
+                    \Ninja\Censor\Detection\Strategy\NGramStrategy::class,
+                    \Ninja\Censor\Detection\Strategy\AffixStrategy::class,
+                    \Ninja\Censor\Detection\Strategy\VariationStrategy::class,
+                    \Ninja\Censor\Detection\Strategy\RepeatedCharStrategy::class,
+                    \Ninja\Censor\Detection\Strategy\LevenshteinStrategy::class,
+                ],
             ],
         ]);
-
-        // Bind the local censor service
-        $app->singleton('local', function () {
-            /** @var array<string, string> $replacements */
-            $replacements = config('censor.replacements');
-
-            return new LocalCensor(
-                app(Processor::class)
-            );
-        });
-
-        // Bind the default profanity checker
-        $app->bind(ProfanityChecker::class, function ($app) {
-            return $app->make('local');
-        });
     }
 
     protected function getMockedHttpClient(array $responses = []): Client
