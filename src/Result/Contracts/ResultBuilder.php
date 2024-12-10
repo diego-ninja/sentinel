@@ -3,9 +3,11 @@
 namespace Ninja\Censor\Result\Contracts;
 
 use Ninja\Censor\Collections\MatchCollection;
+use Ninja\Censor\Enums\Category;
 use Ninja\Censor\Result\AbstractResult;
 use Ninja\Censor\ValueObject\Confidence;
 use Ninja\Censor\ValueObject\Score;
+use Ninja\Censor\ValueObject\Sentiment;
 
 interface ResultBuilder
 {
@@ -24,8 +26,10 @@ interface ResultBuilder
 
     public function withConfidence(?Confidence $confidence): self;
 
+    public function withSentiment(?Sentiment $sentiment): self;
+
     /**
-     * @param  array<string>|null  $categories
+     * @param  array<Category>|null  $categories
      */
     public function withCategories(?array $categories): self;
 

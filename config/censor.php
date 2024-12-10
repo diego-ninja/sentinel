@@ -240,7 +240,6 @@ return [
                 \Ninja\Censor\Detection\Strategy\AffixStrategy::class,
                 \Ninja\Censor\Detection\Strategy\VariationStrategy::class,
                 \Ninja\Censor\Detection\Strategy\RepeatedCharStrategy::class,
-                \Ninja\Censor\Detection\Strategy\LevenshteinStrategy::class,
             ],
         ],
     ],

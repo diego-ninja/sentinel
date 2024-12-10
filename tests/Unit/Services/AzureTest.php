@@ -34,7 +34,7 @@ test('azure detects harmful content', function () {
 
     expect($result)
         ->toBeOffensive()
-        ->and($result->categories())->toContain('hate_speech', 'violence')
+        ->and($result->categories())->toContain(\Ninja\Censor\Enums\Category::HateSpeech, \Ninja\Censor\Enums\Category::Violence)
         ->and($result->words())->toContain('offensive')
         ->and($result->confidence()->value())->toBeGreaterThan(0.8);
 });

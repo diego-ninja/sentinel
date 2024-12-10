@@ -3,6 +3,7 @@
 namespace Ninja\Censor\Result\Contracts;
 
 use Ninja\Censor\Collections\MatchCollection;
+use Ninja\Censor\Enums\Category;
 use Ninja\Censor\ValueObject\Confidence;
 use Ninja\Censor\ValueObject\Score;
 
@@ -24,7 +25,7 @@ interface Result
     public function confidence(): ?Confidence;
 
     /**
-     * @return string[]
+     * @return Category[]
      */
     public function categories(): array;
 

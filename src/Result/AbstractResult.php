@@ -3,15 +3,17 @@
 namespace Ninja\Censor\Result;
 
 use Ninja\Censor\Collections\MatchCollection;
+use Ninja\Censor\Enums\Category;
 use Ninja\Censor\Result\Contracts\Result;
 use Ninja\Censor\ValueObject\Confidence;
 use Ninja\Censor\ValueObject\Score;
+use Ninja\Censor\ValueObject\Sentiment;
 
 abstract class AbstractResult implements Result
 {
     /**
      * @param  array<string>  $words
-     * @param  array<string>|null  $categories
+     * @param  array<Category>|null  $categories
      */
     public function __construct(
         public bool $offensive,
@@ -21,6 +23,7 @@ abstract class AbstractResult implements Result
         public ?MatchCollection $matches,
         public ?Score $score = null,
         public ?Confidence $confidence = null,
+        public ?Sentiment $sentiment = null,
         public ?array $categories = null,
     ) {}
 
@@ -57,6 +60,11 @@ abstract class AbstractResult implements Result
     public function confidence(): ?Confidence
     {
         return $this->confidence;
+    }
+
+    public function sentiment(): ?Sentiment
+    {
+        return $this->sentiment;
     }
 
     public function categories(): array

@@ -76,7 +76,7 @@ final class Censor implements ProfanityChecker
             ->withWords(array_unique($processedWords))
             ->withReplaced($matches->clean($originalText))
             ->withScore($matches->score($originalText))
-            ->withOffensive(! $matches->isEmpty())
+            ->withOffensive($matches->offensive($originalText))
             ->withConfidence($matches->confidence())
             ->build();
     }

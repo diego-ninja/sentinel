@@ -9,17 +9,17 @@ use Ninja\Censor\Checkers\TisaneAI;
 test('tisane detects abuse and profanity', function () {
     $mock = new MockHandler([
         new Response(200, [], json_encode([
+            'sentiment' => -0.5,
             'abuse' => [
                 [
-                    'type' => 'hate_speech',
+                    'type' => 'bigotry',
                     'severity' => 'high',
                     'text' => 'offensive',
                 ],
-            ],
-            'profanity' => [
                 [
+                    'type' => 'profanity',
+                    'severity' => 'high',
                     'text' => 'badword',
-                    'type' => 'curse',
                 ],
             ],
         ])),
@@ -32,16 +32,19 @@ test('tisane detects abuse and profanity', function () {
 
     expect($result)
         ->toBeOffensive()
-        ->and($result->categories())->toContain('hate_speech', 'profanity')
+        ->and($result->categories())->toContain(\Ninja\Censor\Enums\Category::HateSpeech)
+        ->and($result->categories())->toContain(\Ninja\Censor\Enums\Category::Profanity)
         ->and($result->words())->toContain('offensive', 'badword')
+        ->and($result->sentiment()->value())->toBe(-0.5)
+        ->and($result->sentiment()->type())->toBe(\Ninja\Censor\Enums\SentimentType::Negative)
         ->and($result->score()->value())->toBeGreaterThan(0.7);
 });
 
 test('tisane handles clean content', function () {
     $mock = new MockHandler([
         new Response(200, [], json_encode([
+            'sentiment' => 0.0,
             'abuse' => [],
-            'profanity' => [],
         ])),
     ]);
 

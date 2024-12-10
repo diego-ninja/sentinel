@@ -14,5 +14,6 @@ test('censor result provides all required information', function () {
         ->and($result->original())->toBe('fuck this shit')
         ->and($result->score()->value())->toBeGreaterThanOrEqual(0.9)
         ->and($result->confidence()->value())->toBeGreaterThanOrEqual(0.7)
+        ->and($result->matches())->toHaveCount(2)
         ->and($result->categories())->toBeEmpty();
 });
