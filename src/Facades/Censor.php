@@ -3,8 +3,8 @@
 namespace Ninja\Censor\Facades;
 
 use Illuminate\Support\Facades\Facade;
-use Ninja\Censor\Contracts\Result;
 use Ninja\Censor\Enums\Provider;
+use Ninja\Censor\Result\Contracts\Result;
 
 /**
  * @method static Result check(string $text)

@@ -2,7 +2,7 @@
 
 namespace Ninja\Censor\Checkers;
 
-use Ninja\Censor\Contracts\Result;
+use Ninja\Censor\Result\Contracts\Result;
 use Ninja\Censor\Result\PurgoMalumResult;
 
 final class PurgoMalum extends AbstractProfanityChecker

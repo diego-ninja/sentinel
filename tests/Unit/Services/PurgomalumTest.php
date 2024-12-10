@@ -21,7 +21,11 @@ test('purgomalum detects offensive content', function () {
     expect($result)
         ->toBeOffensive()
         ->and($result->replaced())->toBe('**** you ****')
-        ->and($result->original())->toBe('fuck you shit');
+        ->and($result->original())->toBe('fuck you shit')
+        ->and($result->score()->value())->toBe(1.0)
+        ->and($result->confidence()->value())->toBe(1.0)
+        ->and($result->matches())->toHaveCount(2);
+
 });
 
 test('purgomalum handles clean content', function () {
@@ -38,5 +42,7 @@ test('purgomalum handles clean content', function () {
 
     expect($result)
         ->toBeClean()
-        ->and($result->replaced())->toBe('clean text here');
+        ->and($result->replaced())->toBe('clean text here')
+        ->and($result->matches())->toBeEmpty()
+        ->and($result->score()->value())->toBe(0.0);
 });

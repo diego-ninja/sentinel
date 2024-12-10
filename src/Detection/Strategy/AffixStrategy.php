@@ -3,7 +3,7 @@
 namespace Ninja\Censor\Detection\Strategy;
 
 use Ninja\Censor\Collections\MatchCollection;
-use Ninja\Censor\Contracts\DetectionStrategy;
+use Ninja\Censor\Detection\Contracts\DetectionStrategy;
 use Ninja\Censor\Enums\MatchType;
 use Ninja\Censor\ValueObject\Coincidence;
 
@@ -12,11 +12,22 @@ final class AffixStrategy implements DetectionStrategy
     /** @var array<string, array<string>> */
     private array $cache = [];
 
-    /**
-     * @param  array<string>  $prefixes
-     * @param  array<string>  $suffixes
-     */
-    public function __construct(private readonly array $prefixes = [], private readonly array $suffixes = []) {}
+    /** @var array<string> */
+    private array $prefixes;
+
+    /** @var array<string> */
+    private array $suffixes;
+
+    public function __construct()
+    {
+        /** @var array<string> $prefixes */
+        $prefixes = config('censor.prefixes', []);
+        $this->prefixes = $prefixes;
+
+        /** @var array<string> $suffixes */
+        $suffixes = config('censor.suffixes', []);
+        $this->suffixes = $suffixes;
+    }
 
     public function detect(string $text, iterable $words): MatchCollection
     {

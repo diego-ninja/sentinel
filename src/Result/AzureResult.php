@@ -2,6 +2,7 @@
 
 namespace Ninja\Censor\Result;
 
+use Ninja\Censor\Enums\Category;
 use Ninja\Censor\Result\Builder\ResultBuilder;
 use Ninja\Censor\ValueObject\Confidence;
 use Ninja\Censor\ValueObject\Score;
@@ -13,13 +14,6 @@ final class AzureResult extends AbstractResult
         'Low' => 2,
         'Medium' => 4,
         'High' => 6,
-    ];
-
-    private const CATEGORY_MAPPING = [
-        'Hate' => 'hate_speech',
-        'SelfHarm' => 'self_harm',
-        'Sexual' => 'sexual_content',
-        'Violence' => 'violence',
     ];
 
     public static function fromResponse(string $text, array $response): AbstractResult
@@ -45,7 +39,7 @@ final class AzureResult extends AbstractResult
             $severity = self::SEVERITY_THRESHOLDS[$category['severity']] ?? 0;
 
             if ($severity >= 4) { // Medium o High
-                $categories[] = self::CATEGORY_MAPPING[$category['category']] ?? $category['category'];
+                $categories[] = Category::fromAzure($category['category']);
             }
 
             $maxSeverity = max($maxSeverity, $severity);

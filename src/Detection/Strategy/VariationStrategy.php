@@ -3,14 +3,14 @@
 namespace Ninja\Censor\Detection\Strategy;
 
 use Ninja\Censor\Collections\MatchCollection;
-use Ninja\Censor\Contracts\DetectionStrategy;
+use Ninja\Censor\Detection\Contracts\DetectionStrategy;
 use Ninja\Censor\Enums\MatchType;
 use Ninja\Censor\Support\TextAnalyzer;
 use Ninja\Censor\ValueObject\Coincidence;
 
 final readonly class VariationStrategy implements DetectionStrategy
 {
-    public function __construct(private bool $fullWords = false) {}
+    public function __construct(private bool $fullWords = true) {}
 
     public function detect(string $text, iterable $words): MatchCollection
     {

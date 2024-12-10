@@ -2,7 +2,10 @@
 
 namespace Ninja\Censor\Result;
 
+use Ninja\Censor\Collections\MatchCollection;
+use Ninja\Censor\Enums\MatchType;
 use Ninja\Censor\Result\Builder\ResultBuilder;
+use Ninja\Censor\ValueObject\Coincidence;
 
 final class PurgoMalumResult extends AbstractResult
 {
@@ -14,30 +17,31 @@ final class PurgoMalumResult extends AbstractResult
          * } $response
          */
         $builder = new ResultBuilder;
+        $matches = self::extractMatches($text, $response['result']);
 
         return $builder
             ->withOriginalText($text)
             ->withOffensive($text !== $response['result'])
-            ->withWords(self::extractWords($text, $response['result']))
+            ->withWords($matches->words())
+            ->withMatches($matches)
+            ->withScore($matches->score($text))
+            ->withConfidence($matches->confidence())
             ->withReplaced($response['result'])
             ->build();
     }
 
-    /**
-     * @return string[]
-     */
-    private static function extractWords(string $original, string $replaced): array
+    private static function extractMatches(string $original, string $replaced): MatchCollection
     {
-        $matches = [];
+        $matches = new MatchCollection;
         $originalWords = explode(' ', $original);
         $replacedWords = explode(' ', $replaced);
 
         foreach ($originalWords as $i => $word) {
             if (isset($replacedWords[$i]) && $word !== $replacedWords[$i]) {
-                $matches[] = $word;
+                $matches->add(new Coincidence($word, MatchType::Exact));
             }
         }
 
-        return array_unique($matches);
+        return $matches;
     }
 }

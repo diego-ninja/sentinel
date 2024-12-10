@@ -2,12 +2,33 @@
 
 namespace Ninja\Censor\Support;
 
+use Ninja\Censor\Dictionary\LazyDictionary;
+
 final class PatternGenerator
 {
     /**
+     * @var array<string>
+     */
+    private array $patterns = [];
+
+    /**
      * @param  array<string>  $replacements
      */
-    public function __construct(private array $replacements = [], private bool $fullWords = false) {}
+    public function __construct(private array $replacements = [], private bool $fullWords = true) {}
+
+    public static function withDictionary(LazyDictionary $dictionary): self
+    {
+        /** @var array<string> $replacements */
+        $replacements = config('censor.replacements', []);
+
+        /** @var array<string> $words */
+        $words = iterator_to_array($dictionary->getWords());
+
+        $generator = new self($replacements);
+        $generator->patterns = $generator->forWords($words);
+
+        return $generator;
+    }
 
     /**
      * @return array<string>
@@ -34,12 +55,19 @@ final class PatternGenerator
      */
     public function forWords(array $words): array
     {
-        $patterns = [];
         foreach ($words as $word) {
-            $patterns = array_merge($patterns, $this->forWord($word));
+            $this->patterns = array_merge($this->patterns, $this->forWord($word));
         }
 
-        return array_unique($patterns);
+        return array_unique($this->patterns);
+    }
+
+    /**
+     * @return array<string>
+     */
+    public function getPatterns(): array
+    {
+        return $this->patterns;
     }
 
     private function createBasePattern(string $word): string

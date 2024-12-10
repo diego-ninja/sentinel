@@ -3,7 +3,7 @@
 namespace Ninja\Censor\Collections;
 
 use Illuminate\Support\Collection;
-use Ninja\Censor\Contracts\DetectionStrategy;
+use Ninja\Censor\Detection\Contracts\DetectionStrategy;
 
 /**
  * @extends Collection<int, DetectionStrategy>
@@ -22,7 +22,7 @@ class StrategyCollection extends Collection implements DetectionStrategy
 
     private function orderByWeight(): void
     {
-        $sorted = $this->sortBy(fn (DetectionStrategy $strategy) => $strategy->weight());
+        $sorted = $this->sortByDesc(fn (DetectionStrategy $strategy) => $strategy->weight());
         $this->items = $sorted->values()->all();
     }
 

@@ -3,8 +3,8 @@
 namespace Ninja\Censor\Checkers;
 
 use GuzzleHttp\ClientInterface;
-use Ninja\Censor\Contracts\Result;
 use Ninja\Censor\Exceptions\ClientException;
+use Ninja\Censor\Result\Contracts\Result;
 use Ninja\Censor\Result\TisaneResult;
 
 final class TisaneAI extends AbstractProfanityChecker
@@ -45,6 +45,32 @@ final class TisaneAI extends AbstractProfanityChecker
             ]
         );
 
+        /**
+         * @var array{
+         *   text: string,
+         *   sentiment: float,
+         *   topics?: array<string>,
+         *   abuse?: array<array{
+         *     type: string,
+         *     severity: string,
+         *     text: string,
+         *     offset: int,
+         *     length: int,
+         *     sentence_index: int,
+         *     explanation?: string,
+         *   }>,
+         *   sentiment_expressions?: array<array{
+         *     sentence_index: int,
+         *     offset: int,
+         *     length: int,
+         *     text: string,
+         *     polarity: string,
+         *     targets: array<string>,
+         *     reasons?: array<string>,
+         *     explanation?: string
+         *   }>
+         * } $response
+         */
         return TisaneResult::fromResponse($text, $response);
     }
 }

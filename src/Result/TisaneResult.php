@@ -2,38 +2,56 @@
 
 namespace Ninja\Censor\Result;
 
+use Ninja\Censor\Enums\Category;
 use Ninja\Censor\Result\Builder\ResultBuilder;
 use Ninja\Censor\ValueObject\Score;
+use Ninja\Censor\ValueObject\Sentiment;
 
 final class TisaneResult extends AbstractResult
 {
+    /**
+     * @param array{
+     *   text: string,
+     *   sentiment: float,
+     *   topics?: array<string>,
+     *   abuse?: array<array{
+     *     type: string,
+     *     severity: string,
+     *     text: string,
+     *     offset: int,
+     *     length: int,
+     *     sentence_index: int,
+     *     explanation?: string,
+     *   }>,
+     *   sentiment_expressions?: array<array{
+     *     sentence_index: int,
+     *     offset: int,
+     *     length: int,
+     *     text: string,
+     *     polarity: string,
+     *     targets: array<string>,
+     *     reasons?: array<string>,
+     *     explanation?: string
+     *   }>
+     * } $response
+     */
     public static function fromResponse(string $text, array $response): AbstractResult
     {
         $words = [];
         $categories = [];
 
-        /** @var array<int, array<string, mixed>> $abuses */
         $abuses = $response['abuse'] ?? [];
 
         foreach ($abuses as $abuse) {
             $words[] = $abuse['text'];
-            $categories[] = $abuse['type'];
-        }
-
-        /** @var array<int, array<string, mixed>> $profanities */
-        $profanities = $response['profanity'] ?? [];
-        foreach ($profanities as $profanity) {
-            $words[] = $profanity['text'];
-            $categories[] = 'profanity';
+            $categories[] = Category::fromTisane($abuse['type']);
         }
 
         /** @var string[] $words */
         $words = array_unique($words);
 
-        /** @var string[] $categories */
-        $categories = array_unique($categories);
-
         $score = self::calculateScore($abuses);
+        $sentiment = Sentiment::withScore(new Score((float) $response['sentiment']));
 
         $builder = new ResultBuilder;
 
@@ -43,12 +61,21 @@ final class TisaneResult extends AbstractResult
             ->withWords($words)
             ->withReplaced(self::clean($text, $words))
             ->withScore($score)
+            ->withSentiment($sentiment)
             ->withCategories($categories)
             ->build();
     }
 
     /**
-     * @param  array<int, array<string, mixed>>  $abuses
+     * @param array<array{
+     *   type: string,
+     *   severity: string,
+     *   text: string,
+     *   offset: int,
+     *   length: int,
+     *   sentence_index: int,
+     *   explanation?: string,
+     * }> $abuses
      */
     private static function calculateScore(array $abuses): Score
     {

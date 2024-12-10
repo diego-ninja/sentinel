@@ -22,9 +22,4 @@ final class TextNormalizer
 
         return $normalized;
     }
-
-    public static function removeInvisibleCharacters(string $text): ?string
-    {
-        return preg_replace('/\p{C}/u', '', $text);
-    }
 }

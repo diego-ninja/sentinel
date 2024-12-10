@@ -35,7 +35,7 @@ test('perspective detects toxic content', function () {
         ->toBeOffensive()
         ->and($result->score()->value())->toBeGreaterThan(0.7)
         ->and($result->confidence()->value())->toBeGreaterThan(0.7)
-        ->and($result->categories())->toContain('toxicity');
+        ->and($result->categories())->toContain(\Ninja\Censor\Enums\Category::Toxicity);
 });
 
 test('perspective handles clean content', function () {

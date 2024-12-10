@@ -1,6 +1,6 @@
 <?php
 
-use Ninja\Censor\Contracts\ProfanityChecker;
+use Ninja\Censor\Checkers\Contracts\ProfanityChecker;
 
 if (! function_exists('is_offensive')) {
     function is_offensive(string $text): bool

@@ -2,21 +2,15 @@
 
 namespace Ninja\Censor\Processors;
 
+use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Contracts\Container\CircularDependencyException;
 use Ninja\Censor\Collections\MatchCollection;
 use Ninja\Censor\Collections\StrategyCollection;
-use Ninja\Censor\Contracts\Processor;
-use Ninja\Censor\Detection\Strategy\AffixStrategy;
-use Ninja\Censor\Detection\Strategy\IndexStrategy;
-use Ninja\Censor\Detection\Strategy\LevenshteinStrategy;
-use Ninja\Censor\Detection\Strategy\NGramStrategy;
-use Ninja\Censor\Detection\Strategy\PatternStrategy;
-use Ninja\Censor\Detection\Strategy\RepeatedCharStrategy;
-use Ninja\Censor\Detection\Strategy\VariationStrategy;
+use Ninja\Censor\Detection\Contracts\DetectionStrategy;
 use Ninja\Censor\Dictionary\LazyDictionary;
-use Ninja\Censor\Index\TrieIndex;
+use Ninja\Censor\Processors\Contracts\Processor;
 use Ninja\Censor\Result\AbstractResult;
 use Ninja\Censor\Result\Builder\ResultBuilder;
-use Ninja\Censor\Support\PatternGenerator;
 use Ninja\Censor\Support\TextNormalizer;
 use Ninja\Censor\Whitelist;
 
@@ -26,8 +20,11 @@ abstract class AbstractProcessor implements Processor
 
     protected string $replacer;
 
+    /**
+     * @throws CircularDependencyException
+     * @throws BindingResolutionException
+     */
     public function __construct(
-        private readonly PatternGenerator $generator,
         private readonly Whitelist $whitelist,
         private readonly LazyDictionary $dictionary
     ) {
@@ -38,26 +35,22 @@ abstract class AbstractProcessor implements Processor
         $this->initializeStrategies();
     }
 
+    /**
+     * @throws CircularDependencyException
+     * @throws BindingResolutionException
+     */
     protected function initializeStrategies(): void
     {
-        /** @var array<string> $words */
-        $words = iterator_to_array($this->dictionary->getWords());
-        $patterns = $this->generator->forWords($words);
 
-        /** @var array<string> $prefixes */
-        $prefixes = config('censor.prefixes', []);
-
-        /** @var array<string> $suffixes */
-        $suffixes = config('censor.suffixes', []);
+        /** @var array<class-string<DetectionStrategy>> $strategies */
+        $strategies = config('censor.services.local.strategies', []);
 
         $this->strategies = new StrategyCollection;
-        $this->strategies->addStrategy(new IndexStrategy(app(TrieIndex::class)));
-        $this->strategies->addStrategy(new PatternStrategy($patterns));
-        $this->strategies->addStrategy(new NGramStrategy);
-        $this->strategies->addStrategy(new VariationStrategy(fullWords: true));
-        $this->strategies->addStrategy(new AffixStrategy($prefixes, $suffixes));
-        $this->strategies->addStrategy(new RepeatedCharStrategy);
-        $this->strategies->addStrategy(new LevenshteinStrategy);
+        foreach ($strategies as $strategy) {
+            /** @var DetectionStrategy $class */
+            $class = app()->build($strategy);
+            $this->strategies->addStrategy($class);
+        }
     }
 
     protected function processChunk(string $chunk): AbstractResult

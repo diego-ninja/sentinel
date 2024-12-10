@@ -3,9 +3,9 @@
 namespace Tests\Feature;
 
 use Ninja\Censor\Checkers\PurgoMalum;
-use Ninja\Censor\Contracts\Result;
 use Ninja\Censor\Enums\Provider;
 use Ninja\Censor\Facades\Censor;
+use Ninja\Censor\Result\Contracts\Result;
 
 test('facade check method returns result instance', function () {
     $result = Censor::check('test text');

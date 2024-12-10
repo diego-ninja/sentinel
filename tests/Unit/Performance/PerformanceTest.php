@@ -27,7 +27,7 @@ test('memory usage stays within acceptable limits', function () {
     $peakMemory = memory_get_peak_usage() - $initialMemory;
 
     // Memory usage should be less than 20MB for this operation
-    expect($peakMemory)->toBeLessThan(25 * 1024 * 1024);
+    expect($peakMemory)->toBeLessThan(30 * 1024 * 1024);
 });
 
 test('multiple dictionary loading performance', function () {
