@@ -5,13 +5,13 @@ namespace Ninja\Censor;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Validator;
 use Ninja\Censor\Cache\Contracts\PatternCache;
-use Ninja\Censor\Contracts\Processor;
-use Ninja\Censor\Contracts\ProfanityChecker;
+use Ninja\Censor\Checkers\Contracts\ProfanityChecker;
 use Ninja\Censor\Dictionary\LazyDictionary;
 use Ninja\Censor\Enums\Provider;
 use Ninja\Censor\Factories\ProfanityCheckerFactory;
 use Ninja\Censor\Index\TrieIndex;
 use Ninja\Censor\Processors\AbstractProcessor;
+use Ninja\Censor\Processors\Contracts\Processor;
 use Ninja\Censor\Processors\DefaultProcessor;
 use Ninja\Censor\Support\PatternGenerator;
 
@@ -66,6 +66,7 @@ final class CensorServiceProvider extends ServiceProvider
         $this->app->singleton(PatternCache::class, function () {
             /** @var string $cache */
             $cache = config('censor.cache', 'file');
+
             return match ($cache) {
                 'redis' => new Cache\RedisPatternCache,
                 'octane' => new Cache\OctanePatternCache,
@@ -76,6 +77,7 @@ final class CensorServiceProvider extends ServiceProvider
         $this->app->singleton(PatternGenerator::class, function () {
             /** @var LazyDictionary $dictionary */
             $dictionary = app(LazyDictionary::class);
+
             return PatternGenerator::withDictionary($dictionary);
         });
 

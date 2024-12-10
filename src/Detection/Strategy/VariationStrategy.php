@@ -3,7 +3,7 @@
 namespace Ninja\Censor\Detection\Strategy;
 
 use Ninja\Censor\Collections\MatchCollection;
-use Ninja\Censor\Contracts\DetectionStrategy;
+use Ninja\Censor\Detection\Contracts\DetectionStrategy;
 use Ninja\Censor\Enums\MatchType;
 use Ninja\Censor\Support\TextAnalyzer;
 use Ninja\Censor\ValueObject\Coincidence;

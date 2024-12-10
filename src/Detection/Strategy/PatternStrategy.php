@@ -6,7 +6,7 @@ use Exception;
 use InvalidArgumentException;
 use Ninja\Censor\Cache\Contracts\PatternCache;
 use Ninja\Censor\Collections\MatchCollection;
-use Ninja\Censor\Contracts\DetectionStrategy;
+use Ninja\Censor\Detection\Contracts\DetectionStrategy;
 use Ninja\Censor\Enums\MatchType;
 use Ninja\Censor\Support\PatternGenerator;
 use Ninja\Censor\ValueObject\Coincidence;

@@ -4,13 +4,13 @@ namespace Ninja\Censor\Factories;
 
 use Ninja\Censor\Checkers\AzureAI;
 use Ninja\Censor\Checkers\Censor;
+use Ninja\Censor\Checkers\Contracts\ProfanityChecker;
 use Ninja\Censor\Checkers\PerspectiveAI;
 use Ninja\Censor\Checkers\PurgoMalum;
 use Ninja\Censor\Checkers\TisaneAI;
-use Ninja\Censor\Contracts\Processor;
-use Ninja\Censor\Contracts\ProfanityChecker;
 use Ninja\Censor\Decorators\CachedProfanityChecker;
 use Ninja\Censor\Enums\Provider;
+use Ninja\Censor\Processors\Contracts\Processor;
 use RuntimeException;
 
 final readonly class ProfanityCheckerFactory

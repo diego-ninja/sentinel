@@ -1,6 +1,6 @@
 <?php
 
-namespace Ninja\Censor\Contracts;
+namespace Ninja\Censor\Detection\Contracts;
 
 use Ninja\Censor\Collections\MatchCollection;
 

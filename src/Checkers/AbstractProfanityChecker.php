@@ -6,7 +6,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\ClientTrait;
 use GuzzleHttp\Exception\GuzzleException;
-use Ninja\Censor\Contracts\ProfanityChecker;
+use Ninja\Censor\Checkers\Contracts\ProfanityChecker;
 use Ninja\Censor\Exceptions\ClientException;
 use Psr\Http\Message\ResponseInterface;
 

@@ -3,7 +3,7 @@
 namespace Ninja\Censor\Collections;
 
 use Illuminate\Support\Collection;
-use Ninja\Censor\Contracts\DetectionStrategy;
+use Ninja\Censor\Detection\Contracts\DetectionStrategy;
 
 /**
  * @extends Collection<int, DetectionStrategy>

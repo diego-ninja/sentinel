@@ -2,9 +2,9 @@
 
 namespace Ninja\Censor\Checkers;
 
+use Ninja\Censor\Checkers\Contracts\ProfanityChecker;
 use Ninja\Censor\Collections\MatchCollection;
-use Ninja\Censor\Contracts\Processor;
-use Ninja\Censor\Contracts\ProfanityChecker;
+use Ninja\Censor\Processors\Contracts\Processor;
 use Ninja\Censor\Result\AbstractResult;
 use Ninja\Censor\Result\Builder\ResultBuilder;
 use Ninja\Censor\Result\Contracts\Result;

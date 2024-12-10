@@ -1,6 +1,6 @@
 <?php
 
-namespace Ninja\Censor\Contracts;
+namespace Ninja\Censor\Processors\Contracts;
 
 use Ninja\Censor\Result\AbstractResult;
 
