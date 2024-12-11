@@ -19,7 +19,7 @@ final readonly class CheckAction
         return $this->checker->check($text);
     }
 
-    public function asController(Request $request): Result
+    public function asController(Request $request): CensorResultResource
     {
         if (! $request->has('text')) {
             abort(400, 'Missing text parameter');
@@ -28,11 +28,7 @@ final readonly class CheckAction
         /** @var string $text */
         $text = $request->input('text');
 
-        return $this->handle($text);
-    }
-
-    public function jsonResponse(Result $result): CensorResultResource
-    {
+        $result = $this->handle($text);
         return new CensorResultResource($result);
     }
 }

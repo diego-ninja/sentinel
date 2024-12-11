@@ -26,10 +26,10 @@ final class IndexStrategy extends AbstractStrategy
                         $matches->addCoincidence(
                             new Coincidence(
                                 word: $word,
-                                type: MatchType::Trie,
-                                score: Calculator::score($text, $word, MatchType::Trie),
-                                confidence: Calculator::confidence($text, $word, MatchType::Trie),
-                                context: ['original' => $text]
+                                type: MatchType::Exact,
+                                score: Calculator::score($text, $word, MatchType::Exact),
+                                confidence: Calculator::confidence($text, $word, MatchType::Exact),
+                                context: ['original' => $originalWord]
                             )
                         );
                     }

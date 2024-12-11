@@ -12,6 +12,7 @@ use Ninja\Censor\Processors\Contracts\Processor;
 use Ninja\Censor\Result\AbstractResult;
 use Ninja\Censor\Result\Builder\ResultBuilder;
 use Ninja\Censor\Support\TextNormalizer;
+use Ninja\Censor\ValueObject\Coincidence;
 use Ninja\Censor\Whitelist;
 
 abstract class AbstractProcessor implements Processor
@@ -66,6 +67,39 @@ abstract class AbstractProcessor implements Processor
         $finalText = $this->whitelist->restore($cleaned);
 
         return $this->buildResult($chunk, $finalText, $matches);
+    }
+
+    /**
+     * @param  array<AbstractResult>  $results
+     */
+    protected function merge(array $results): AbstractResult
+    {
+        $first = reset($results);
+        $matches = new MatchCollection;
+        $replaced = '';
+
+        foreach ($results as $result) {
+            foreach ($result->matches() ?? new MatchCollection as $match) {
+                $matches->addCoincidence(
+                    new Coincidence(
+                        $match->word(),
+                        $match->type(),
+                        $match->score(),
+                        $match->confidence(),
+                        $match->context()
+                    )
+                );
+
+            }
+
+            $replaced .= $result->replaced();
+
+        }
+
+        $original = implode('', array_map(fn ($r) => $r->original(), $results));
+
+        return $this->buildResult($original, $replaced, $matches);
+
     }
 
     private function buildResult(
