@@ -3,11 +3,11 @@
 namespace Ninja\Censor\Detection\Strategy;
 
 use Ninja\Censor\Collections\MatchCollection;
-use Ninja\Censor\Detection\Contracts\DetectionStrategy;
 use Ninja\Censor\Enums\MatchType;
+use Ninja\Censor\Support\Calculator;
 use Ninja\Censor\ValueObject\Coincidence;
 
-final readonly class NGramStrategy implements DetectionStrategy
+final class NGramStrategy extends AbstractStrategy
 {
     public function detect(string $text, iterable $words): MatchCollection
     {
@@ -21,7 +21,15 @@ final readonly class NGramStrategy implements DetectionStrategy
             if (preg_match_all($pattern, mb_strtolower($text), $found, PREG_OFFSET_CAPTURE) !== false) {
                 foreach ($found[0] as $match) {
                     $originalText = substr($text, $match[1], strlen($match[0]));
-                    $matches->addCoincidence(new Coincidence($originalText, MatchType::NGram));
+                    $matches->addCoincidence(
+                        new Coincidence(
+                            word: $originalText,
+                            type: MatchType::NGram,
+                            score: Calculator::score($text, $originalText, MatchType::NGram),
+                            confidence: Calculator::confidence($text, $originalText, MatchType::NGram),
+                            context: ['original' => $phrase]
+                        )
+                    );
                 }
             }
         }

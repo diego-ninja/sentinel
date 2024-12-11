@@ -3,14 +3,14 @@
 namespace Ninja\Censor\Detection\Strategy;
 
 use Ninja\Censor\Collections\MatchCollection;
-use Ninja\Censor\Detection\Contracts\DetectionStrategy;
 use Ninja\Censor\Enums\MatchType;
 use Ninja\Censor\Index\TrieIndex;
+use Ninja\Censor\Support\Calculator;
 use Ninja\Censor\ValueObject\Coincidence;
 
-final readonly class IndexStrategy implements DetectionStrategy
+final class IndexStrategy extends AbstractStrategy
 {
-    public function __construct(private TrieIndex $index) {}
+    public function __construct(private readonly TrieIndex $index) {}
 
     public function detect(string $text, iterable $words): MatchCollection
     {
@@ -23,7 +23,15 @@ final readonly class IndexStrategy implements DetectionStrategy
                 if ($pos !== false) {
                     $originalWord = mb_substr($text, $pos, mb_strlen($word));
                     if ($originalWord === $word) {
-                        $matches->addCoincidence(new Coincidence($word, MatchType::Trie));
+                        $matches->addCoincidence(
+                            new Coincidence(
+                                word: $word,
+                                type: MatchType::Trie,
+                                score: Calculator::score($text, $word, MatchType::Trie),
+                                confidence: Calculator::confidence($text, $word, MatchType::Trie),
+                                context: ['original' => $text]
+                            )
+                        );
                     }
                 }
             }

@@ -29,6 +29,7 @@ test('variation strategy handles multiple separators', function () {
 
     foreach ($variations as $text) {
         $result = $strategy->detect($text, ['fuck']);
+
         expect($result)
             ->toHaveCount(1);
     }

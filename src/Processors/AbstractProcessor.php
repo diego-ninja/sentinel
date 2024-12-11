@@ -77,8 +77,8 @@ abstract class AbstractProcessor implements Processor
             ->withOriginalText($original)
             ->withReplaced($finalText)
             ->withWords(array_unique($matches->words()))
-            ->withScore($matches->score($original))
-            ->withOffensive($matches->offensive($original))
+            ->withScore($matches->score())
+            ->withOffensive($matches->offensive())
             ->withConfidence($matches->confidence())
             ->withMatches($matches)
             ->build();

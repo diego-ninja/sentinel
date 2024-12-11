@@ -48,6 +48,8 @@ final class CensorServiceProvider extends ServiceProvider
             },
             message: 'The :attribute contains offensive language.'
         );
+
+        $this->loadRoutesFrom(__DIR__.'/../routes/censor.php');
     }
 
     public function register(): void

@@ -6,19 +6,19 @@ use Exception;
 use InvalidArgumentException;
 use Ninja\Censor\Cache\Contracts\PatternCache;
 use Ninja\Censor\Collections\MatchCollection;
-use Ninja\Censor\Detection\Contracts\DetectionStrategy;
 use Ninja\Censor\Enums\MatchType;
+use Ninja\Censor\Support\Calculator;
 use Ninja\Censor\Support\PatternGenerator;
 use Ninja\Censor\ValueObject\Coincidence;
 
-final readonly class PatternStrategy implements DetectionStrategy
+final class PatternStrategy extends AbstractStrategy
 {
     /** @var array<string> */
     private array $patterns;
 
     public function __construct(
-        private PatternGenerator $generator,
-        private PatternCache $cache
+        private readonly PatternGenerator $generator,
+        private readonly PatternCache $cache
     ) {
         $this->patterns = $this->generator->getPatterns();
 
@@ -49,7 +49,15 @@ final readonly class PatternStrategy implements DetectionStrategy
 
                 if (preg_match_all($cachedPattern, $text, $found) > 0) {
                     foreach ($found[0] as $match) {
-                        $matches->addCoincidence(new Coincidence($match, MatchType::Pattern));
+                        $matches->addCoincidence(
+                            new Coincidence(
+                                word: $match,
+                                type: MatchType::Pattern,
+                                score: Calculator::score($text, $match, MatchType::Pattern),
+                                confidence: Calculator::confidence($text, $match, MatchType::Pattern),
+                                context: ['exact_match' => $match === $pattern]
+                            )
+                        );
                     }
                 }
             }

@@ -3,11 +3,11 @@
 namespace Ninja\Censor\Detection\Strategy;
 
 use Ninja\Censor\Collections\MatchCollection;
-use Ninja\Censor\Detection\Contracts\DetectionStrategy;
 use Ninja\Censor\Enums\MatchType;
+use Ninja\Censor\Support\Calculator;
 use Ninja\Censor\ValueObject\Coincidence;
 
-final readonly class RepeatedCharStrategy implements DetectionStrategy
+final class RepeatedCharStrategy extends AbstractStrategy
 {
     public function detect(string $text, iterable $words): MatchCollection
     {
@@ -27,7 +27,15 @@ final readonly class RepeatedCharStrategy implements DetectionStrategy
             if (preg_match_all($pattern, $text, $found) !== false) {
                 foreach ($found[0] as $match) {
                     if ($this->hasRepeatedChars($match)) {
-                        $matches->addCoincidence(new Coincidence($match, MatchType::Repeated));
+                        $matches->addCoincidence(
+                            new Coincidence(
+                                word: $match,
+                                type: MatchType::Repeated,
+                                score: Calculator::score($text, $match, MatchType::Repeated),
+                                confidence: Calculator::confidence($text, $match, MatchType::Repeated),
+                                context: ['original' => $badWord, 'variation' => $match]
+                            )
+                        );
                     }
                 }
             }

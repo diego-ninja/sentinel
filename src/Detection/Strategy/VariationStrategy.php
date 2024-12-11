@@ -3,14 +3,14 @@
 namespace Ninja\Censor\Detection\Strategy;
 
 use Ninja\Censor\Collections\MatchCollection;
-use Ninja\Censor\Detection\Contracts\DetectionStrategy;
 use Ninja\Censor\Enums\MatchType;
+use Ninja\Censor\Support\Calculator;
 use Ninja\Censor\Support\TextAnalyzer;
 use Ninja\Censor\ValueObject\Coincidence;
 
-final readonly class VariationStrategy implements DetectionStrategy
+final class VariationStrategy extends AbstractStrategy
 {
-    public function __construct(private bool $fullWords = true) {}
+    public function __construct(private readonly bool $fullWords = true) {}
 
     public function detect(string $text, iterable $words): MatchCollection
     {
@@ -29,7 +29,15 @@ final readonly class VariationStrategy implements DetectionStrategy
 
             if (preg_match_all($pattern, $text, $found) !== false) {
                 foreach ($found[0] as $match) {
-                    $matches->addCoincidence(new Coincidence($match, MatchType::Variation));
+                    $matches->addCoincidence(
+                        new Coincidence(
+                            word: $match,
+                            type: MatchType::Variation,
+                            score: Calculator::score($text, $match, MatchType::Variation),
+                            confidence: Calculator::confidence($text, $match, MatchType::Variation),
+                            context: ['original' => $badWord, 'variation' => $match]
+                        )
+                    );
                 }
             }
 
@@ -37,7 +45,15 @@ final readonly class VariationStrategy implements DetectionStrategy
                 foreach (TextAnalyzer::getSeparatorVariations($badWord) as $variation) {
                     if (! str_contains($variation, ' ') &&
                         mb_stripos($text, $variation) !== false) {
-                        $matches->addCoincidence(new Coincidence($variation, MatchType::Variation));
+                        $matches->addCoincidence(
+                            new Coincidence(
+                                word: $variation,
+                                type: MatchType::Variation,
+                                score: Calculator::score($text, $variation, MatchType::Variation),
+                                confidence: Calculator::confidence($text, $variation, MatchType::Variation),
+                                context: ['original' => $badWord]
+                            )
+                        );
                     }
                 }
             }

@@ -3,12 +3,12 @@
 namespace Ninja\Censor\Detection\Strategy;
 
 use Ninja\Censor\Collections\MatchCollection;
-use Ninja\Censor\Detection\Contracts\DetectionStrategy;
 use Ninja\Censor\Detection\OptimizedLevenshtein;
 use Ninja\Censor\Enums\MatchType;
+use Ninja\Censor\Support\Calculator;
 use Ninja\Censor\ValueObject\Coincidence;
 
-final readonly class LevenshteinStrategy implements DetectionStrategy
+final class LevenshteinStrategy extends AbstractStrategy
 {
     private int $threshold;
 
@@ -35,7 +35,17 @@ final readonly class LevenshteinStrategy implements DetectionStrategy
         foreach ($textWords as $textWord) {
             $similarWords = $levenshtein->findSimilar($textWord, $this->threshold);
             if (! empty($similarWords)) {
-                $matches->addCoincidence(new Coincidence($textWord, MatchType::Levenshtein));
+                $matches->addCoincidence(
+                    new Coincidence(
+                        word: $textWord,
+                        type: MatchType::Levenshtein,
+                        score: Calculator::score($text, $textWord, MatchType::Levenshtein),
+                        confidence: Calculator::confidence($text, $textWord, MatchType::Levenshtein),
+                        context: [
+                            'similar_words' => $similarWords,
+                        ]
+                    )
+                );
             }
 
         }

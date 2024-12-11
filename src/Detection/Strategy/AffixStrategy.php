@@ -3,11 +3,11 @@
 namespace Ninja\Censor\Detection\Strategy;
 
 use Ninja\Censor\Collections\MatchCollection;
-use Ninja\Censor\Detection\Contracts\DetectionStrategy;
 use Ninja\Censor\Enums\MatchType;
+use Ninja\Censor\Support\Calculator;
 use Ninja\Censor\ValueObject\Coincidence;
 
-final class AffixStrategy implements DetectionStrategy
+final class AffixStrategy extends AbstractStrategy
 {
     /** @var array<string, array<string>> */
     private array $cache = [];
@@ -44,7 +44,15 @@ final class AffixStrategy implements DetectionStrategy
             /** @var string $textWord */
             $lowerTextWord = mb_strtolower($textWord);
             if (isset($index[$lowerTextWord])) {
-                $matches->addCoincidence(new Coincidence($textWord, MatchType::Variation));
+                $matches->addCoincidence(
+                    new Coincidence(
+                        word: $textWord,
+                        type: MatchType::Variation,
+                        score: Calculator::score($text, $textWord, MatchType::Variation),
+                        confidence: Calculator::confidence($text, $textWord, MatchType::Variation),
+                        context: ['original' => $textWord, 'variation' => $index[$lowerTextWord]]
+                    )
+                );
             }
         }
 
