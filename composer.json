@@ -21,8 +21,6 @@
         "illuminate/http": "^10.0|^11.0",
         "illuminate/support": "^10.0|^11.0",
         "symfony/string": "^7.2",
-        "google/cloud-language": "^0.34.1",
-        "aws/aws-sdk-php": "^3.334",
         "lorisleiva/laravel-actions": "^2.8"
     },
     "require-dev": {

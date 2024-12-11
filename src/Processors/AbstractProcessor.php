@@ -11,6 +11,7 @@ use Ninja\Censor\Dictionary\LazyDictionary;
 use Ninja\Censor\Processors\Contracts\Processor;
 use Ninja\Censor\Result\AbstractResult;
 use Ninja\Censor\Result\Builder\ResultBuilder;
+use Ninja\Censor\Support\Calculator;
 use Ninja\Censor\Support\TextNormalizer;
 use Ninja\Censor\ValueObject\Coincidence;
 use Ninja\Censor\Whitelist;
@@ -74,9 +75,10 @@ abstract class AbstractProcessor implements Processor
      */
     protected function merge(array $results): AbstractResult
     {
-        $first = reset($results);
         $matches = new MatchCollection;
         $replaced = '';
+
+        $original = implode('', array_map(fn ($r) => $r->original(), $results));
 
         foreach ($results as $result) {
             foreach ($result->matches() ?? new MatchCollection as $match) {
@@ -84,8 +86,8 @@ abstract class AbstractProcessor implements Processor
                     new Coincidence(
                         $match->word(),
                         $match->type(),
-                        $match->score(),
-                        $match->confidence(),
+                        Calculator::score($original, $match->word(), $match->type()),
+                        Calculator::confidence($original, $match->word(), $match->type()),
                         $match->context()
                     )
                 );
@@ -96,7 +98,6 @@ abstract class AbstractProcessor implements Processor
 
         }
 
-        $original = implode('', array_map(fn ($r) => $r->original(), $results));
 
         return $this->buildResult($original, $replaced, $matches);
 

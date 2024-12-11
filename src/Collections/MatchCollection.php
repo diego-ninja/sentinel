@@ -83,33 +83,29 @@ class MatchCollection extends Collection
         $positions = [];
 
         foreach ($this as $match) {
-            $pos = mb_stripos($text, $match->word());
-            if ($pos !== false) {
+            $pos = 0;
+            while (($pos = mb_stripos($text, $match->word(), $pos)) !== false) {
                 $positions[] = [
                     'start' => $pos,
                     'length' => mb_strlen($match->word()),
                 ];
+                $pos += mb_strlen($match->word());
             }
         }
 
         usort($positions, function ($a, $b) {
-            if ($a['start'] === $b['start']) {
-                return $b['length'] - $a['length'];
-            }
-
-            return $a['start'] - $b['start'];
+            return $b['start'] - $a['start'];
         });
 
         $result = $text;
-        $offset = 0;
+        /** @var string $replacer */
+        $replacer = config('censor.mask_char', '*');
 
         foreach ($positions as $position) {
-            /** @var string $replacer */
-            $replacer = config('censor.mask_char', '*');
             $replacement = str_repeat($replacer, $position['length']);
-            $result = mb_substr($result, 0, $position['start'] - $offset)
-                .$replacement
-                .mb_substr($result, $position['start'] - $offset + $position['length']);
+            $result = mb_substr($result, 0, $position['start']).
+                $replacement.
+                mb_substr($result, $position['start'] + $position['length']);
         }
 
         return $result;

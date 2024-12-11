@@ -11,7 +11,7 @@ use Ninja\Censor\Result\Contracts\Result;
 
 final class Censor implements ProfanityChecker
 {
-    private const CHUNK_SIZE = 1000;
+    private const CHUNK_SIZE = 500;
 
     public function __construct(
         private readonly Processor $processor
@@ -26,7 +26,7 @@ final class Censor implements ProfanityChecker
         $chunks = $this->split($text);
         $results = $this->processor->process($chunks);
 
-        return $this->mergeResults($results, $text);
+        return $results[0];
     }
 
     /**
