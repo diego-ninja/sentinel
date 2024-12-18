@@ -3,10 +3,12 @@
 namespace Ninja\Censor\Detection\Strategy;
 
 use Ninja\Censor\Collections\MatchCollection;
+use Ninja\Censor\Collections\OccurrenceCollection;
 use Ninja\Censor\Detection\OptimizedLevenshtein;
 use Ninja\Censor\Enums\MatchType;
 use Ninja\Censor\Support\Calculator;
 use Ninja\Censor\ValueObject\Coincidence;
+use Ninja\Censor\ValueObject\Position;
 
 final class LevenshteinStrategy extends AbstractStrategy
 {
@@ -23,7 +25,6 @@ final class LevenshteinStrategy extends AbstractStrategy
     public function detect(string $text, iterable $words): MatchCollection
     {
         $matches = new MatchCollection;
-
         $dictionary = is_array($words) ? $words : iterator_to_array($words);
         $levenshtein = new OptimizedLevenshtein($dictionary);
 
@@ -35,19 +36,26 @@ final class LevenshteinStrategy extends AbstractStrategy
         foreach ($textWords as $textWord) {
             $similarWords = $levenshtein->findSimilar($textWord, $this->threshold);
             if (! empty($similarWords)) {
+                $positions = [];
+                $pos = 0;
+                while (($pos = mb_stripos($text, $textWord, $pos)) !== false) {
+                    $positions[] = new Position($pos, mb_strlen($textWord));
+                    $pos += mb_strlen($textWord);
+                }
+
+                $occurrences = new OccurrenceCollection($positions);
+
                 $matches->addCoincidence(
                     new Coincidence(
                         word: $textWord,
                         type: MatchType::Levenshtein,
-                        score: Calculator::score($text, $textWord, MatchType::Levenshtein),
-                        confidence: Calculator::confidence($text, $textWord, MatchType::Levenshtein),
-                        context: [
-                            'similar_words' => $similarWords,
-                        ]
+                        score: Calculator::score($text, $textWord, MatchType::Levenshtein, $occurrences),
+                        confidence: Calculator::confidence($text, $textWord, MatchType::Levenshtein, $occurrences),
+                        occurrences: $occurrences,
+                        context: ['similar_words' => $similarWords]
                     )
                 );
             }
-
         }
 
         return $matches;

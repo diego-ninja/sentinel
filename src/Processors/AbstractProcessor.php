@@ -5,6 +5,7 @@ namespace Ninja\Censor\Processors;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Container\CircularDependencyException;
 use Ninja\Censor\Collections\MatchCollection;
+use Ninja\Censor\Collections\OccurrenceCollection;
 use Ninja\Censor\Collections\StrategyCollection;
 use Ninja\Censor\Detection\Contracts\DetectionStrategy;
 use Ninja\Censor\Dictionary\LazyDictionary;
@@ -14,6 +15,7 @@ use Ninja\Censor\Result\Builder\ResultBuilder;
 use Ninja\Censor\Support\Calculator;
 use Ninja\Censor\Support\TextNormalizer;
 use Ninja\Censor\ValueObject\Coincidence;
+use Ninja\Censor\ValueObject\Position;
 use Ninja\Censor\Whitelist;
 
 abstract class AbstractProcessor implements Processor
@@ -43,7 +45,6 @@ abstract class AbstractProcessor implements Processor
      */
     protected function initializeStrategies(): void
     {
-
         /** @var array<class-string<DetectionStrategy>> $strategies */
         $strategies = config('censor.services.local.strategies', []);
 
@@ -64,7 +65,11 @@ abstract class AbstractProcessor implements Processor
         $words = iterator_to_array($this->dictionary->getWords());
         $matches = $this->strategies->detect($normalized, $words);
 
-        $cleaned = $matches->isEmpty() ? $normalized : $matches->clean($normalized);
+        if ($matches->isEmpty()) {
+            return $this->buildResult($chunk, $normalized, $matches);
+        }
+
+        $cleaned = $matches->clean($normalized);
         $finalText = $this->whitelist->restore($cleaned);
 
         return $this->buildResult($chunk, $finalText, $matches);
@@ -77,30 +82,35 @@ abstract class AbstractProcessor implements Processor
     {
         $matches = new MatchCollection;
         $replaced = '';
-
         $original = implode('', array_map(fn ($r) => $r->original(), $results));
 
         foreach ($results as $result) {
             foreach ($result->matches() ?? new MatchCollection as $match) {
-                $matches->addCoincidence(
-                    new Coincidence(
-                        $match->word(),
-                        $match->type(),
-                        Calculator::score($original, $match->word(), $match->type()),
-                        Calculator::confidence($original, $match->word(), $match->type()),
-                        $match->context()
-                    )
-                );
+                $positions = [];
+                $pos = 0;
+                while (($pos = mb_stripos($original, $match->word(), $pos)) !== false) {
+                    $positions[] = new Position($pos, mb_strlen($match->word()));
+                    $pos += mb_strlen($match->word());
+                }
 
+                if (! empty($positions)) {
+                    $occurrences = new OccurrenceCollection($positions);
+                    $matches->addCoincidence(
+                        new Coincidence(
+                            word: $match->word(),
+                            type: $match->type(),
+                            score: Calculator::score($original, $match->word(), $match->type(), $occurrences),
+                            confidence: Calculator::confidence($original, $match->word(), $match->type(), $occurrences),
+                            occurrences: $occurrences,
+                            context: $match->context()
+                        )
+                    );
+                }
             }
-
             $replaced .= $result->replaced();
-
         }
 
-
         return $this->buildResult($original, $replaced, $matches);
-
     }
 
     private function buildResult(
@@ -118,12 +128,4 @@ abstract class AbstractProcessor implements Processor
             ->withMatches($matches)
             ->build();
     }
-
-    /**
-     * Process multiple chunks of text.
-     *
-     * @param  array<string>  $chunks
-     * @return array<AbstractResult>
-     */
-    abstract public function process(array $chunks): array;
 }

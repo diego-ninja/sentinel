@@ -2,19 +2,24 @@
 
 namespace Ninja\Censor\ValueObject;
 
+use Ninja\Censor\Collections\OccurrenceCollection;
 use Ninja\Censor\Enums\MatchType;
 
+/**
+ * @immutable
+ */
 final readonly class Coincidence
 {
     /**
      * @param  array<string, mixed>|null  $context
      */
     public function __construct(
-        public string $word,
-        public MatchType $type,
-        public Score $score,
-        public Confidence $confidence,
-        public ?array $context,
+        private string $word,
+        private MatchType $type,
+        private Score $score,
+        private Confidence $confidence,
+        private OccurrenceCollection $occurrences,
+        private ?array $context = null,
     ) {}
 
     public function word(): string
@@ -37,6 +42,11 @@ final readonly class Coincidence
         return $this->confidence;
     }
 
+    public function occurrences(): OccurrenceCollection
+    {
+        return $this->occurrences;
+    }
+
     /**
      * @return array<string, mixed>|null
      */
@@ -50,12 +60,6 @@ final readonly class Coincidence
         /** @var string $replacer */
         $replacer = config('censor.mask_char', '*');
 
-        $clean = $text;
-
-        return str_replace(
-            $this->word,
-            str_repeat($replacer, mb_strlen($this->word)),
-            $clean
-        );
+        return $this->occurrences->apply($text, $replacer);
     }
 }

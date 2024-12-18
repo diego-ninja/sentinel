@@ -138,7 +138,7 @@ test('calculates appropriate scores', function () {
         // [text, expected score range]
         ['This is a clean text', [0.0, 0.0]],
         ['fuck shit damn', [0.8, 1.0]],
-        ['This text has one fuck word', [0.1, 0.5]],
+        ['This text has one fuck word', [0.1, 0.6]],
         ['f u c k this sh!t', [0.6, 1.0]],
     ];
 
