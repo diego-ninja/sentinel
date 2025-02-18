@@ -13,13 +13,15 @@ final readonly class RepeatedCharStrategy implements DetectionStrategy
     {
         $matches = new MatchCollection;
 
+        $text = mb_convert_encoding($text, 'UTF-8', 'auto');
         foreach ($words as $badWord) {
+            $badWord = mb_convert_encoding($badWord, 'UTF-8', 'auto');
             if (! $this->hasRepeatedChars($text)) {
                 continue;
             }
 
             $pattern = '/\b';
-            foreach (str_split($badWord) as $char) {
+            foreach (mb_str_split($badWord) as $char) {
                 $pattern .= preg_quote($char, '/').'+';
             }
             $pattern .= '\b/iu';
