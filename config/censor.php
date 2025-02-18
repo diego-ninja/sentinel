@@ -229,7 +229,14 @@ return [
             'endpoint' => env('AZURE_AI_ENDPOINT'),
             'version' => env('AZURE_AI_VERSION', \Ninja\Censor\Checkers\AzureAI::DEFAULT_API_VERSION),
         ],
+        'deepseek' => [
+            'api_key' => env('DEEPSEEK_API_KEY', 'sk-21e3e749c85d4138beddb36361fcae62'),
+            'model' => env('DEEPSEEK_MODEL', 'DeepSeek-V3'),
+        ],
         'purgomalum' => [],
+        'prism' => [
+            'provider' => env('PRISM_PROVIDER', \EchoLabs\Prism\Enums\Provider::DeepSeek),
+        ],
         'local' => [
             'levenshtein_threshold' => env('CENSOR_LEVENSHTEIN_THRESHOLD', 1),
             'processor' => \Ninja\Censor\Processors\DefaultProcessor::class,

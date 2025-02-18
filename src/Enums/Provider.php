@@ -8,6 +8,7 @@ enum Provider: string
     case PurgoMalum = 'purgomalum';
     case Tisane = 'tisane_ai';
     case Azure = 'azure_ai';
+    case Prism = 'prism_ai';
     case Local = 'local';
 
     /**
