@@ -16,6 +16,7 @@
     "require": {
         "php": "^8.2",
         "ext-intl": "*",
+        "ext-mbstring": "*",
         "guzzlehttp/guzzle": "^7",
         "illuminate/contracts": "^10.0|^11.0",
         "illuminate/http": "^10.0|^11.0",
