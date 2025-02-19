@@ -53,7 +53,7 @@ final class TisaneResult extends AbstractResult
         $score = self::calculateScore($abuses);
         $sentiment = Sentiment::withScore(new Score((float) $response['sentiment']));
 
-        $builder = new ResultBuilder;
+        $builder = new ResultBuilder();
 
         return $builder
             ->withOriginalText($text)
@@ -79,7 +79,7 @@ final class TisaneResult extends AbstractResult
      */
     private static function calculateScore(array $abuses): Score
     {
-        if (count($abuses) === 0) {
+        if (0 === count($abuses)) {
             return new Score(0.0);
         }
 
@@ -89,7 +89,7 @@ final class TisaneResult extends AbstractResult
                 'medium' => 0.50,
                 'high' => 0.75,
                 'extreme' => 0.99,
-                default => 0.0
+                default => 0.0,
             };
         }, array_column($abuses, 'severity'));
 

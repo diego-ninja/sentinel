@@ -54,7 +54,7 @@ final readonly class PrismAI implements ProfanityChecker
             matches: null,
             score: new Score($data['severity']),
             confidence: new Confidence($data['confidence']),
-            categories: $this->mapCategories($data['categories'])
+            categories: $this->mapCategories($data['categories']),
         );
     }
 
@@ -72,7 +72,7 @@ final readonly class PrismAI implements ProfanityChecker
             $replaced = str_replace(
                 $word,
                 str_repeat('*', mb_strlen($word)),
-                $replaced
+                $replaced,
             );
         }
 
@@ -81,11 +81,11 @@ final readonly class PrismAI implements ProfanityChecker
 
     private function buildStructuredPrismRequest(Provider $provider, string $model, string $instructions, string $message): StructuredPendingRequest
     {
-        if ($provider === Provider::Anthropic) {
+        if (Provider::Anthropic === $provider) {
             return $this->prism->structured()
                 ->using(
                     provider: $provider,
-                    model: $model
+                    model: $model,
                 )
                 ->withMessages([
                     (new SystemMessage($instructions))->withProviderMeta(Provider::Anthropic, ['cacheType' => AnthropicCacheType::Ephemeral]),
@@ -94,20 +94,20 @@ final readonly class PrismAI implements ProfanityChecker
                 ->withClientOptions([
                     'timeout' => config('censor.services.prism.timeout', 30),
                 ])
-                ->withSchema(new CensorPrismSchema);
+                ->withSchema(new CensorPrismSchema());
         }
 
         return $this->prism->structured()
             ->using(
                 provider: $provider,
-                model: $model
+                model: $model,
             )
             ->withSystemPrompt($instructions)
             ->withPrompt($message)
             ->withClientOptions([
                 'timeout' => config('censor.services.prism.timeout', 30),
             ])
-            ->withSchema(new CensorPrismSchema);
+            ->withSchema(new CensorPrismSchema());
     }
 
     private function buildUnstructuredPrismRequest(Provider $provider, string $model, string $instructions, string $message): UnstructuredPendingRequest
@@ -145,17 +145,17 @@ final readonly class PrismAI implements ProfanityChecker
     {
         return array_map(
             function (string $category) {
-                return match (strtolower($category)) {
+                return match (mb_strtolower($category)) {
                     'hate_speech', 'hate' => Category::HateSpeech,
                     'harassment' => Category::Harassment,
                     'sexual', 'adult' => Category::Sexual,
                     'violence' => Category::Violence,
                     'threat' => Category::Threat,
                     'toxicity' => Category::Toxicity,
-                    default => Category::Profanity
+                    default => Category::Profanity,
                 };
             },
-            array_unique($categories)
+            array_unique($categories),
         );
     }
 
@@ -163,12 +163,12 @@ final readonly class PrismAI implements ProfanityChecker
     {
 
 
-        return 'Analyze the following text for inappropriate content, profanity, and offensive language. '.
-            'Consider the context and provide detailed detection results. '.
-            'Pay attention to attempted obfuscation or creative spelling of offensive words. '.
-            'Only mark content as offensive if it would be inappropriate in a professional context. '.
-            'Use any of the following categories: hate_speech, harassment, sexual, violence, adult, threat, toxicity, or profanity. '.
-            'Use the following languages: '.implode(', ', (array) config('censor.languages', ['en']));
+        return 'Analyze the following text for inappropriate content, profanity, and offensive language. ' .
+            'Consider the context and provide detailed detection results. ' .
+            'Pay attention to attempted obfuscation or creative spelling of offensive words. ' .
+            'Only mark content as offensive if it would be inappropriate in a professional context. ' .
+            'Use any of the following categories: hate_speech, harassment, sexual, violence, adult, threat, toxicity, or profanity. ' .
+            'Use the following languages: ' . implode(', ', (array) config('censor.languages', ['en']));
     }
 
     /**
@@ -181,28 +181,28 @@ final readonly class PrismAI implements ProfanityChecker
         $required = ['is_offensive', 'offensive_words', 'categories', 'confidence', 'severity'];
 
         foreach ($required as $field) {
-            if (! isset($data[$field])) {
+            if ( ! isset($data[$field])) {
                 throw new InvalidArgumentException("Missing required field: {$field}");
             }
         }
 
-        if (! is_bool($data['is_offensive'])) {
+        if ( ! is_bool($data['is_offensive'])) {
             throw new InvalidArgumentException('is_offensive must be a boolean');
         }
 
-        if (! is_array($data['offensive_words'])) {
+        if ( ! is_array($data['offensive_words'])) {
             throw new InvalidArgumentException('offensive_words must be an array');
         }
 
-        if (! is_array($data['categories'])) {
+        if ( ! is_array($data['categories'])) {
             throw new InvalidArgumentException('categories must be an array');
         }
 
-        if (! is_numeric($data['confidence']) || $data['confidence'] < 0 || $data['confidence'] > 1) {
+        if ( ! is_numeric($data['confidence']) || $data['confidence'] < 0 || $data['confidence'] > 1) {
             throw new InvalidArgumentException('confidence must be a number between 0 and 1');
         }
 
-        if (! is_numeric($data['severity']) || $data['severity'] < 0 || $data['severity'] > 1) {
+        if ( ! is_numeric($data['severity']) || $data['severity'] < 0 || $data['severity'] > 1) {
             throw new InvalidArgumentException('severity must be a number between 0 and 1');
         }
     }
@@ -236,16 +236,16 @@ final readonly class PrismAI implements ProfanityChecker
 
     private function cleanResponseText(string $responseText): string
     {
-        $start = strpos($responseText, '{');
-        $end = strrpos($responseText, '}');
+        $start = mb_strpos($responseText, '{');
+        $end = mb_strrpos($responseText, '}');
 
-        if ($start === false || $end === false) {
+        if (false === $start || false === $end) {
             return $responseText;
         }
 
-        $jsonPart = substr($responseText, $start, $end - $start + 1);
+        $jsonPart = mb_substr($responseText, $start, $end - $start + 1);
         $jsonPart = preg_replace('/```json\s*|\s*```/', '', $jsonPart);
 
-        return trim($jsonPart ?? $responseText);
+        return mb_trim($jsonPart ?? $responseText);
     }
 }

@@ -14,14 +14,9 @@ final class AzureAI extends AbstractProfanityChecker
         private readonly string $endpoint,
         private readonly string $key,
         private readonly string $version = self::DEFAULT_API_VERSION,
-        ?ClientInterface $httpClient = null
+        ?ClientInterface $httpClient = null,
     ) {
         parent::__construct($httpClient);
-    }
-
-    protected function baseUri(): string
-    {
-        return rtrim($this->endpoint, '/');
     }
 
     public function check(string $text): Result
@@ -43,5 +38,10 @@ final class AzureAI extends AbstractProfanityChecker
         ]);
 
         return AzureResult::fromResponse($text, $response);
+    }
+
+    protected function baseUri(): string
+    {
+        return mb_rtrim($this->endpoint, '/');
     }
 }

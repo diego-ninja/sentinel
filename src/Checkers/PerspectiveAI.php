@@ -14,11 +14,6 @@ final class PerspectiveAI extends AbstractProfanityChecker
         parent::__construct($client);
     }
 
-    protected function baseUri(): string
-    {
-        return 'https://commentanalyzer.googleapis.com/v1alpha1/';
-    }
-
     /**
      * @throws ClientException
      */
@@ -40,5 +35,10 @@ final class PerspectiveAI extends AbstractProfanityChecker
         $response = $this->post(sprintf('comments:analyze?key=%s', $this->key), $params);
 
         return PerspectiveResult::fromResponse($text, $response);
+    }
+
+    protected function baseUri(): string
+    {
+        return 'https://commentanalyzer.googleapis.com/v1alpha1/';
     }
 }

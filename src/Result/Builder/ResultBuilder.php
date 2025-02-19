@@ -48,8 +48,7 @@ final class ResultBuilder implements ResultBuilderContract
 
     public function build(): AbstractResult
     {
-        return new class(offensive: $this->offensive, words: $this->words, replaced: $this->replaced, original: $this->original, matches: $this->matches, score: $this->score, confidence: $this->confidence, sentiment: $this->sentiment, categories: $this->categories) extends AbstractResult
-        {
+        return new class (offensive: $this->offensive, words: $this->words, replaced: $this->replaced, original: $this->original, matches: $this->matches, score: $this->score, confidence: $this->confidence, sentiment: $this->sentiment, categories: $this->categories) extends AbstractResult {
             public static function fromResponse(string $text, array $response): AbstractResult
             {
                 throw new RuntimeException('Not supported in anonymous class');

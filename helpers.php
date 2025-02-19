@@ -2,7 +2,7 @@
 
 use Ninja\Censor\Checkers\Contracts\ProfanityChecker;
 
-if (! function_exists('is_offensive')) {
+if ( ! function_exists('is_offensive')) {
     function is_offensive(string $text): bool
     {
         /** @var ProfanityChecker $service */
@@ -12,7 +12,7 @@ if (! function_exists('is_offensive')) {
     }
 }
 
-if (! function_exists('clean')) {
+if ( ! function_exists('clean')) {
     function clean(string $text): string
     {
         /** @var ProfanityChecker $service */

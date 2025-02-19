@@ -33,7 +33,7 @@ final class AzureResult extends AbstractResult
         $categories = [];
         $maxSeverity = 0;
 
-        $builder = new ResultBuilder;
+        $builder = new ResultBuilder();
 
         foreach ($response['categoriesAnalysis'] ?? [] as $category) {
             $severity = self::SEVERITY_THRESHOLDS[$category['severity']] ?? 0;
@@ -46,8 +46,8 @@ final class AzureResult extends AbstractResult
         }
 
         $words = array_map(
-            fn ($term) => $term['text'],
-            $response['blocklistsMatch'] ?? []
+            fn($term) => $term['text'],
+            $response['blocklistsMatch'] ?? [],
         );
 
         $score = new Score($maxSeverity / 6);

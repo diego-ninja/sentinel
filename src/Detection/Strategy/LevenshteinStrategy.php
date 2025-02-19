@@ -22,19 +22,19 @@ final readonly class LevenshteinStrategy implements DetectionStrategy
 
     public function detect(string $text, iterable $words): MatchCollection
     {
-        $matches = new MatchCollection;
+        $matches = new MatchCollection();
 
         $dictionary = is_array($words) ? $words : iterator_to_array($words);
         $levenshtein = new OptimizedLevenshtein($dictionary);
 
         $textWords = preg_split('/\s+/', $text);
-        if ($textWords === false) {
+        if (false === $textWords) {
             return $matches;
         }
 
         foreach ($textWords as $textWord) {
             $similarWords = $levenshtein->findSimilar($textWord, $this->threshold);
-            if (! empty($similarWords)) {
+            if ( ! empty($similarWords)) {
                 $matches->addCoincidence(new Coincidence($textWord, MatchType::Levenshtein));
             }
 

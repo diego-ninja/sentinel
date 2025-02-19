@@ -2,4 +2,6 @@
 
 namespace Ninja\Censor\Exceptions;
 
-class ClientException extends \Exception {}
+use Exception;
+
+class ClientException extends Exception {}

@@ -6,7 +6,7 @@ use Ninja\Censor\ValueObject\Coincidence;
 use Ninja\Censor\ValueObject\Confidence;
 use Ninja\Censor\ValueObject\Score;
 
-test('collection calculates score correctly', function () {
+test('collection calculates score correctly', function (): void {
     $collection = new MatchCollection([
         new Coincidence('fuck', MatchType::Exact),
         new Coincidence('shit', MatchType::Pattern),
@@ -20,7 +20,7 @@ test('collection calculates score correctly', function () {
         ->and($score->value())->toBeGreaterThan(0.5);
 });
 
-test('collection calculates confidence correctly', function () {
+test('collection calculates confidence correctly', function (): void {
     $collection = new MatchCollection([
         new Coincidence('test', MatchType::Exact),
         new Coincidence('word', MatchType::Pattern),
@@ -33,7 +33,7 @@ test('collection calculates confidence correctly', function () {
         ->and($confidence->value())->toBeGreaterThan(0.5);
 });
 
-test('collection determines offensive content correctly', function () {
+test('collection determines offensive content correctly', function (): void {
     $collection = new MatchCollection([
         new Coincidence('fuck', MatchType::Exact),
     ]);
@@ -42,7 +42,7 @@ test('collection determines offensive content correctly', function () {
     expect($collection->offensive($text))->toBeTrue();
 });
 
-test('collection cleans text correctly', function () {
+test('collection cleans text correctly', function (): void {
     $collection = new MatchCollection([
         new Coincidence('fuck', MatchType::Exact),
         new Coincidence('shit', MatchType::Pattern),
@@ -54,12 +54,12 @@ test('collection cleans text correctly', function () {
     expect($cleaned)->toBe('**** this ****');
 });
 
-test('empty collection is not offensive', function () {
-    $collection = new MatchCollection;
+test('empty collection is not offensive', function (): void {
+    $collection = new MatchCollection();
     expect($collection->offensive('clean text'))->toBeFalse();
 });
 
-test('collection handles overlapping matches', function () {
+test('collection handles overlapping matches', function (): void {
     $collection = new MatchCollection([
         new Coincidence('fuck', MatchType::Exact),
         new Coincidence('fucking', MatchType::Pattern),
@@ -71,7 +71,7 @@ test('collection handles overlapping matches', function () {
     expect($cleaned)->toBe('******* hell');
 });
 
-test('collection returns correct match count', function () {
+test('collection returns correct match count', function (): void {
     $collection = new MatchCollection([
         new Coincidence('test', MatchType::Exact),
         new Coincidence('word', MatchType::Pattern),
@@ -80,7 +80,7 @@ test('collection returns correct match count', function () {
     expect($collection)->toHaveCount(2);
 });
 
-test('collection can be iterated', function () {
+test('collection can be iterated', function (): void {
     $matches = [
         new Coincidence('test', MatchType::Exact),
         new Coincidence('word', MatchType::Pattern),
@@ -97,7 +97,7 @@ test('collection can be iterated', function () {
     expect($iterations)->toBe(2);
 });
 
-test('collection merges correctly', function () {
+test('collection merges correctly', function (): void {
     $collection1 = new MatchCollection([
         new Coincidence('test', MatchType::Exact),
     ]);

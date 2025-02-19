@@ -42,7 +42,7 @@ return [
     | Define the default profanity service to use
     |
     */
-    'default_service' => \Ninja\Censor\Enums\Provider::Local,
+    'default_service' => Ninja\Censor\Enums\Provider::Local,
 
     /*
     |--------------------------------------------------------------------------
@@ -227,23 +227,23 @@ return [
         'azure_ai' => [
             'key' => env('AZURE_AI_API_KEY'),
             'endpoint' => env('AZURE_AI_ENDPOINT'),
-            'version' => env('AZURE_AI_VERSION', \Ninja\Censor\Checkers\AzureAI::DEFAULT_API_VERSION),
+            'version' => env('AZURE_AI_VERSION', Ninja\Censor\Checkers\AzureAI::DEFAULT_API_VERSION),
         ],
         'purgomalum' => [],
         'prism' => [
-            'provider' => env('PRISM_PROVIDER', \EchoLabs\Prism\Enums\Provider::Anthropic),
+            'provider' => env('PRISM_PROVIDER', EchoLabs\Prism\Enums\Provider::Anthropic),
             'model' => env('PRISM_MODEL', 'claude-3-5-sonnet-20241022'),
         ],
         'local' => [
             'levenshtein_threshold' => env('CENSOR_LEVENSHTEIN_THRESHOLD', 1),
-            'processor' => \Ninja\Censor\Processors\DefaultProcessor::class,
+            'processor' => Ninja\Censor\Processors\DefaultProcessor::class,
             'strategies' => [
-                \Ninja\Censor\Detection\Strategy\IndexStrategy::class,
-                \Ninja\Censor\Detection\Strategy\PatternStrategy::class,
-                \Ninja\Censor\Detection\Strategy\NGramStrategy::class,
-                \Ninja\Censor\Detection\Strategy\AffixStrategy::class,
-                \Ninja\Censor\Detection\Strategy\VariationStrategy::class,
-                \Ninja\Censor\Detection\Strategy\RepeatedCharStrategy::class,
+                Ninja\Censor\Detection\Strategy\IndexStrategy::class,
+                Ninja\Censor\Detection\Strategy\PatternStrategy::class,
+                Ninja\Censor\Detection\Strategy\NGramStrategy::class,
+                Ninja\Censor\Detection\Strategy\AffixStrategy::class,
+                Ninja\Censor\Detection\Strategy\VariationStrategy::class,
+                Ninja\Censor\Detection\Strategy\RepeatedCharStrategy::class,
             ],
         ],
     ],

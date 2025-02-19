@@ -29,24 +29,24 @@ final readonly class ProfanityCheckerFactory
             Provider::PurgoMalum => PurgoMalum::class,
             Provider::Tisane => TisaneAI::class,
             Provider::Azure => AzureAI::class,
-            Provider::Prism => PrismAI::class
+            Provider::Prism => PrismAI::class,
         };
 
-        if (class_exists($class) === false) {
+        if (false === class_exists($class)) {
             throw new RuntimeException(sprintf('The class %s does not exist.', $class));
         }
 
-        if ($service === Provider::Local) {
+        if (Provider::Local === $service) {
             $checker = new $class(app(Processor::class));
-        } elseif ($service === Provider::Prism) {
+        } elseif (Provider::Prism === $service) {
             $checker = new $class(app(Prism::class));
         } else {
             $checker = new $class(...$config);
         }
 
-        if (config('censor.cache.enabled', false) === true) {
+        if (true === config('censor.cache.enabled', false)) {
             $ttl = config('censor.cache.ttl', 3600);
-            if (is_int($ttl) === false) {
+            if (false === is_int($ttl)) {
                 $ttl = 3600;
             }
 

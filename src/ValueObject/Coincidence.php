@@ -31,7 +31,7 @@ final readonly class Coincidence
         return str_replace(
             $this->word,
             str_repeat($replacer, mb_strlen($this->word)),
-            $clean
+            $clean,
         );
     }
 }

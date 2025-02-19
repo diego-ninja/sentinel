@@ -13,7 +13,7 @@ final class MemoryPatternCache implements PatternCache
     private array $lastUsed = [];
 
     public function __construct(
-        private readonly int $maxSize = 1000
+        private readonly int $maxSize = 1000,
     ) {}
 
     public function get(string $key): ?string
@@ -34,8 +34,8 @@ final class MemoryPatternCache implements PatternCache
                 array_filter(
                     $this->lastUsed,
                     // @phpstan-ignore argument.type
-                    fn ($time) => $time === min(array_values($this->lastUsed))
-                )
+                    fn($time) => $time === min(array_values($this->lastUsed)),
+                ),
             );
             unset($this->patterns[$oldest], $this->lastUsed[$oldest]);
         }

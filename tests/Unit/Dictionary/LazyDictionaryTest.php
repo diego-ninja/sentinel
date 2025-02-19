@@ -4,8 +4,8 @@ namespace Tests\Unit;
 
 use Ninja\Censor\Dictionary\LazyDictionary;
 
-test('dictionary loads words correctly from multiple languages', function () {
-    config(['censor.dictionary_path' => __DIR__.'/../../../resources/dict']);
+test('dictionary loads words correctly from multiple languages', function (): void {
+    config(['censor.dictionary_path' => __DIR__ . '/../../../resources/dict']);
     $dictionary = LazyDictionary::withLanguages(['en', 'es', 'fr']);
 
     $words = iterator_to_array($dictionary->getWords());
@@ -15,8 +15,8 @@ test('dictionary loads words correctly from multiple languages', function () {
         ->toContain('fuck', 'puta', 'merde');
 });
 
-test('dictionary handles single language', function () {
-    config(['censor.dictionary_path' => __DIR__.'/../../../resources/dict']);
+test('dictionary handles single language', function (): void {
+    config(['censor.dictionary_path' => __DIR__ . '/../../../resources/dict']);
     $dictionary = LazyDictionary::withLanguages(['en']);
 
     $words = iterator_to_array($dictionary->getWords());
@@ -27,8 +27,8 @@ test('dictionary handles single language', function () {
         ->not->toContain('puta', 'merde');
 });
 
-test('dictionary deduplicates words', function () {
-    config(['censor.dictionary_path' => __DIR__.'/../../../resources/dict']);
+test('dictionary deduplicates words', function (): void {
+    config(['censor.dictionary_path' => __DIR__ . '/../../../resources/dict']);
     $dictionary = LazyDictionary::withLanguages(['en', 'en-us']); // en-us includes en base words
 
     $words = iterator_to_array($dictionary->getWords());
@@ -37,8 +37,8 @@ test('dictionary deduplicates words', function () {
     expect(count($words))->toBe(count($uniqueWords));
 });
 
-test('dictionary generator can be iterated multiple times', function () {
-    config(['censor.dictionary_path' => __DIR__.'/../../../resources/dict']);
+test('dictionary generator can be iterated multiple times', function (): void {
+    config(['censor.dictionary_path' => __DIR__ . '/../../../resources/dict']);
     $dictionary = LazyDictionary::withLanguages(['en']);
 
     $firstRun = iterator_to_array($dictionary->getWords());

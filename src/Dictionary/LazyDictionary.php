@@ -17,23 +17,11 @@ final class LazyDictionary
      */
     public function __construct(
         private readonly array $languages,
-        private ?string $dictionaryPath = null
+        private ?string $dictionaryPath = null,
     ) {
         /** @var string $path */
         $path = config('censor.dictionary_path');
         $this->dictionaryPath = $dictionaryPath ?? $path;
-    }
-
-    /**+
-     * @return Generator<string>
-     */
-    public function getWords(): Generator
-    {
-        if ($this->words === null) {
-            yield from $this->loadDictionaries();
-        } else {
-            yield from $this->words;
-        }
     }
 
     /**
@@ -48,6 +36,26 @@ final class LazyDictionary
     }
 
     /**
+     * @param  string[]  $languages
+     */
+    public static function withLanguages(array $languages): self
+    {
+        return new self($languages);
+    }
+
+    /**+
+     * @return Generator<string>
+     */
+    public function getWords(): Generator
+    {
+        if (null === $this->words) {
+            yield from $this->loadDictionaries();
+        } else {
+            yield from $this->words;
+        }
+    }
+
+    /**
      * @return Generator<string>
      */
     private function loadDictionaries(): Generator
@@ -57,7 +65,7 @@ final class LazyDictionary
         foreach ($this->languages as $language) {
             $dictionaryFile = sprintf('%s/%s.php', $this->dictionaryPath, $language);
 
-            if (! file_exists($dictionaryFile)) {
+            if ( ! file_exists($dictionaryFile)) {
                 throw DictionaryFileNotFound::withFile($dictionaryFile);
             }
 
@@ -65,20 +73,12 @@ final class LazyDictionary
             $words = include $dictionaryFile;
 
             foreach ($words as $word) {
-                if (! in_array($word, $loadedWords, true)) {
+                if ( ! in_array($word, $loadedWords, true)) {
                     $loadedWords[] = $word;
                     $this->words[] = $word;
                     yield $word;
                 }
             }
         }
-    }
-
-    /**
-     * @param  string[]  $languages
-     */
-    public static function withLanguages(array $languages): self
-    {
-        return new self($languages);
     }
 }

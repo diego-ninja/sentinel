@@ -86,7 +86,7 @@ abstract class AbstractResult implements Result
         $replaceChar = config('censor.mask_char', '*');
 
         foreach ($words as $word) {
-            $text = str_replace($word, str_repeat($replaceChar, strlen($word)), $text);
+            $text = str_replace($word, str_repeat($replaceChar, mb_strlen($word)), $text);
         }
 
         return $text;

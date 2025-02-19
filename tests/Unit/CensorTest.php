@@ -3,7 +3,7 @@
 use Ninja\Censor\Checkers\Censor;
 use Ninja\Censor\ValueObject\Score;
 
-test('detects exact matches', function () {
+test('detects exact matches', function (): void {
     /** @var Censor $censor */
     $censor = app(Censor::class);
 
@@ -16,7 +16,7 @@ test('detects exact matches', function () {
         ->and($result->score()->value())->toBeGreaterThan(0.6);
 });
 
-test('detects character replacements', function () {
+test('detects character replacements', function (): void {
     /** @var Censor $censor */
     $censor = app(Censor::class);
 
@@ -32,11 +32,11 @@ test('detects character replacements', function () {
         $result = $censor->check($text);
         expect($result)
             ->toBeOffensive()
-            ->and($result->replaced())->toBe(str_repeat('*', strlen($text)));
+            ->and($result->replaced())->toBe(str_repeat('*', mb_strlen($text)));
     }
 });
 
-test('detects separated characters', function () {
+test('detects separated characters', function (): void {
     /** @var Censor $censor */
     $censor = app(Censor::class);
 
@@ -51,11 +51,11 @@ test('detects separated characters', function () {
         $result = $censor->check($text);
         expect($result)
             ->toBeOffensive()
-            ->and(strlen($result->replaced()))->toBe(strlen($text));
+            ->and(mb_strlen($result->replaced()))->toBe(mb_strlen($text));
     }
 });
 
-test('detects similar words using levenshtein', function () {
+test('detects similar words using levenshtein', function (): void {
     /** @var Censor $censor */
     $censor = app(Censor::class);
     $variations = [
@@ -75,7 +75,7 @@ test('detects similar words using levenshtein', function () {
     }
 });
 
-test('detects offensive phrases using ngrams', function () {
+test('detects offensive phrases using ngrams', function (): void {
     /** @var Censor $censor */
     $censor = app(Censor::class);
 
@@ -93,7 +93,7 @@ test('detects offensive phrases using ngrams', function () {
     }
 });
 
-test('respects whitelist', function () {
+test('respects whitelist', function (): void {
     config(['censor.whitelist' => ['assessment', 'class']]);
 
     /** @var Censor $censor */
@@ -113,7 +113,7 @@ test('respects whitelist', function () {
     }
 });
 
-test('handles empty and null inputs', function () {
+test('handles empty and null inputs', function (): void {
     /** @var Censor $censor */
     $censor = app(Censor::class);
 
@@ -126,11 +126,11 @@ test('handles empty and null inputs', function () {
     $result2 = $censor->check('   ');
     expect($result2)
         ->offensive()->toBeFalse()
-        ->and(trim($result2->replaced()))->toBe('')
+        ->and(mb_trim($result2->replaced()))->toBe('')
         ->and($result2->score()->value())->toBe(0.0);
 });
 
-test('calculates appropriate scores', function () {
+test('calculates appropriate scores', function (): void {
     /** @var Censor $censor */
     $censor = app(Censor::class);
 
@@ -154,7 +154,7 @@ test('calculates appropriate scores', function () {
     }
 });
 
-test('handles unicode and special characters', function () {
+test('handles unicode and special characters', function (): void {
     /** @var Censor $censor */
     $censor = app(Censor::class);
 
@@ -172,7 +172,7 @@ test('handles unicode and special characters', function () {
     }
 });
 
-test('handles repeating characters', function () {
+test('handles repeating characters', function (): void {
     /** @var Censor $censor */
     $censor = app(Censor::class);
 
@@ -187,11 +187,11 @@ test('handles repeating characters', function () {
         $result = $censor->check($text);
         expect($result)
             ->toBeOffensive()
-            ->and(strlen($result->replaced()))->toBe(strlen($text));
+            ->and(mb_strlen($result->replaced()))->toBe(mb_strlen($text));
     }
 });
 
-test('combines multiple detection strategies correctly', function () {
+test('combines multiple detection strategies correctly', function (): void {
     /** @var Censor $censor */
     $censor = app(Censor::class);
 

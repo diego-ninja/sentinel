@@ -7,10 +7,10 @@ use Ninja\Censor\Detection\Strategy\LevenshteinStrategy;
 use Ninja\Censor\Enums\MatchType;
 use Ninja\Censor\ValueObject\Coincidence;
 
-test('levenshtein strategy detects similar words', function () {
+test('levenshtein strategy detects similar words', function (): void {
     config(['censor.services.local.levenshtein_threshold' => 2]);
 
-    $strategy = new LevenshteinStrategy;
+    $strategy = new LevenshteinStrategy();
     $variations = [
         'fuk',
         'phuck',
@@ -23,17 +23,17 @@ test('levenshtein strategy detects similar words', function () {
             ->toBeInstanceOf(MatchCollection::class)
             ->toHaveCount(1)
             ->sequence(
-                fn ($match) => $match
+                fn($match) => $match
                     ->word->toBe($text)
-                    ->type->toBe(MatchType::Levenshtein)
+                    ->type->toBe(MatchType::Levenshtein),
             );
     }
 });
 
-test('levenshtein strategy respects threshold', function () {
+test('levenshtein strategy respects threshold', function (): void {
     config(['censor.services.local.levenshtein_threshold' => 1]);
 
-    $strategy = new LevenshteinStrategy;
+    $strategy = new LevenshteinStrategy();
     $result = $strategy->detect('fuk this shet', ['fuck', 'shit']);
 
     expect($result)
@@ -43,10 +43,10 @@ test('levenshtein strategy respects threshold', function () {
         ->and($result->first()->word)->toBe('fuk');
 });
 
-test('levenshtein strategy handles short words correctly', function () {
+test('levenshtein strategy handles short words correctly', function (): void {
     config(['censor.services.local.levenshtein_threshold' => 1]);
 
-    $strategy = new LevenshteinStrategy;
+    $strategy = new LevenshteinStrategy();
     $result = $strategy->detect('This is a text', ['shit']);
 
     // Should not match 'This' with 'shit' even though Levenshtein distance might be within threshold
@@ -54,8 +54,8 @@ test('levenshtein strategy handles short words correctly', function () {
 
 });
 
-test('levenshtein strategy ignores case in comparisons', function () {
-    $strategy = new LevenshteinStrategy;
+test('levenshtein strategy ignores case in comparisons', function (): void {
+    $strategy = new LevenshteinStrategy();
     $result = $strategy->detect('FuK', ['fuck']);
 
     expect($result)
@@ -63,23 +63,23 @@ test('levenshtein strategy ignores case in comparisons', function () {
         ->and($result->first()->word)->toBe('FuK');
 });
 
-test('levenshtein strategy preserves original case in matches', function () {
+test('levenshtein strategy preserves original case in matches', function (): void {
     config(['censor.services.local.levenshtein_threshold' => 1]);
 
-    $strategy = new LevenshteinStrategy;
+    $strategy = new LevenshteinStrategy();
     $text = 'FuK ThIs ShEt';
     $result = $strategy->detect($text, ['fuck', 'shit']);
 
     expect($result)
         ->toHaveCount(2)
         ->sequence(
-            fn ($match) => $match->word->toBe('FuK'),
-            fn ($match) => $match->word->toBe('ShEt')
+            fn($match) => $match->word->toBe('FuK'),
+            fn($match) => $match->word->toBe('ShEt'),
         );
 });
 
-test('levenshtein handles unicode chars', function () {
-    $strategy = new LevenshteinStrategy;
+test('levenshtein handles unicode chars', function (): void {
+    $strategy = new LevenshteinStrategy();
 
     $variations = [
         'fück' => true,
@@ -90,6 +90,6 @@ test('levenshtein handles unicode chars', function () {
 
     foreach ($variations as $text => $shouldMatch) {
         $result = $strategy->detect($text, ['fuck']);
-        expect($result->isEmpty())->toBe(! $shouldMatch);
+        expect($result->isEmpty())->toBe( ! $shouldMatch);
     }
 });

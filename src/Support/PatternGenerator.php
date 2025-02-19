@@ -39,14 +39,14 @@ final class PatternGenerator
         $patterns = [];
 
         if ($this->fullWords) {
-            $patterns[] = '/\b'.$basePattern.'\b/iu';
+            $patterns[] = '/\b' . $basePattern . '\b/iu';
         } else {
-            $patterns[] = '/'.$basePattern.'/iu';
-            $patterns[] = '/'.implode('\s+', str_split($basePattern)).'/iu';
-            $patterns[] = '/'.implode('[.\-_]+', str_split($basePattern)).'/iu';
+            $patterns[] = '/' . $basePattern . '/iu';
+            $patterns[] = '/' . implode('\s+', mb_str_split($basePattern)) . '/iu';
+            $patterns[] = '/' . implode('[.\-_]+', mb_str_split($basePattern)) . '/iu';
         }
 
-        return array_filter($patterns, fn ($pattern) => $this->isValidPattern($pattern));
+        return array_filter($patterns, fn($pattern) => $this->isValidPattern($pattern));
     }
 
     /**
@@ -70,26 +70,6 @@ final class PatternGenerator
         return $this->patterns;
     }
 
-    private function createBasePattern(string $word): string
-    {
-        $escaped = preg_quote($word, '/');
-
-        if ($this->fullWords) {
-            return $escaped;
-        }
-
-        return str_ireplace(
-            array_map(fn ($key) => preg_quote($key, '/'), array_keys($this->replacements)),
-            array_values($this->replacements),
-            $escaped
-        );
-    }
-
-    private function isValidPattern(string $pattern): bool
-    {
-        return @preg_match($pattern, '') !== false;
-    }
-
     public function setFullWords(bool $fullWords): self
     {
         $this->fullWords = $fullWords;
@@ -105,5 +85,25 @@ final class PatternGenerator
         $this->replacements = $replacements;
 
         return $this;
+    }
+
+    private function createBasePattern(string $word): string
+    {
+        $escaped = preg_quote($word, '/');
+
+        if ($this->fullWords) {
+            return $escaped;
+        }
+
+        return str_ireplace(
+            array_map(fn($key) => preg_quote($key, '/'), array_keys($this->replacements)),
+            array_values($this->replacements),
+            $escaped,
+        );
+    }
+
+    private function isValidPattern(string $pattern): bool
+    {
+        return false !== @preg_match($pattern, '');
     }
 }

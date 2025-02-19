@@ -13,13 +13,13 @@ class TestResponse
     {
         $mock = new MockHandler(
             array_map(
-                fn ($response) => new Response(
+                fn($response) => new Response(
                     200,
                     [],
-                    json_encode($response)
+                    json_encode($response),
                 ),
-                $responses
-            )
+                $responses,
+            ),
         );
 
         return new Client(['handler' => HandlerStack::create($mock)]);

@@ -20,17 +20,17 @@ class CensorPrismSchema extends ObjectSchema
                 new ArraySchema(
                     name: 'offensive_words',
                     description: 'List of offensive words found in the text',
-                    items: new StringSchema('word', 'An offensive word')
+                    items: new StringSchema('word', 'An offensive word'),
                 ),
                 new ArraySchema(
                     name: 'categories',
                     description: 'Categories of offensive content found',
-                    items: new StringSchema('category', 'The category of offensive content')
+                    items: new StringSchema('category', 'The category of offensive content'),
                 ),
                 new NumberSchema('confidence', 'Confidence score between 0 and 1'),
                 new NumberSchema('severity', 'Severity score of offensive content between 0 and 1'),
             ],
-            requiredFields: ['is_offensive', 'offensive_words', 'categories', 'confidence', 'severity']
+            requiredFields: ['is_offensive', 'offensive_words', 'categories', 'confidence', 'severity'],
         );
     }
 }

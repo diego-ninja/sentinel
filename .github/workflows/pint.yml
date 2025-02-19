@@ -12,9 +12,8 @@ jobs:
       - name: "laravel-pint"
         uses: aglipanci/laravel-pint-action@latest
         with:
-          preset: laravel
           verboseMode: true
           testMode: true
           configPath: "pint.json"
-          pintVersion: 1.18
+          pintVersion: 1.21
           onlyDirty: true

@@ -4,7 +4,7 @@ namespace Tests\Unit\Performance;
 
 use Ninja\Censor\Checkers\Censor;
 
-test('handles large text input efficiently', function () {
+test('handles large text input efficiently', function (): void {
     $censor = app(Censor::class);
     $largeText = str_repeat('This is a very long text with some bad words like fuck and shit scattered throughout. ', 200);
 
@@ -18,7 +18,7 @@ test('handles large text input efficiently', function () {
         ->and($executionTime)->toBeLessThan(3); // Should process in less than 1 second
 });
 
-test('memory usage stays within acceptable limits', function () {
+test('memory usage stays within acceptable limits', function (): void {
     $censor = app(Censor::class);
     $largeText = str_repeat('Some text with profanity fuck shit damn repeated many times. ', 200);
 
@@ -30,7 +30,7 @@ test('memory usage stays within acceptable limits', function () {
     expect($peakMemory)->toBeLessThan(30 * 1024 * 1024);
 });
 
-test('multiple dictionary loading performance', function () {
+test('multiple dictionary loading performance', function (): void {
     config(['censor.languages' => ['en', 'es', 'fr', 'de', 'it']]);
 
     $startTime = microtime(true);

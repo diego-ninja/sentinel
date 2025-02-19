@@ -6,7 +6,7 @@ use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
 use Ninja\Censor\Checkers\PerspectiveAI;
 
-test('perspective detects toxic content', function () {
+test('perspective detects toxic content', function (): void {
     $mock = new MockHandler([
         new Response(200, [], json_encode([
             'attributeScores' => [
@@ -35,10 +35,10 @@ test('perspective detects toxic content', function () {
         ->toBeOffensive()
         ->and($result->score()->value())->toBeGreaterThan(0.7)
         ->and($result->confidence()->value())->toBeGreaterThan(0.7)
-        ->and($result->categories())->toContain(\Ninja\Censor\Enums\Category::Toxicity);
+        ->and($result->categories())->toContain(Ninja\Censor\Enums\Category::Toxicity);
 });
 
-test('perspective handles clean content', function () {
+test('perspective handles clean content', function (): void {
     $mock = new MockHandler([
         new Response(200, [], json_encode([
             'attributeScores' => [
