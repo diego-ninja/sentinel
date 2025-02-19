@@ -5,12 +5,12 @@ namespace Ninja\Censor\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Ninja\Censor\Enums\Category;
-use Ninja\Censor\Result\AbstractResult;
+use Ninja\Censor\Result\Result;
 
 /**
- * @property AbstractResult $resource
+ * @property Result $resource
  *
- * @mixin AbstractResult
+ * @mixin Result
  */
 class CensorResultResource extends JsonResource
 {

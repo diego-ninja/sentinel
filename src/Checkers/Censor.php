@@ -10,7 +10,7 @@ use Ninja\Censor\Services\Pipeline\TransformationPipeline;
 
 final class Censor implements ProfanityChecker
 {
-    private const CHUNK_SIZE = 500;
+    private const int CHUNK_SIZE = 500;
 
     public function __construct(
         private readonly Processor $processor,

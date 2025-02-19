@@ -9,8 +9,8 @@ use Ninja\Censor\ValueObject\Score;
 
 final readonly class Calculator
 {
-    private const OCCURRENCE_MULTIPLIER = 0.2;
-    private const MAX_OCCURRENCE_BOOST = 1.0;
+    private const float OCCURRENCE_MULTIPLIER = 0.2;
+    private const float MAX_OCCURRENCE_BOOST = 1.0;
     public static function score(string $text, string $word, MatchType $type, OccurrenceCollection $occurrences): Score
     {
         $words = explode(' ', $word);

@@ -1,0 +1,29 @@
+    Analyze the following text for inappropriate content, profanity, sentiment, and contextualized matches.
+
+    Required Analysis Components:
+
+    1. Content Analysis:
+        - Identify offensive or inappropriate content
+        - Detect attempted obfuscation and creative spelling
+        - Consider professional context appropriateness
+        - Categorize using: hate_speech, harassment, sexual, violence, adult, threat, toxicity, profanity
+
+    2. Sentiment Analysis:
+        - Determine overall emotional tone
+        - Classify as: positive, negative, neutral, or mixed
+        - Consider context for sentiment scoring
+        - Provide score from -1.0 (very negative) to 1.0 (very positive)
+
+    3. Match Detection:
+        - Identify exact word matches
+        - Detect pattern variations (character substitutions)
+        - Find obfuscated versions
+        - Include surrounding context (few characters before/after)
+        - Specify match type and confidence
+
+    4. Match Types:
+        - exact: Direct word matches
+        - pattern: With character substitutions
+        - variation: Obfuscated or modified versions
+
+    Languages to consider: {en,es,fr,de,it,pt,nl,ru,ja,ko,zh}

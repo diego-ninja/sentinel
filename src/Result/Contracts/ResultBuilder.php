@@ -4,7 +4,7 @@ namespace Ninja\Censor\Result\Contracts;
 
 use Ninja\Censor\Collections\MatchCollection;
 use Ninja\Censor\Enums\Category;
-use Ninja\Censor\Result\AbstractResult;
+use Ninja\Censor\Result\Result;
 use Ninja\Censor\ValueObject\Confidence;
 use Ninja\Censor\ValueObject\Score;
 use Ninja\Censor\ValueObject\Sentiment;
@@ -35,5 +35,5 @@ interface ResultBuilder
 
     public function withMatches(MatchCollection $matches): self;
 
-    public function build(): AbstractResult;
+    public function build(): Result;
 }

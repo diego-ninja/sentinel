@@ -61,7 +61,7 @@ final class LazyDictionary implements IteratorAggregate
     }
 
     /**
-     * @return array<string>
+     * @return array<int, string>
      */
     public function getWords(): array
     {

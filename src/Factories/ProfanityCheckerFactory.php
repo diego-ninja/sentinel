@@ -7,6 +7,7 @@ use Ninja\Censor\Checkers\AzureAI;
 use Ninja\Censor\Checkers\Censor;
 use Ninja\Censor\Checkers\Contracts\ProfanityChecker;
 use Ninja\Censor\Checkers\PerspectiveAI;
+use Ninja\Censor\Checkers\PrismAI;
 use Ninja\Censor\Checkers\PurgoMalum;
 use Ninja\Censor\Checkers\TisaneAI;
 use Ninja\Censor\Decorators\CachedProfanityChecker;
@@ -33,6 +34,7 @@ final readonly class ProfanityCheckerFactory
             Provider::PurgoMalum => PurgoMalum::class,
             Provider::Tisane => TisaneAI::class,
             Provider::Azure => AzureAI::class,
+            Provider::Prism => PrismAI::class,
         };
 
         if ( ! class_exists($class)) {
@@ -60,6 +62,9 @@ final readonly class ProfanityCheckerFactory
             Provider::PurgoMalum => new $class(
                 adapter: app()->make(ServiceAdapter::class),
                 pipeline: $pipeline,
+            ),
+            Provider::Prism => new $class(
+                prism: app()->make('prism'),
             ),
         };
 

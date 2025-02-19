@@ -16,7 +16,7 @@ use Ninja\Censor\ValueObject\Sentiment;
 
 final readonly class AzureAdapter extends AbstractAdapter
 {
-    private const SEVERITY_SCORES = [
+    private const array SEVERITY_SCORES = [
         'Low' => 0.25,
         'Medium' => 0.5,
         'High' => 0.75,
@@ -61,14 +61,14 @@ final readonly class AzureAdapter extends AbstractAdapter
             ? new Score($maxScore)
             : $matches->score();
 
-        return new class ($text, $matches, $finalScore, new Confidence($confidenceValue), $categories) implements ServiceResponse {
+        return new readonly class ($text, $matches, $finalScore, new Confidence($confidenceValue), $categories) implements ServiceResponse {
             public function __construct(
-                private readonly string $original,
-                private readonly MatchCollection $matches,
-                private readonly Score $score,
-                private readonly Confidence $confidence,
+                private string          $original,
+                private MatchCollection $matches,
+                private Score           $score,
+                private Confidence      $confidence,
                 /** @var array<Category> */
-                private readonly array $categories,
+                private array           $categories,
             ) {}
 
             public function original(): string
@@ -121,7 +121,6 @@ final readonly class AzureAdapter extends AbstractAdapter
         $matches = new MatchCollection();
 
         foreach ($blocklistMatches as $match) {
-            // Si no tenemos offset/length, buscamos la palabra en el texto
             if ( ! isset($match['offset']) || ! isset($match['length'])) {
                 $offset = mb_stripos($text, $match['text']);
                 $length = mb_strlen($match['text']);

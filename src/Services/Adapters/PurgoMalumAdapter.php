@@ -22,11 +22,11 @@ final readonly class PurgoMalumAdapter extends AbstractAdapter
 
         $matches = $this->findDifferences($text, $replacedText);
 
-        return new class ($text, $replacedText, $matches) implements ServiceResponse {
+        return new readonly class ($text, $replacedText, $matches) implements ServiceResponse {
             public function __construct(
-                private readonly string $original,
-                private readonly string $replaced,
-                private readonly MatchCollection $matches,
+                private string          $original,
+                private string          $replaced,
+                private MatchCollection $matches,
             ) {}
 
             public function original(): string

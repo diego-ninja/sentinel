@@ -4,12 +4,11 @@ namespace Ninja\Censor\Result\Builder;
 
 use Ninja\Censor\Collections\MatchCollection;
 use Ninja\Censor\Enums\Category;
-use Ninja\Censor\Result\AbstractResult;
 use Ninja\Censor\Result\Contracts\ResultBuilder as ResultBuilderContract;
+use Ninja\Censor\Result\Result;
 use Ninja\Censor\ValueObject\Confidence;
 use Ninja\Censor\ValueObject\Score;
 use Ninja\Censor\ValueObject\Sentiment;
-use RuntimeException;
 
 final class ResultBuilder implements ResultBuilderContract
 {
@@ -46,14 +45,19 @@ final class ResultBuilder implements ResultBuilderContract
         return $clone;
     }
 
-    public function build(): AbstractResult
+    public function build(): Result
     {
-        return new class (offensive: $this->offensive, words: $this->words, replaced: $this->replaced, original: $this->original, matches: $this->matches, score: $this->score, confidence: $this->confidence, sentiment: $this->sentiment, categories: $this->categories) extends AbstractResult {
-            public static function fromResponse(string $text, array $response): AbstractResult
-            {
-                throw new RuntimeException('Not supported in anonymous class');
-            }
-        };
+        return new Result(
+            offensive: $this->offensive,
+            words: $this->words,
+            replaced: $this->replaced,
+            original: $this->original,
+            matches: $this->matches,
+            score: $this->score,
+            confidence: $this->confidence,
+            sentiment: $this->sentiment,
+            categories: $this->categories,
+        );
     }
 
     public function withOffensive(bool $offensive): ResultBuilderContract

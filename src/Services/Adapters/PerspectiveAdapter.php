@@ -15,7 +15,7 @@ use Ninja\Censor\ValueObject\Sentiment;
 
 final readonly class PerspectiveAdapter extends AbstractAdapter
 {
-    private const RELEVANT_ATTRIBUTES = [
+    private const array RELEVANT_ATTRIBUTES = [
         'TOXICITY' => 0.8,
         'SEVERE_TOXICITY' => 1.0,
         'THREAT' => 0.9,
@@ -85,14 +85,14 @@ final readonly class PerspectiveAdapter extends AbstractAdapter
             ? $avgConfidence / count($response['attributeScores'])
             : 0.0;
 
-        return new class ($text, $matches, new Score($maxScore), new Confidence($confidenceValue), $categories) implements ServiceResponse {
+        return new readonly class ($text, $matches, new Score($maxScore), new Confidence($confidenceValue), $categories) implements ServiceResponse {
             public function __construct(
-                private readonly string $original,
-                private readonly MatchCollection $matches,
-                private readonly Score $score,
-                private readonly Confidence $confidence,
+                private string          $original,
+                private MatchCollection $matches,
+                private Score           $score,
+                private Confidence      $confidence,
                 /** @var array<Category> */
-                private readonly array $categories,
+                private array           $categories,
             ) {}
 
             public function original(): string

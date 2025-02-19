@@ -4,7 +4,7 @@ namespace Ninja\Censor\Services\Adapters;
 
 use Ninja\Censor\Collections\MatchCollection;
 use Ninja\Censor\Enums\Category;
-use Ninja\Censor\Result\AbstractResult;
+use Ninja\Censor\Result\Result;
 use Ninja\Censor\Services\Contracts\ServiceResponse;
 use Ninja\Censor\ValueObject\Confidence;
 use Ninja\Censor\ValueObject\Score;
@@ -13,16 +13,16 @@ use Ninja\Censor\ValueObject\Sentiment;
 final readonly class CensorAdapter extends AbstractAdapter
 {
     /**
-     * @param  array{result: AbstractResult}  $response
+     * @param  array{result: Result}  $response
      */
     public function adapt(string $text, array $response): ServiceResponse
     {
-        /** @var AbstractResult $result */
+        /** @var Result $result */
         $result = $response['result'];
 
-        return new class ($result) implements ServiceResponse {
+        return new readonly class ($result) implements ServiceResponse {
             public function __construct(
-                private readonly AbstractResult $result,
+                private Result $result,
             ) {}
 
             public function original(): string

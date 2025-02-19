@@ -68,16 +68,16 @@ final readonly class TisaneAdapter extends AbstractAdapter
         $sentiment = $this->createSentiment($response['sentiment']);
         $score = $this->calculateScore($matches, $sentiment);
 
-        return new class ($text, $matches, $score, $sentiment, $categories) implements ServiceResponse {
+        return new readonly class ($text, $matches, $score, $sentiment, $categories) implements ServiceResponse {
             /**
              * @param  array<Category>  $categories
              */
             public function __construct(
-                private readonly string $original,
-                private readonly MatchCollection $matches,
-                private readonly Score $score,
-                private readonly Sentiment $sentiment,
-                private readonly array $categories,
+                private string          $original,
+                private MatchCollection $matches,
+                private Score           $score,
+                private Sentiment       $sentiment,
+                private array           $categories,
             ) {}
 
             public function original(): string

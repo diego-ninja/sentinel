@@ -10,8 +10,8 @@ use Ninja\Censor\Collections\StrategyCollection;
 use Ninja\Censor\Detection\Contracts\DetectionStrategy;
 use Ninja\Censor\Dictionary\LazyDictionary;
 use Ninja\Censor\Processors\Contracts\Processor;
-use Ninja\Censor\Result\AbstractResult;
 use Ninja\Censor\Result\Builder\ResultBuilder;
+use Ninja\Censor\Result\Result;
 use Ninja\Censor\Support\Calculator;
 use Ninja\Censor\Support\TextNormalizer;
 use Ninja\Censor\ValueObject\Coincidence;
@@ -43,7 +43,7 @@ abstract class AbstractProcessor implements Processor
      * Process multiple chunks of text.
      *
      * @param  array<string>  $chunks
-     * @return array<AbstractResult>
+     * @return array<Result>
      */
     abstract public function process(array $chunks): array;
 
@@ -64,7 +64,7 @@ abstract class AbstractProcessor implements Processor
         }
     }
 
-    protected function processChunk(string $chunk): AbstractResult
+    protected function processChunk(string $chunk): Result
     {
         $whitelisted = $this->whitelist->prepare($chunk);
         $normalized = TextNormalizer::normalize($whitelisted);
@@ -84,9 +84,9 @@ abstract class AbstractProcessor implements Processor
     }
 
     /**
-     * @param  array<AbstractResult>  $results
+     * @param  array<Result>  $results
      */
-    protected function merge(array $results): AbstractResult
+    protected function merge(array $results): Result
     {
         $matches = new MatchCollection();
         $replaced = '';
@@ -125,7 +125,7 @@ abstract class AbstractProcessor implements Processor
         string $original,
         string $finalText,
         MatchCollection $matches,
-    ): AbstractResult {
+    ): Result {
         return (new ResultBuilder())
             ->withOriginalText($original)
             ->withReplaced($finalText)

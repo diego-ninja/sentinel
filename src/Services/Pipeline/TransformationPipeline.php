@@ -2,8 +2,8 @@
 
 namespace Ninja\Censor\Services\Pipeline;
 
-use Ninja\Censor\Result\AbstractResult;
 use Ninja\Censor\Result\Builder\ResultBuilder;
+use Ninja\Censor\Result\Result;
 use Ninja\Censor\Services\Contracts\ServiceResponse;
 use Ninja\Censor\Services\Pipeline\Stage\AbstractStage;
 
@@ -20,7 +20,7 @@ final class TransformationPipeline
         return $clone;
     }
 
-    public function process(ServiceResponse $response): AbstractResult
+    public function process(ServiceResponse $response): Result
     {
         $builder = new ResultBuilder();
         $builder = $builder->withOriginalText($response->original());

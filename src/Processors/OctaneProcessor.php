@@ -3,7 +3,7 @@
 namespace Ninja\Censor\Processors;
 
 use Laravel\Octane\Facades\Octane;
-use Ninja\Censor\Result\AbstractResult;
+use Ninja\Censor\Result\Result;
 
 final class OctaneProcessor extends AbstractProcessor
 {
@@ -17,7 +17,7 @@ final class OctaneProcessor extends AbstractProcessor
             ];
         }
 
-        /** @var array<array{index: int, result: AbstractResult}> $results */
+        /** @var array<array{index: int, result: Result}> $results */
         $results = Octane::concurrently($indexedTasks);
         usort($results, fn($a, $b) => $a['index'] <=> $b['index']);
         $ordered = array_map(fn($item) => $item['result'], $results);

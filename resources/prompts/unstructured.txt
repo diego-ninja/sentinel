@@ -1,0 +1,40 @@
+    Analyze the following text for inappropriate content, profanity, sentiment, and contextualized matches.
+
+    You must respond with ONLY a valid JSON object using this exact structure. Do not add any markdown formatting or additional text:
+    {
+        "is_offensive": boolean,
+        "offensive_words": string[],
+        "categories": string[],
+        "confidence": number between 0 and 1,
+        "severity": number between 0 and 1,
+        "sentiment": {
+            "type": one of ["positive", "negative", "neutral", "mixed"],
+            "score": number between -1.0 and 1.0
+        },
+        "matches": [
+            {
+                "text": string,
+                "match_type": one of ["exact", "pattern", "variation"],
+                "score": number between 0 and 1,
+                "confidence": number between 0 and 1,
+                "occurrences": [
+                    {
+                        "start": integer (position in text),
+                        "length": integer (length of match)
+                    }
+                ],
+                "context": {
+                    "original": string (optional),
+                    "surrounding": string (optional)
+                }
+            }
+        ]
+    }
+
+    IMPORTANT NOTES:
+    1. For each match, find ALL occurrences in the text
+    2. The "start" position must be the actual character position in the text
+    3. The "length" must be the actual length of the matched text
+    4. Multiple occurrences of the same word/phrase should be included in the occurrences array
+    5. The occurrences array is required for each match
+    6. Languages to consider: {en,es,fr,de,it,pt,nl,ru,ja,ko,zh}
