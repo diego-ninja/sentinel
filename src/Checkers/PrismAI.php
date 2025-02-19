@@ -126,7 +126,7 @@ final readonly class PrismAI implements ProfanityChecker
         return <<<PROMPT
     Analyze this text for inappropriate or offensive content: {$message}
 
-    You must respond with ONLY a valid JSON object using this exact structure:
+    You must respond with ONLY a valid JSON object using this exact structure, with no additional text before or after, and no markup formatting:
     {
         "is_offensive": boolean,
         "offensive_words": string[],
@@ -134,8 +134,6 @@ final readonly class PrismAI implements ProfanityChecker
         "confidence": number between 0 and 1,
         "severity": number between 0 and 1
     }
-
-    DO NOT include any other text or explanation in your response, just the JSON.
     PROMPT;
     }
 
@@ -214,7 +212,7 @@ final readonly class PrismAI implements ProfanityChecker
     {
         try {
             /** @var array{is_offensive: bool, offensive_words: array<string>, categories: array<string>, confidence: float, severity: float} $data */
-            $data = json_decode($responseText, true, 512, JSON_THROW_ON_ERROR);
+            $data = json_decode($this->cleanResponseText($responseText), true, 512, JSON_THROW_ON_ERROR);
             $this->validateResponseStructure($data);
 
             return $data;
@@ -232,5 +230,20 @@ final readonly class PrismAI implements ProfanityChecker
             Provider::Groq,
             Provider::Ollama,
         ]);
+    }
+
+    private function cleanResponseText(string $responseText): string
+    {
+        $start = strpos($responseText, '{');
+        $end = strrpos($responseText, '}');
+
+        if ($start === false || $end === false) {
+            return $responseText;
+        }
+
+        $jsonPart = substr($responseText, $start, $end - $start + 1);
+        $jsonPart = preg_replace('/```json\s*|\s*```/', '', $jsonPart);
+
+        return trim($jsonPart ?? $responseText);
     }
 }
