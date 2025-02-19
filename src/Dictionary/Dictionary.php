@@ -12,14 +12,6 @@ final readonly class Dictionary
     public function __construct(private array $words = []) {}
 
     /**
-     * @return string[]
-     */
-    public function words(): array
-    {
-        return $this->words;
-    }
-
-    /**
      * @param  string[]  $words
      */
     public static function withWords(array $words): self
@@ -41,6 +33,14 @@ final readonly class Dictionary
         $dictionaryPath = config('censor.dictionary_path');
 
         return new self(self::read(sprintf('%s/%s.php', $dictionaryPath, $language)));
+    }
+
+    /**
+     * @return string[]
+     */
+    public function words(): array
+    {
+        return $this->words;
     }
 
     /**

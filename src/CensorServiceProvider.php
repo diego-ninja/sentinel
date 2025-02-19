@@ -2,6 +2,7 @@
 
 namespace Ninja\Censor;
 
+use EchoLabs\Prism\Prism;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Validator;
 use Ninja\Censor\Cache\Contracts\PatternCache;
@@ -21,32 +22,30 @@ final class CensorServiceProvider extends ServiceProvider
     {
         if ($this->app->runningInConsole()) {
             $this->publishes([
-                __DIR__.'/../config/censor.php' => config_path('censor.php'),
+                __DIR__ . '/../config/censor.php' => config_path('censor.php'),
             ], 'censor-config');
 
             $this->publishes([
-                __DIR__.'/../resources/dict' => resource_path('dict'),
+                __DIR__ . '/../resources/dict' => resource_path('dict'),
             ], 'censor-dictionaries');
         }
 
         app('validator')->extend(
             rule: 'censor_check',
             extension: function ($attribute, $value, $parameters, Validator $validator) {
-                if ($value === null) {
+                if (null === $value) {
                     return true;
                 }
 
-                if (! is_string($value)) {
-                    $validator->addReplacer('censor_check', function () {
-                        return 'The :attribute must be a string.';
-                    });
+                if ( ! is_string($value)) {
+                    $validator->addReplacer('censor_check', fn() => 'The :attribute must be a string.');
 
                     return false;
                 }
 
-                return ! \Ninja\Censor\Facades\Censor::check($value)->offensive();
+                return ! Facades\Censor::check($value)->offensive();
             },
-            message: 'The :attribute contains offensive language.'
+            message: 'The :attribute contains offensive language.',
         );
     }
 
@@ -68,9 +67,9 @@ final class CensorServiceProvider extends ServiceProvider
             $cache = config('censor.cache', 'file');
 
             return match ($cache) {
-                'redis' => new Cache\RedisPatternCache,
-                'octane' => new Cache\OctanePatternCache,
-                default => new Cache\MemoryPatternCache,
+                'redis' => new Cache\RedisPatternCache(),
+                'octane' => new Cache\OctanePatternCache(),
+                default => new Cache\MemoryPatternCache(),
             };
         });
 
@@ -92,7 +91,7 @@ final class CensorServiceProvider extends ServiceProvider
             /** @var string[] $whitelist */
             $whitelist = config('censor.whitelist', []);
 
-            return (new Whitelist)->add($whitelist);
+            return (new Whitelist())->add($whitelist);
         });
 
         $this->app->singleton(TrieIndex::class, function (): TrieIndex {
@@ -108,16 +107,14 @@ final class CensorServiceProvider extends ServiceProvider
 
             return new $processorClass(
                 app(Whitelist::class),
-                app(LazyDictionary::class)
+                app(LazyDictionary::class),
             );
 
         });
 
-        $this->app->bind('censor', function () {
-            return new Censor;
-        });
+        $this->app->bind('censor', fn() => new Censor());
 
-        $this->mergeConfigFrom(__DIR__.'/../config/censor.php', 'censor');
+        $this->mergeConfigFrom(__DIR__ . '/../config/censor.php', 'censor');
     }
 
     private function registerProfanityProviders(): void
@@ -127,19 +124,26 @@ final class CensorServiceProvider extends ServiceProvider
             /** @var array<string,mixed> $config */
             $config = config(sprintf('censor.services.%s', $service->value));
 
-            if ($config !== null) {
-                $this->app->singleton($service->value, function () use ($service, $config): ProfanityChecker {
-                    return ProfanityCheckerFactory::create($service, $config);
-                });
+            if (null !== $config) {
+                $this->app->singleton($service->value, fn(): ProfanityChecker => ProfanityCheckerFactory::create($service, $config));
             }
         }
+
+        $this->app->singleton(Provider::Prism->value, function () {
+            /** @var Prism $prism */
+            $prism = app(Prism::class);
+
+            return new Checkers\PrismAI(
+                prism: $prism,
+            );
+        });
 
         $this->app->singleton(Provider::Local->value, function () {
             /** @var Processor $processor */
             $processor = app(Processor::class);
 
-            return new \Ninja\Censor\Checkers\Censor(
-                processor: $processor
+            return new Checkers\Censor(
+                processor: $processor,
             );
         });
     }

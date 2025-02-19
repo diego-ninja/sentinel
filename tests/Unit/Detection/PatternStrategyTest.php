@@ -8,31 +8,31 @@ use Ninja\Censor\Dictionary\LazyDictionary;
 use Ninja\Censor\Enums\MatchType;
 use Ninja\Censor\Support\PatternGenerator;
 
-test('pattern strategy detects exact matches', function () {
+test('pattern strategy detects exact matches', function (): void {
     $strategy = app()->build(PatternStrategy::class);
     $result = $strategy->detect('fuck this shit', ['fuck', 'shit']);
 
     expect($result)
         ->toHaveCount(2)
         ->sequence(
-            fn ($match) => $match
+            fn($match) => $match
                 ->word->toBe('fuck')
                 ->type->toBe(MatchType::Pattern),
-            fn ($match) => $match
+            fn($match) => $match
                 ->word->toBe('shit')
-                ->type->toBe(MatchType::Pattern)
+                ->type->toBe(MatchType::Pattern),
         );
 
 });
 
-test('pattern strategy handles character substitutions', function () {
+test('pattern strategy handles character substitutions', function (): void {
     $dic = app(LazyDictionary::class);
     $generator = new PatternGenerator(config('censor.replacements'), false);
     $generator->forWords(iterator_to_array($dic->getWords()));
 
     $strategy = new PatternStrategy(
         $generator,
-        new MemoryPatternCache
+        new MemoryPatternCache(),
     );
 
     $result = $strategy->detect('fvck this sh!t', ['fuck', 'shit']);
@@ -40,19 +40,19 @@ test('pattern strategy handles character substitutions', function () {
     expect($result)
         ->toHaveCount(2)
         ->sequence(
-            fn ($match) => $match->word->toBe('fvck'),
-            fn ($match) => $match->word->toBe('sh!t')
+            fn($match) => $match->word->toBe('fvck'),
+            fn($match) => $match->word->toBe('sh!t'),
         );
 });
 
-test('pattern strategy respects word boundaries', function () {
+test('pattern strategy respects word boundaries', function (): void {
     $strategy = app()->build(PatternStrategy::class);
     $result = $strategy->detect('class assignment', ['ass']);
 
     expect($result)->toBeEmpty();
 });
 
-test('pattern strategy handles empty patterns', function () {
+test('pattern strategy handles empty patterns', function (): void {
     $strategy = app()->build(PatternStrategy::class);
     $result = $strategy->detect('some text', []);
 

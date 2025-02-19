@@ -53,8 +53,8 @@ final class Whitelist
                         'word' => $word,
                     ];
 
-                    $processed = mb_substr($processed, 0, $pos).
-                        $placeholder.
+                    $processed = mb_substr($processed, 0, $pos) .
+                        $placeholder .
                         mb_substr($processed, $pos + mb_strlen($word));
 
                     $pos += mb_strlen($placeholder);
@@ -101,7 +101,7 @@ final class Whitelist
 
     private function createPlaceholder(string $word, int $position): string
     {
-        return sprintf('%s%s%s', self::PLACEHOLDER_PREFIX, md5($word.$position), self::PLACEHOLDER_SUFFIX);
+        return sprintf('%s%s%s', self::PLACEHOLDER_PREFIX, md5($word . $position), self::PLACEHOLDER_SUFFIX);
     }
 
     private function overlaps(int $start1, int $length1, int $start2, int $length2): bool

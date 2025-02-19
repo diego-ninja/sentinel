@@ -18,13 +18,13 @@ final readonly class PatternStrategy implements DetectionStrategy
 
     public function __construct(
         private PatternGenerator $generator,
-        private PatternCache $cache
+        private PatternCache $cache,
     ) {
         $this->patterns = $this->generator->getPatterns();
 
         foreach ($this->patterns as $pattern) {
-            if (@preg_match($pattern, '') === false) {
-                throw new InvalidArgumentException("Invalid regex pattern: $pattern");
+            if (false === @preg_match($pattern, '')) {
+                throw new InvalidArgumentException("Invalid regex pattern: {$pattern}");
             }
 
             $this->cache->set(md5($pattern), $pattern);
@@ -34,16 +34,16 @@ final readonly class PatternStrategy implements DetectionStrategy
     public function detect(string $text, iterable $words): MatchCollection
     {
 
-        $matches = new MatchCollection;
+        $matches = new MatchCollection();
 
-        if (count($this->patterns) === 0) {
+        if (0 === count($this->patterns)) {
             return $matches;
         }
 
         try {
             foreach ($this->patterns as $pattern) {
                 $cachedPattern = $this->cache->get(md5($pattern));
-                if ($cachedPattern === null) {
+                if (null === $cachedPattern) {
                     continue;
                 }
 

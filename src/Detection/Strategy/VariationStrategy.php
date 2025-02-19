@@ -14,29 +14,29 @@ final readonly class VariationStrategy implements DetectionStrategy
 
     public function detect(string $text, iterable $words): MatchCollection
     {
-        $matches = new MatchCollection;
+        $matches = new MatchCollection();
 
         foreach ($words as $badWord) {
             $chars = preg_split('//u', $badWord, -1, PREG_SPLIT_NO_EMPTY);
-            if ($chars === false) {
+            if (false === $chars) {
                 continue;
             }
 
-            $pattern = '/\b'.implode('[\s\.\-_\/]*', array_map(
-                fn ($c) => preg_quote($c, '/'),
-                $chars
-            )).'\b/iu';
+            $pattern = '/\b' . implode('[\s\.\-_\/]*', array_map(
+                fn($c) => preg_quote($c, '/'),
+                $chars,
+            )) . '\b/iu';
 
-            if (preg_match_all($pattern, $text, $found) !== false) {
+            if (false !== preg_match_all($pattern, $text, $found)) {
                 foreach ($found[0] as $match) {
                     $matches->addCoincidence(new Coincidence($match, MatchType::Variation));
                 }
             }
 
-            if (! $this->fullWords) {
+            if ( ! $this->fullWords) {
                 foreach (TextAnalyzer::getSeparatorVariations($badWord) as $variation) {
-                    if (! str_contains($variation, ' ') &&
-                        mb_stripos($text, $variation) !== false) {
+                    if ( ! str_contains($variation, ' ') &&
+                        false !== mb_stripos($text, $variation)) {
                         $matches->addCoincidence(new Coincidence($variation, MatchType::Variation));
                     }
                 }

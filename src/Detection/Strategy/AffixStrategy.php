@@ -31,10 +31,10 @@ final class AffixStrategy implements DetectionStrategy
 
     public function detect(string $text, iterable $words): MatchCollection
     {
-        $matches = new MatchCollection;
+        $matches = new MatchCollection();
 
         $textWords = preg_split('/\b|\s+/', $text, -1, PREG_SPLIT_NO_EMPTY);
-        if (! $textWords) {
+        if ( ! $textWords) {
             return $matches;
         }
 
@@ -50,6 +50,11 @@ final class AffixStrategy implements DetectionStrategy
 
         return $matches;
 
+    }
+
+    public function weight(): float
+    {
+        return MatchType::Variation->weight();
     }
 
     /**
@@ -80,9 +85,9 @@ final class AffixStrategy implements DetectionStrategy
         $mb_word = mb_strtolower($word);
 
         foreach ($this->prefixes as $prefix) {
-            $variants[] = $prefix.$mb_word;
+            $variants[] = $prefix . $mb_word;
             foreach ($this->generateSuffixVariants($mb_word) as $suffixVariant) {
-                $variants[] = $prefix.$suffixVariant;
+                $variants[] = $prefix . $suffixVariant;
             }
         }
 
@@ -97,33 +102,33 @@ final class AffixStrategy implements DetectionStrategy
         $variants = [];
 
         if (preg_match('/[aeiou][bcdfghjklmnpqrstvwxz]$/i', $word)) {
-            $doubles = $word.mb_substr($word, -1);
+            $doubles = $word . mb_substr($word, -1);
             foreach ($this->suffixes as $suffix) {
                 if (in_array($suffix, ['ing', 'ed', 'er', 'est'])) {
-                    $variants[] = $doubles.$suffix;
+                    $variants[] = $doubles . $suffix;
                 }
             }
         }
 
-        if (mb_substr($word, -1) === 'e') {
+        if ('e' === mb_substr($word, -1)) {
             $base = mb_substr($word, 0, -1);
             foreach ($this->suffixes as $suffix) {
                 if (in_array($suffix, ['ing', 'er', 'est'])) {
-                    $variants[] = $base.$suffix;
+                    $variants[] = $base . $suffix;
                 }
             }
         }
 
         foreach ($this->suffixes as $suffix) {
-            $variants[] = $word.$suffix;
+            $variants[] = $word . $suffix;
         }
 
-        if (mb_substr($word, -1) === 'y') {
+        if ('y' === mb_substr($word, -1)) {
             $base = mb_substr($word, 0, -1);
-            $variants[] = $base.'ies';
-            $variants[] = $base.'ied';
-            $variants[] = $base.'ier';
-            $variants[] = $base.'iest';
+            $variants[] = $base . 'ies';
+            $variants[] = $base . 'ied';
+            $variants[] = $base . 'ier';
+            $variants[] = $base . 'iest';
         }
 
         return $variants;
@@ -135,15 +140,10 @@ final class AffixStrategy implements DetectionStrategy
     private function getCachedVariants(string $word): array
     {
         $key = mb_strtolower($word);
-        if (! isset($this->cache[$key])) {
+        if ( ! isset($this->cache[$key])) {
             $this->cache[$key] = $this->generateVariants($word);
         }
 
         return $this->cache[$key];
-    }
-
-    public function weight(): float
-    {
-        return MatchType::Variation->weight();
     }
 }

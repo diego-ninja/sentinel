@@ -22,6 +22,8 @@ abstract class AbstractProfanityChecker implements ProfanityChecker
         ]);
     }
 
+    abstract protected function baseUri(): string;
+
     /**
      * @param  array<string, mixed>  $query
      * @return array<string, mixed>
@@ -32,16 +34,16 @@ abstract class AbstractProfanityChecker implements ProfanityChecker
     {
         try {
             /** @var ResponseInterface $response */
-            $response = $this->client?->request('GET', $this->baseUri().$endpoint, [
+            $response = $this->client?->request('GET', $this->baseUri() . $endpoint, [
                 'query' => $query,
             ]);
 
             return $this->response($response);
         } catch (GuzzleException $e) {
             throw new ClientException(
-                'HTTP request failed: '.$e->getMessage(),
+                'HTTP request failed: ' . $e->getMessage(),
                 $e->getCode(),
-                $e
+                $e,
             );
         }
     }
@@ -57,7 +59,7 @@ abstract class AbstractProfanityChecker implements ProfanityChecker
     {
         try {
             /** @var ResponseInterface $response */
-            $response = $this->client?->request('POST', $this->baseUri().$endpoint, [
+            $response = $this->client?->request('POST', $this->baseUri() . $endpoint, [
                 'headers' => array_merge(['Content-Type' => 'application/json'], $headers),
                 'json' => $data,
             ]);
@@ -65,9 +67,9 @@ abstract class AbstractProfanityChecker implements ProfanityChecker
             return $this->response($response);
         } catch (GuzzleException $e) {
             throw new ClientException(
-                'HTTP request failed: '.$e->getMessage(),
+                'HTTP request failed: ' . $e->getMessage(),
                 $e->getCode(),
-                $e
+                $e,
             );
         }
     }
@@ -84,20 +86,18 @@ abstract class AbstractProfanityChecker implements ProfanityChecker
 
         if ($statusCode >= 400) {
             throw new ClientException(
-                "API request failed with status $statusCode: $content"
+                "API request failed with status {$statusCode}: {$content}",
             );
         }
 
         $data = json_decode($content, true);
-        if (json_last_error() !== JSON_ERROR_NONE) {
+        if (JSON_ERROR_NONE !== json_last_error()) {
             throw new ClientException(
-                'Failed to parse JSON response: '.json_last_error_msg()
+                'Failed to parse JSON response: ' . json_last_error_msg(),
             );
         }
 
         /** @var array<string, mixed> */
         return $data;
     }
-
-    abstract protected function baseUri(): string;
 }

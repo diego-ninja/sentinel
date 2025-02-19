@@ -1,6 +1,6 @@
 <?php
 
-$words = include __DIR__.DIRECTORY_SEPARATOR.'en-base.php';
+$words = include __DIR__ . DIRECTORY_SEPARATOR . 'en-base.php';
 
 /**
  * PHP Array for English (UK) words

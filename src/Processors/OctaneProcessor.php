@@ -11,7 +11,7 @@ final class OctaneProcessor extends AbstractProcessor
     {
         $tasks = [];
         foreach ($chunks as $chunk) {
-            $tasks[] = fn () => $this->processChunk($chunk);
+            $tasks[] = fn() => $this->processChunk($chunk);
         }
 
         /** @var array<AbstractResult> $results */

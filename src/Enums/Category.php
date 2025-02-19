@@ -34,7 +34,7 @@ enum Category: string
             'allegation' => self::Threat,
             'provocation' => self::Insult,
             'disturbing' => self::Obscenity,
-            default => throw new InvalidArgumentException("Unknown category: $type"),
+            default => throw new InvalidArgumentException("Unknown category: {$type}"),
         };
     }
 
@@ -47,7 +47,7 @@ enum Category: string
             'PROFANITY' => self::Profanity,
             'THREAT' => self::Threat,
             'SEXUALLY_EXPLICIT', 'FLIRTATION' => self::Sexual,
-            default => throw new InvalidArgumentException("Unknown category: $type"),
+            default => throw new InvalidArgumentException("Unknown category: {$type}"),
         };
     }
 
@@ -58,7 +58,7 @@ enum Category: string
             'SelfHarm' => self::SelfHarm,
             'Sexual' => self::Sexual,
             'Violence' => self::Violence,
-            default => throw new InvalidArgumentException("Unknown category: $type"),
+            default => throw new InvalidArgumentException("Unknown category: {$type}"),
         };
     }
 }

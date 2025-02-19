@@ -14,13 +14,13 @@ final readonly class IndexStrategy implements DetectionStrategy
 
     public function detect(string $text, iterable $words): MatchCollection
     {
-        $matches = new MatchCollection;
+        $matches = new MatchCollection();
         $textWords = explode(' ', mb_strtolower($text));
 
         foreach ($textWords as $word) {
             if ($this->index->search($word)) {
                 $pos = mb_stripos($text, $word);
-                if ($pos !== false) {
+                if (false !== $pos) {
                     $originalWord = mb_substr($text, $pos, mb_strlen($word));
                     if ($originalWord === $word) {
                         $matches->addCoincidence(new Coincidence($word, MatchType::Trie));

@@ -14,7 +14,7 @@ final class Censor implements ProfanityChecker
     private const CHUNK_SIZE = 1000;
 
     public function __construct(
-        private readonly Processor $processor
+        private readonly Processor $processor,
     ) {}
 
     public function check(string $text): Result
@@ -35,7 +35,7 @@ final class Censor implements ProfanityChecker
     private function split(string $text): array
     {
         $sentences = preg_split('/(?<=[.!?])\s+/', $text, -1, PREG_SPLIT_NO_EMPTY);
-        if (! $sentences) {
+        if ( ! $sentences) {
             return [$text];
         }
 
@@ -43,16 +43,16 @@ final class Censor implements ProfanityChecker
         $currentChunk = '';
 
         foreach ($sentences as $sentence) {
-            if (mb_strlen($currentChunk.$sentence) > self::CHUNK_SIZE) {
-                $chunks[] = trim($currentChunk);
+            if (mb_strlen($currentChunk . $sentence) > self::CHUNK_SIZE) {
+                $chunks[] = mb_trim($currentChunk);
                 $currentChunk = $sentence;
             } else {
-                $currentChunk .= ' '.$sentence;
+                $currentChunk .= ' ' . $sentence;
             }
         }
 
-        if (! empty($currentChunk)) {
-            $chunks[] = trim($currentChunk);
+        if ( ! empty($currentChunk)) {
+            $chunks[] = mb_trim($currentChunk);
         }
 
         return $chunks;
@@ -63,15 +63,15 @@ final class Censor implements ProfanityChecker
      */
     private function mergeResults(array $results, string $originalText): Result
     {
-        $matches = new MatchCollection;
+        $matches = new MatchCollection();
         $processedWords = [];
 
         foreach ($results as $result) {
-            $matches = $matches->merge($result->matches() ?? new MatchCollection);
+            $matches = $matches->merge($result->matches() ?? new MatchCollection());
             $processedWords = array_merge($processedWords, $result->words());
         }
 
-        return (new ResultBuilder)
+        return (new ResultBuilder())
             ->withOriginalText($originalText)
             ->withWords(array_unique($processedWords))
             ->withReplaced($matches->clean($originalText))

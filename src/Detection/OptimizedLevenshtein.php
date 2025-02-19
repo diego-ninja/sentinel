@@ -30,14 +30,14 @@ final class OptimizedLevenshtein
         $len = mb_strlen($word);
         $searchLengths = range(
             max(3, $len - $threshold),
-            $len + $threshold
+            $len + $threshold,
         );
 
         $matches = [];
         $lowerWord = mb_strtolower($word);
 
         foreach ($searchLengths as $searchLen) {
-            if (! isset($this->lengthGroups[$searchLen])) {
+            if ( ! isset($this->lengthGroups[$searchLen])) {
                 continue;
             }
 
@@ -53,6 +53,17 @@ final class OptimizedLevenshtein
         }
 
         return $matches;
+    }
+
+    public function distance(string $str1, string $str2): int
+    {
+        $key = $str1 < $str2 ? "{$str1}:{$str2}" : "{$str2}:{$str1}";
+
+        if ( ! isset($this->cache[$key])) {
+            $this->cache[$key] = $this->uniLevenshtein($str1, $str2);
+        }
+
+        return $this->cache[$key];
     }
 
     private function uniLevenshtein(string $str1, string $str2): int
@@ -78,23 +89,12 @@ final class OptimizedLevenshtein
                 $d[$i][$j] = min(
                     $d[$i - 1][$j] + 1,     // deletion
                     $d[$i][$j - 1] + 1,     // insertion
-                    $d[$i - 1][$j - 1] + $cost // substitution
+                    $d[$i - 1][$j - 1] + $cost, // substitution
                 );
             }
         }
 
         return $d[$m][$n];
-    }
-
-    public function distance(string $str1, string $str2): int
-    {
-        $key = $str1 < $str2 ? "$str1:$str2" : "$str2:$str1";
-
-        if (! isset($this->cache[$key])) {
-            $this->cache[$key] = $this->uniLevenshtein($str1, $str2);
-        }
-
-        return $this->cache[$key];
     }
 
     /**

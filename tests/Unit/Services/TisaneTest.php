@@ -6,7 +6,7 @@ use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
 use Ninja\Censor\Checkers\TisaneAI;
 
-test('tisane detects abuse and profanity', function () {
+test('tisane detects abuse and profanity', function (): void {
     $mock = new MockHandler([
         new Response(200, [], json_encode([
             'sentiment' => -0.5,
@@ -32,15 +32,15 @@ test('tisane detects abuse and profanity', function () {
 
     expect($result)
         ->toBeOffensive()
-        ->and($result->categories())->toContain(\Ninja\Censor\Enums\Category::HateSpeech)
-        ->and($result->categories())->toContain(\Ninja\Censor\Enums\Category::Profanity)
+        ->and($result->categories())->toContain(Ninja\Censor\Enums\Category::HateSpeech)
+        ->and($result->categories())->toContain(Ninja\Censor\Enums\Category::Profanity)
         ->and($result->words())->toContain('offensive', 'badword')
         ->and($result->sentiment()->value())->toBe(-0.5)
-        ->and($result->sentiment()->type())->toBe(\Ninja\Censor\Enums\SentimentType::Negative)
+        ->and($result->sentiment()->type())->toBe(Ninja\Censor\Enums\SentimentType::Negative)
         ->and($result->score()->value())->toBeGreaterThan(0.7);
 });
 
-test('tisane handles clean content', function () {
+test('tisane handles clean content', function (): void {
     $mock = new MockHandler([
         new Response(200, [], json_encode([
             'sentiment' => 0.0,

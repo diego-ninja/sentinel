@@ -11,12 +11,12 @@ final class TextNormalizer
         // Remove zero-width characters
         $replaced = preg_replace('/[\x{200B}-\x{200D}\x{FEFF}]/u', '', $text);
 
-        if ($replaced === null) {
+        if (null === $replaced) {
             return $text;
         }
 
         $normalized = normalizer_normalize($replaced, Normalizer::FORM_C);
-        if ($normalized === false) {
+        if (false === $normalized) {
             return $text;
         }
 

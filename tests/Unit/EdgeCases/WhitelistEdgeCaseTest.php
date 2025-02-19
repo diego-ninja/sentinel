@@ -5,8 +5,8 @@ namespace Tests\Unit\EdgeCases;
 use Ninja\Censor\Checkers\Censor;
 use Ninja\Censor\Whitelist;
 
-test('whitelist handles special regex characters', function () {
-    $whitelist = new Whitelist;
+test('whitelist handles special regex characters', function (): void {
+    $whitelist = new Whitelist();
     $whitelist->add(['example.com', 'user@email.com', 'path/to/file']);
 
     $text = 'Contact us at user@email.com or visit example.com';
@@ -16,7 +16,7 @@ test('whitelist handles special regex characters', function () {
     expect($restored)->toBe($text);
 });
 
-test('whitelist handles overlapping terms', function () {
+test('whitelist handles overlapping terms', function (): void {
     config(['censor.whitelist' => [
         'assessment',
         'assess',

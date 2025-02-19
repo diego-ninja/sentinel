@@ -7,32 +7,30 @@ use Ninja\Censor\Enums\Provider;
 use Ninja\Censor\Facades\Censor;
 use Ninja\Censor\Result\Contracts\Result;
 
-test('facade check method returns result instance', function () {
+test('facade check method returns result instance', function (): void {
     $result = Censor::check('test text');
     expect($result)->toBeInstanceOf(Result::class);
 });
 
-test('facade offensive method returns boolean', function () {
+test('facade offensive method returns boolean', function (): void {
     $result = Censor::offensive('fuck this shit');
     expect($result)->toBeTrue();
 });
 
-test('facade clean method returns cleaned string', function () {
+test('facade clean method returns cleaned string', function (): void {
     $text = 'fuck this shit';
     $result = Censor::clean($text);
 
     expect($result)->toBe('**** this ****');
 });
 
-test('facade with method returns correct service result', function () {
+test('facade with method returns correct service result', function (): void {
     // Configure mock response for PurgoMalum
-    $this->app->bind('purgomalum', function ($app) {
-        return new PurgoMalum(
-            $this->getMockedHttpClient([
-                ['result' => '**** text'],
-            ])
-        );
-    });
+    $this->app->bind('purgomalum', fn($app) => new PurgoMalum(
+        $this->getMockedHttpClient([
+            ['result' => '**** text'],
+        ]),
+    ));
 
     $result = Censor::with(Provider::PurgoMalum, 'bad text');
     expect($result)
@@ -40,19 +38,17 @@ test('facade with method returns correct service result', function () {
         ->and($result->replaced())->toBe('**** text');
 });
 
-test('facade can switch between services while maintaining state', function () {
+test('facade can switch between services while maintaining state', function (): void {
     // Test default service
     $result1 = Censor::check('fuck this shit');
     expect($result1->replaced())->toBe('**** this ****');
 
     // Test PurgoMalum
-    $this->app->bind('purgomalum', function ($app) {
-        return new PurgoMalum(
-            $this->getMockedHttpClient([
-                ['result' => '**** text'],
-            ])
-        );
-    });
+    $this->app->bind('purgomalum', fn($app) => new PurgoMalum(
+        $this->getMockedHttpClient([
+            ['result' => '**** text'],
+        ]),
+    ));
 
     $result2 = Censor::with(Provider::PurgoMalum, 'bad text');
     expect($result2->replaced())->toBe('**** text');
@@ -62,7 +58,7 @@ test('facade can switch between services while maintaining state', function () {
     expect($result3->replaced())->toBe('**** this ****');
 });
 
-test('facade handles invalid input gracefully', function () {
+test('facade handles invalid input gracefully', function (): void {
     $result = Censor::check('');
     expect($result)
         ->toBeInstanceOf(Result::class)
@@ -70,7 +66,7 @@ test('facade handles invalid input gracefully', function () {
         ->and($result->replaced())->toBe('');
 });
 
-test('facade respects configuration changes', function () {
+test('facade respects configuration changes', function (): void {
     // Change mask character
     config(['censor.mask_char' => '#']);
     $result = Censor::check('fuck this shit');
@@ -80,6 +76,6 @@ test('facade respects configuration changes', function () {
     config(['censor.mask_char' => '*']);
 });
 
-test('facade is bound in container correctly', function () {
+test('facade is bound in container correctly', function (): void {
     expect(app('censor'))->toBeInstanceOf(\Ninja\Censor\Censor::class);
 });

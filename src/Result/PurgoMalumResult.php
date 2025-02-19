@@ -16,7 +16,7 @@ final class PurgoMalumResult extends AbstractResult
          *     result: string
          * } $response
          */
-        $builder = new ResultBuilder;
+        $builder = new ResultBuilder();
         $matches = self::extractMatches($text, $response['result']);
 
         return $builder
@@ -32,7 +32,7 @@ final class PurgoMalumResult extends AbstractResult
 
     private static function extractMatches(string $original, string $replaced): MatchCollection
     {
-        $matches = new MatchCollection;
+        $matches = new MatchCollection();
         $originalWords = explode(' ', $original);
         $replacedWords = explode(' ', $replaced);
 

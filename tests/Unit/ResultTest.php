@@ -3,7 +3,7 @@
 use Ninja\Censor\Checkers\Censor;
 use Ninja\Censor\Result\AbstractResult;
 
-test('censor result provides all required information', function () {
+test('censor result provides all required information', function (): void {
     $censor = app(Censor::class);
     $result = $censor->check('fuck this shit');
     expect($result)

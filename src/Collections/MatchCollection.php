@@ -46,7 +46,7 @@ class MatchCollection extends Collection
     public function words(): array
     {
         // @phpstan-ignore return.type
-        return $this->map(fn (Coincidence $match) => $match->word())->toArray();
+        return $this->map(fn(Coincidence $match) => $match->word())->toArray();
     }
 
     /**
@@ -55,7 +55,7 @@ class MatchCollection extends Collection
     public function merge($items): self
     {
         foreach ($items as $item) {
-            if (! $this->contains(fn (Coincidence $existingItem) => $existingItem->word() === $item->word())) {
+            if ( ! $this->contains(fn(Coincidence $existingItem) => $existingItem->word() === $item->word())) {
                 $this->add($item);
             }
         }
@@ -74,7 +74,7 @@ class MatchCollection extends Collection
 
         foreach ($this as $match) {
             $pos = mb_stripos($text, $match->word());
-            if ($pos !== false) {
+            if (false !== $pos) {
                 $positions[] = [
                     'start' => $pos,
                     'length' => mb_strlen($match->word()),
@@ -98,8 +98,8 @@ class MatchCollection extends Collection
             $replacer = config('censor.mask_char', '*');
             $replacement = str_repeat($replacer, $position['length']);
             $result = mb_substr($result, 0, $position['start'] - $offset)
-                .$replacement
-                .mb_substr($result, $position['start'] - $offset + $position['length']);
+                . $replacement
+                . mb_substr($result, $position['start'] - $offset + $position['length']);
         }
 
         return $result;
@@ -130,7 +130,7 @@ class MatchCollection extends Collection
                 MatchType::Trie => 1.8,
                 MatchType::Pattern => 1.5,
                 MatchType::NGram => 1.3,
-                default => $match->type->weight()
+                default => $match->type->weight(),
             };
 
             $lengthMultiplier = count($words) > 1 ? 1.5 : 1.2;
@@ -138,7 +138,7 @@ class MatchCollection extends Collection
             $offensiveWords += count($words);
         }
 
-        if ($offensiveWords === 0) {
+        if (0 === $offensiveWords) {
             return new Score(0.0);
         }
 

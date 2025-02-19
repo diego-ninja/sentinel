@@ -12,6 +12,6 @@ final class DefaultProcessor extends AbstractProcessor
      */
     public function process(array $chunks): array
     {
-        return array_map(fn (string $chunk): AbstractResult => $this->processChunk($chunk), $chunks);
+        return array_map(fn(string $chunk): AbstractResult => $this->processChunk($chunk), $chunks);
     }
 }

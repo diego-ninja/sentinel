@@ -25,7 +25,7 @@ abstract class TestCase extends BaseTestCase
         $app['config']->set('censor.mask_char', '*');
         $app['config']->set('censor.whitelist', []);
         $app['config']->set('censor.languages', ['en']);
-        $app['config']->set('censor.dictionary_path', __DIR__.'/../resources/dict');
+        $app['config']->set('censor.dictionary_path', __DIR__ . '/../resources/dict');
         $app['config']->set('censor.default_service', 'local');
         $app['config']->set('censor.cache.enabled', false);
         $app['config']->set('censor.replacements', [
@@ -87,9 +87,9 @@ abstract class TestCase extends BaseTestCase
     {
         $mock = new MockHandler(
             array_map(
-                fn ($response) => new Response(200, [], json_encode($response)),
-                $responses
-            )
+                fn($response) => new Response(200, [], json_encode($response)),
+                $responses,
+            ),
         );
 
         return new Client(['handler' => HandlerStack::create($mock)]);

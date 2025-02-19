@@ -16,13 +16,9 @@ uses(TestCase::class)->in('Unit', 'Feature');
 |--------------------------------------------------------------------------
 */
 
-expect()->extend('toBeOffensive', function () {
-    return $this->offensive() === true;
-});
+expect()->extend('toBeOffensive', fn() => true === $this->offensive());
 
-expect()->extend('toBeClean', function () {
-    return $this->offensive() === false;
-});
+expect()->extend('toBeClean', fn() => false === $this->offensive());
 
 /*
 |--------------------------------------------------------------------------
@@ -46,8 +42,8 @@ function getTestDictionary(): array
 
 function createTestDictionaryFile(): string
 {
-    $path = sys_get_temp_dir().'/test_dict.php';
-    file_put_contents($path, '<?php return '.var_export(getTestDictionary(), true).';');
+    $path = sys_get_temp_dir() . '/test_dict.php';
+    file_put_contents($path, '<?php return ' . var_export(getTestDictionary(), true) . ';');
 
     return $path;
 }

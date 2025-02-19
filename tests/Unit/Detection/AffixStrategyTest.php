@@ -5,7 +5,7 @@ namespace Tests\Unit\Detection;
 use Ninja\Censor\Detection\Strategy\AffixStrategy;
 use Ninja\Censor\Enums\MatchType;
 
-test('word variant strategy detects suffixes', function () {
+test('word variant strategy detects suffixes', function (): void {
     $suffixes = config('censor.suffixes');
     $prefixes = config('censor.prefixes');
 
@@ -23,14 +23,14 @@ test('word variant strategy detects suffixes', function () {
         expect($result)
             ->toHaveCount(1)
             ->sequence(
-                fn ($match) => $match
+                fn($match) => $match
                     ->word->toBe($text)
-                    ->type->toBe(MatchType::Variation)
+                    ->type->toBe(MatchType::Variation),
             );
     }
 });
 
-test('word variant strategy detects prefixes', function () {
+test('word variant strategy detects prefixes', function (): void {
     $suffixes = config('censor.suffixes');
     $prefixes = config('censor.prefixes');
 
@@ -48,14 +48,14 @@ test('word variant strategy detects prefixes', function () {
         expect($result)
             ->toHaveCount(1)
             ->sequence(
-                fn ($match) => $match
+                fn($match) => $match
                     ->word->toBe($text)
-                    ->type->toBe(MatchType::Variation)
+                    ->type->toBe(MatchType::Variation),
             );
     }
 });
 
-test('word variant strategy detects prefix-suffix combinations', function () {
+test('word variant strategy detects prefix-suffix combinations', function (): void {
     $suffixes = config('censor.suffixes');
     $prefixes = config('censor.prefixes');
 
@@ -73,14 +73,14 @@ test('word variant strategy detects prefix-suffix combinations', function () {
         expect($result)
             ->toHaveCount(1)
             ->sequence(
-                fn ($match) => $match
+                fn($match) => $match
                     ->word->toBe($text)
-                    ->type->toBe(MatchType::Variation)
+                    ->type->toBe(MatchType::Variation),
             );
     }
 });
 
-test('word variant strategy handles special ending rules', function () {
+test('word variant strategy handles special ending rules', function (): void {
     $suffixes = config('censor.suffixes');
     $prefixes = config('censor.prefixes');
 
@@ -97,7 +97,7 @@ test('word variant strategy handles special ending rules', function () {
         ->and($result->first()->word())->toBe('shitting');
 });
 
-test('word variant strategy preserves case', function () {
+test('word variant strategy preserves case', function (): void {
     $suffixes = config('censor.suffixes');
     $prefixes = config('censor.prefixes');
 
@@ -109,13 +109,13 @@ test('word variant strategy preserves case', function () {
     expect($result)
         ->toHaveCount(3)
         ->sequence(
-            fn ($match) => $match->word->toBe('UnFucking'),
-            fn ($match) => $match->word->toBe('REFUCKED'),
-            fn ($match) => $match->word->toBe('superFUCKER')
+            fn($match) => $match->word->toBe('UnFucking'),
+            fn($match) => $match->word->toBe('REFUCKED'),
+            fn($match) => $match->word->toBe('superFUCKER'),
         );
 });
 
-test('word variant strategy handles multiple words in text', function () {
+test('word variant strategy handles multiple words in text', function (): void {
     $suffixes = config('censor.suffixes');
     $prefixes = config('censor.prefixes');
 

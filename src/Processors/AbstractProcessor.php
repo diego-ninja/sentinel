@@ -26,7 +26,7 @@ abstract class AbstractProcessor implements Processor
      */
     public function __construct(
         private readonly Whitelist $whitelist,
-        private readonly LazyDictionary $dictionary
+        private readonly LazyDictionary $dictionary,
     ) {
         /** @var string $replaceChar */
         $replaceChar = config('censor.mask_char', '*');
@@ -34,6 +34,14 @@ abstract class AbstractProcessor implements Processor
 
         $this->initializeStrategies();
     }
+
+    /**
+     * Process multiple chunks of text.
+     *
+     * @param  array<string>  $chunks
+     * @return array<AbstractResult>
+     */
+    abstract public function process(array $chunks): array;
 
     /**
      * @throws CircularDependencyException
@@ -45,7 +53,7 @@ abstract class AbstractProcessor implements Processor
         /** @var array<class-string<DetectionStrategy>> $strategies */
         $strategies = config('censor.services.local.strategies', []);
 
-        $this->strategies = new StrategyCollection;
+        $this->strategies = new StrategyCollection();
         foreach ($strategies as $strategy) {
             /** @var DetectionStrategy $class */
             $class = app()->build($strategy);
@@ -71,9 +79,9 @@ abstract class AbstractProcessor implements Processor
     private function buildResult(
         string $original,
         string $finalText,
-        MatchCollection $matches
+        MatchCollection $matches,
     ): AbstractResult {
-        return (new ResultBuilder)
+        return (new ResultBuilder())
             ->withOriginalText($original)
             ->withReplaced($finalText)
             ->withWords(array_unique($matches->words()))
@@ -83,12 +91,4 @@ abstract class AbstractProcessor implements Processor
             ->withMatches($matches)
             ->build();
     }
-
-    /**
-     * Process multiple chunks of text.
-     *
-     * @param  array<string>  $chunks
-     * @return array<AbstractResult>
-     */
-    abstract public function process(array $chunks): array;
 }
