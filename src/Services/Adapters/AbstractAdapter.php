@@ -42,7 +42,7 @@ abstract readonly class AbstractAdapter implements ServiceAdapter
     protected function createCategories(array $categories): array
     {
         return array_map(
-            fn(string $category) => Category::tryFrom($category),
+            fn(string $category) => Category::from($category),
             $categories,
         );
     }

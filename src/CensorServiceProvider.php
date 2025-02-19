@@ -10,6 +10,7 @@ use Ninja\Censor\Cache\Contracts\PatternCache;
 use Ninja\Censor\Checkers\AzureAI;
 use Ninja\Censor\Checkers\Contracts\ProfanityChecker;
 use Ninja\Censor\Checkers\PerspectiveAI;
+use Ninja\Censor\Checkers\PrismAI;
 use Ninja\Censor\Checkers\PurgoMalum;
 use Ninja\Censor\Checkers\TisaneAI;
 use Ninja\Censor\Dictionary\LazyDictionary;
@@ -22,6 +23,7 @@ use Ninja\Censor\Processors\DefaultProcessor;
 use Ninja\Censor\Services\Adapters\AzureAdapter;
 use Ninja\Censor\Services\Adapters\CensorAdapter;
 use Ninja\Censor\Services\Adapters\PerspectiveAdapter;
+use Ninja\Censor\Services\Adapters\PrismAdapter;
 use Ninja\Censor\Services\Adapters\PurgoMalumAdapter;
 use Ninja\Censor\Services\Adapters\TisaneAdapter;
 use Ninja\Censor\Services\Contracts\ServiceAdapter;
@@ -76,6 +78,7 @@ final class CensorServiceProvider extends ServiceProvider
                 Provider::Perspective => $app->make(PerspectiveAdapter::class),
                 Provider::PurgoMalum => $app->make(PurgoMalumAdapter::class),
                 Provider::Tisane => $app->make(TisaneAdapter::class),
+                Provider::Prism => $app->make(PrismAdapter::class),
                 default => $app->make(CensorAdapter::class),
             };
         });
@@ -85,12 +88,14 @@ final class CensorServiceProvider extends ServiceProvider
         $this->app->singleton(PerspectiveAdapter::class);
         $this->app->singleton(PurgoMalumAdapter::class);
         $this->app->singleton(TisaneAdapter::class);
+        $this->app->singleton(PrismAdapter::class);
 
         $this->app->when(AzureAI::class)->needs(ServiceAdapter::class)->give(AzureAdapter::class);
         $this->app->when(TisaneAI::class)->needs(ServiceAdapter::class)->give(TisaneAdapter::class);
         $this->app->when(Checkers\Censor::class)->needs(ServiceAdapter::class)->give(CensorAdapter::class);
         $this->app->when(PerspectiveAI::class)->needs(ServiceAdapter::class)->give(PerspectiveAdapter::class);
         $this->app->when(PurgoMalum::class)->needs(ServiceAdapter::class)->give(PurgoMalumAdapter::class);
+        $this->app->when(PrismAI::class)->needs(ServiceAdapter::class)->give(PrismAdapter::class);
 
         $this->app->singleton(TransformationPipeline::class, fn() => (new TransformationPipeline())
             ->addStage(new ScoreStage())
@@ -181,8 +186,13 @@ final class CensorServiceProvider extends ServiceProvider
             /** @var Prism $prism */
             $prism = app(Prism::class);
 
-            return new Checkers\PrismAI(
+            /** @var ServiceAdapter $adapter */
+            $adapter = app(ServiceAdapter::class);
+
+            return new PrismAI(
                 prism: $prism,
+                adapter: $adapter,
+                pipeline: app(TransformationPipeline::class),
             );
         });
 

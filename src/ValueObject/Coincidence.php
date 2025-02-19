@@ -14,12 +14,12 @@ final readonly class Coincidence
      * @param  array<string, mixed>|null  $context
      */
     public function __construct(
-        private string $word,
-        private MatchType $type,
-        private Score $score,
-        private Confidence $confidence,
-        private OccurrenceCollection $occurrences,
-        private ?array $context = null,
+        public string $word,
+        public MatchType $type,
+        public Score $score,
+        public Confidence $confidence,
+        public OccurrenceCollection $occurrences,
+        public ?array $context = null,
     ) {}
 
     public function word(): string

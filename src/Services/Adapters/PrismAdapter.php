@@ -21,7 +21,7 @@ use Ninja\Censor\ValueObject\Sentiment;
 final readonly class PrismAdapter extends AbstractAdapter implements ServiceAdapter
 {
     /**
-     * @param string $text Original text
+     * @param string $text
      * @param array{
      *     is_offensive: bool,
      *     offensive_words: array<string>,
@@ -38,6 +38,7 @@ final readonly class PrismAdapter extends AbstractAdapter implements ServiceAdap
      *         context?: array{original?: string, surrounding?: string}
      *     }>
      * } $response
+     * @return ServiceResponse
      */
     public function adapt(string $text, array $response): ServiceResponse
     {
@@ -45,17 +46,22 @@ final readonly class PrismAdapter extends AbstractAdapter implements ServiceAdap
 
         return new readonly class ($text, $response, $matches) implements ServiceResponse {
             /**
-             * @param string $text
-             * @param  array{
+             * @param array{
              *     is_offensive: bool,
              *     offensive_words: array<string>,
              *     categories: array<string>,
              *     confidence: float,
              *     severity: float,
              *     sentiment: array{type: string, score: float},
-             *     matches: array
+             *     matches: array<int, array{
+             *         text: string,
+             *         match_type: string,
+             *         score: float,
+             *         confidence: float,
+             *         occurrences: array<int, array{start: int, length: int}>,
+             *         context?: array{original?: string, surrounding?: string}
+             *     }>
              * } $response
-             * @param MatchCollection|null $matches
              */
             public function __construct(
                 private string $text,
