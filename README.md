@@ -1,29 +1,56 @@
-# 💀 Censor - Profanity and word filtering library for Laravel 10+
+# Laravel Censor
 
+<p align="center">
+    <img src="./.github/assets/logo.png" alt="Laravel Censor Logo"/>
+</p>
+
+[![Laravel Package](https://img.shields.io/badge/Laravel%2010+%20Package-red?logo=laravel&logoColor=white)](https://www.laravel.com)
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/diego-ninja/laravel-censor.svg?style=flat&color=blue)](https://packagist.org/packages/diego-ninja/laravel-censor)
 [![Total Downloads](https://img.shields.io/packagist/dt/diego-ninja/laravel-censor.svg?style=flat&color=blue)](https://packagist.org/packages/diego-ninja/laravel-censor)
 ![PHP Version](https://img.shields.io/packagist/php-v/diego-ninja/laravel-censor.svg?style=flat&color=blue)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 ![GitHub last commit](https://img.shields.io/github/last-commit/diego-ninja/laravel-censor?color=blue)
-[![Hits-of-Code](https://hitsofcode.com/github/diego-ninja/laravel-censor?branch=main&label=hits-of-code)](https://hitsofcode.com/github/diego-ninja/laravel-censor/view?branch=main&label=hits-of-code)
-[![wakatime](https://wakatime.com/badge/user/bd65f055-c9f3-4f73-92aa-3c9810f70cc3/project/f5c4a047-d754-4ef3-b7b0-89ff0099a601.svg)](https://wakatime.com/badge/user/bd65f055-c9f3-4f73-92aa-3c9810f70cc3/project/f5c4a047-d754-4ef3-b7b0-89ff0099a601)
+[![PHPStan Level](https://img.shields.io/badge/phpstan-level%2010-blue?logo=php)]()
 
 # Introduction
 
-A powerful and flexible profanity filtering package for Laravel 10+ applications. Filter offensive content using multiple services or local dictionaries.
+A powerful and flexible content analysis package for Laravel 10+ applications. Analyze and filter offensive content using multiple services, local dictionaries, and advanced detection strategies.
 
 This documentation has been generated almost in its entirety using 🦠 [Claude 3.5 Sonnet](https://claude.ai/) based on source code analysis. Some sections may be incomplete, outdated or may contain documentation for planned or not-released features. For the most accurate information, please refer to the source code or open an issue on the package repository.
 
 ## ❤️ Features
 
-- Multiple profanity checking services support (Local, [PurgoMalum](https://www.purgomalum.com/), [Azure AI](https://azure.microsoft.com/en-us/pricing/details/cognitive-services/content-safety/), [Perspective AI](https://perspectiveapi.com/), [Tisane AI](https://tisane.ai/))
+- Multiple service providers support:
+    - Local dictionary-based analysis
+    - [PurgoMalum](https://www.purgomalum.com/)
+    - [Tisane AI](https://tisane.ai/)
+    - [Prism LLM](https://prism.echolabs.dev/) (with support for multiple LLMs)
+    - [Azure AI](https://azure.microsoft.com/en-us/pricing/details/cognitive-services/content-safety/)
+    - [Perspective AI](https://perspectiveapi.com/)
+- Advanced detection strategies:
+    - Exact match with Trie indexing
+    - Pattern matching with character substitutions
+    - N-gram analysis for phrase detection
+    - Variation detection for obfuscated content
+    - Repeated character detection
+    - Levenshtein distance matching
+- Rich analysis results:
+    - Sentiment analysis
+    - Content categorization
+    - Match position tracking
+    - Context and confidence scoring
 - Multi-language support
 - Whitelist functionality
-- Character replacement options
-- Laravel Facade and helper functions
-- Custom validation rule
 - Configurable dictionaries
-- Character substitution detection
+- Laravel Facade and helper functions
+- Laravel validation rule
+- Caching system
+- Full Octane compatibility
+
+## Planned Features
+- Unicode support enhancement
+- More service providers
+- Machine learning enhancements
 
 ## 📦 Installation
 
@@ -44,14 +71,15 @@ php artisan vendor:publish --tag="censor-dictionaries"
 
 The package configuration file will be published at `config/censor.php`. Here you can configure:
 
-- Default language
-- Available languages
+- Default language and available languages
 - Default profanity service
 - Mask character for censored words
 - Character replacements for evasion detection
-- Whitelist of allowed words
+- Whitelist words
 - Dictionary path
 - Service-specific configurations
+- Cache settings
+- Analysis thresholds
 
 ### API Keys Configuration
 
@@ -59,10 +87,19 @@ Some services require API keys. Add these to your `.env` file:
 
 ```env
 CENSOR_THRESHOLD_SCORE=0.5
+CENSOR_CACHE_ENABLED=true
+CENSOR_CACHE_TTL=3600
+CENSOR_CACHE_STORE=redis
+
 PERSPECTIVE_AI_API_KEY=your-perspective-api-key
 TISANE_AI_API_KEY=your-tisane-api-key
 AZURE_AI_API_KEY=your-azure-api-key
 AZURE_AI_ENDPOINT=your-azure-endpoint
+
+# Prism Configuration
+PRISM_PROVIDER=anthropic
+PRISM_MODEL=claude-3-sonnet-latest
+PRISM_API_KEY=your-anthropic-api-key
 ```
 
 ## ⚙️ Basic Usage
@@ -80,8 +117,11 @@ $isOffensive = Censor::offensive('some text');
 // Get cleaned version of text
 $cleanText = Censor::clean('some text');
 
-// Get detailed analysis
+// Get detailed analysis with sentiment and matches
 $result = Censor::check('some text');
+
+// Use a specific provider
+$result = Censor::with(Provider::Prism, 'some text');
 ```
 
 ### 2. Helper Functions
@@ -102,11 +142,11 @@ $rules = [
 ];
 ```
 
-## Available Services
+## Available Service Providers
 
 ### Local Censor
 
-Uses local dictionaries for offline profanity checking.
+Uses local dictionaries with multiple detection strategies for offline profanity checking.
 
 ```php
 use Ninja\Censor\Enums\Provider;
@@ -114,9 +154,15 @@ use Ninja\Censor\Enums\Provider;
 $result = Censor::with(Provider::Local, 'text to check');
 ```
 
+Features:
+- Multiple detection strategies
+- Fast performance
+- No API dependencies
+- Configurable pattern matching
+
 ### PurgoMalum
 
-Free web service for profanity filtering.
+Free web service for basic profanity filtering.
 
 ```php
 $result = Censor::with(Provider::PurgoMalum, 'text to check');
@@ -124,7 +170,7 @@ $result = Censor::with(Provider::PurgoMalum, 'text to check');
 
 ### Azure AI Content Safety
 
-Uses Azure's AI content moderation service.
+Uses Azure's AI content moderation service with advanced content analysis.
 
 ```php
 $result = Censor::with(Provider::Azure, 'text to check');
@@ -132,7 +178,7 @@ $result = Censor::with(Provider::Azure, 'text to check');
 
 ### Perspective AI
 
-Uses Google's Perspective API for content analysis.
+Uses Google's Perspective API for toxicity and content analysis.
 
 ```php
 $result = Censor::with(Provider::Perspective, 'text to check');
@@ -146,14 +192,25 @@ Natural language processing service for content moderation.
 $result = Censor::with(Provider::Tisane, 'text to check');
 ```
 
-### LLMs via Prism
+### Prism LLM Support
 
-Access various LLMs via [Prism](https://prism.echolabs.dev/) library.
-Please take a look at [documentation](https://prism.echolabs.dev/getting-started/configuration.html) on configuring LLMs to work with Prism.
+Access various Large Language Models through Prism:
 
 ```php
+use Ninja\Censor\Enums\Provider;
+
 $result = Censor::with(Provider::Prism, 'text to check');
 ```
+
+Supported models through Prism:
+- Anthropic (Claude models)
+- OpenAI (GPT models)
+- Gemini
+- Mistral
+- Ollama
+- DeepSeek
+- Groq
+- xAI
 
 ## Working with Results
 
@@ -162,24 +219,87 @@ All services return a Result object with consistent methods:
 ```php
 $result = Censor::check('some text');
 
+// Basic information
 $result->offensive();    // bool: whether the text contains offensive content
 $result->words();        // array: list of matched offensive words
 $result->replaced();     // string: text with offensive words replaced
 $result->original();     // string: original text
-$result->score();        // ?float: offensive content score (if available)
-$result->confidence();   // ?float: confidence level (if available)
-$result->categories();   // ?array: detected categories (if available)
+$result->score();        // Score: offensive content score
+$result->confidence();   // Confidence: confidence level
+
+// Detailed analysis
+$result->sentiment();    // Sentiment: text sentiment analysis
+$result->categories();   // array: detected content categories
+
+// Match information
+$result->matches();      // MatchCollection: detailed matches with positions
+```
+
+### Working with Matches
+
+The MatchCollection provides detailed information about each match:
+
+```php
+$matches = $result->matches();
+
+foreach ($matches as $match) {
+    echo "Word: " . $match->word();
+    echo "Type: " . $match->type();          // exact, pattern, variation, etc.
+    echo "Score: " . $match->score();
+    echo "Confidence: " . $match->confidence();
+    
+    // Get all occurrences of the match
+    foreach ($match->occurrences() as $occurrence) {
+        echo "Position: " . $occurrence->start();
+        echo "Length: " . $occurrence->length();
+    }
+    
+    // Context information if available
+    if ($context = $match->context()) {
+        echo "Original form: " . $context['original'];
+        echo "Surrounding text: " . $context['surrounding'];
+    }
+}
+```
+
+### Categories
+
+The package can detect various content categories:
+
+```php
+use Ninja\Censor\Enums\Category;
+
+$categories = $result->categories();
+// Can include:
+// - Category::HateSpeech
+// - Category::Harassment
+// - Category::Sexual
+// - Category::Violence
+// - Category::Threat
+// - Category::Toxicity
+// - Category::Profanity
+```
+
+### Sentiment Analysis
+
+Results include sentiment analysis when available:
+
+```php
+$sentiment = $result->sentiment();
+
+echo $sentiment->type();    // positive, negative, neutral, mixed
+echo $sentiment->score();   // -1.0 to 1.0
 ```
 
 ## Response Caching
 
-External service responses are automatically cached to improve performance and reduce API calls. By default, all external services (PurgoMalum, Azure AI, Perspective AI, and Tisane AI) will cache their responses for 1 hour.
+External service responses are automatically cached to improve performance and reduce API calls. By default, all external services will cache their responses for 1 hour.
 
 The local censor service is not cached as it's already performant enough.
 
 ### Configuring Cache
 
-You can configure the cache TTL and cache store in your `.env` file:
+You can configure the cache in your `.env` file:
 
 ```env
 CENSOR_CACHE_ENABLED=true # Enable caching (default: true)
@@ -197,8 +317,6 @@ Or in your `config/censor.php`:
     ],
 ```
 
-The caching system uses Laravel's cache system, so it will respect your cache driver configuration (`config/cache.php`). You can use any cache driver supported by Laravel (Redis, Memcached, file, etc.).
-
 ### Cache Keys
 
 Cache keys are generated using the following format:
@@ -206,31 +324,18 @@ Cache keys are generated using the following format:
 censor:{ServiceName}:{md5(text)}
 ```
 
-For example:
-```
-censor:PurgoMalum:a1b2c3d4e5f6g7h8i9j0
-```
-
-This ensures unique caching for:
-- Different services checking the same text
-- Same service checking different texts
-- Different environments using the same cache store
-
-## Detection Mechanism
+## Detection Strategies
 
 The local checker uses a multi-strategy approach to detect offensive content accurately. Each piece of text is processed through different detection strategies in sequence:
 
-1. **Pattern Strategy**: Handles exact matches and character substitutions (like '@' for 'a', '1' for 'i'). This is the primary detection method and uses precompiled regular expressions for efficiency.
+1. **Trie Index Strategy**: Fast exact matching using a Trie data structure
+2. **Pattern Strategy**: Handles exact matches and character substitutions
+3. **NGram Strategy**: Detects offensive phrases by analyzing word combinations
+4. **Variation Strategy**: Catches attempts to evade detection through character separation
+5. **Repeated Chars Strategy**: Identifies words with intentionally repeated characters
+6. **Levenshtein Strategy**: Uses string distance comparison for similar words
 
-2. **NGram Strategy**: Detects offensive phrases by analyzing word combinations. Unlike single-word detection, this strategy can identify offensive content that spans multiple words.
-
-3. **Variation Strategy**: Catches attempts to evade detection through character separation (like 'f u c k' or 'f.u.c.k'). This strategy understands various separator patterns while respecting word boundaries.
-
-4. **Repeated Chars Strategy**: Identifies words with intentionally repeated characters (like 'fuuuck'). This helps catch common obfuscation techniques.
-
-5. **Levenshtein Strategy**: Uses string distance comparison to find words that are similar to offensive terms, helping catch typos and intentional misspellings.
-
-Each strategy can operate in either full word or partial matching mode, with full word mode ensuring that matches are not part of larger words (preventing false positives like 'class' matching 'ass'). Results from all strategies are combined, deduplicated, and scored based on the type and quantity of matches found.
+Each strategy can operate in either full word or partial matching mode. Results from all strategies are combined, deduplicated, and scored based on the type and quantity of matches found.
 
 ## Custom Dictionaries
 
@@ -266,7 +371,7 @@ You can whitelist words to prevent them from being censored:
 
 ## Character Substitution
 
-The package detects common character substitutions (e.g., @ for a, 1 for i). Configure these in:
+The package detects common character substitutions. Configure these in:
 
 ```php
 // config/censor.php
@@ -284,7 +389,7 @@ This project is developed and maintained by 🥷 [Diego Rin](https://diego.ninja
 Special thanks to:
 
 - [Laravel Framework](https://laravel.com/) for providing the most exciting and well-crafted PHP framework.
-- [Snipe](https://github.com/snipe) for developing the [inital code](https://github.com/snipe/banbuilder) that serves Laravel Censor as starting point.
+- [Snipe](https://github.com/snipe) for developing the [initial code](https://github.com/snipe/banbuilder) that serves Laravel Censor as starting point.
 - All the contributors and testers who have helped to improve this project through their contributions.
 
 If you find this project useful, please consider giving it a ⭐ on GitHub!

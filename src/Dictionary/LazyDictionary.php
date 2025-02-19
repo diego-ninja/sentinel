@@ -3,14 +3,22 @@
 namespace Ninja\Censor\Dictionary;
 
 use Generator;
+use IteratorAggregate;
 use Ninja\Censor\Exceptions\DictionaryFileNotFound;
+use SplFixedArray;
 
-final class LazyDictionary
+/**
+ * @implements IteratorAggregate<int, string>
+ */
+final class LazyDictionary implements IteratorAggregate
 {
-    /**
-     * @var string[]|null
-     */
-    private ?array $words = null;
+    private const CHUNK_SIZE = 1000;
+
+    /** @var array<string,SplFixedArray<string>> */
+    private array $chunks = [];
+
+    /** @var array<string>|null */
+    private ?array $customWords = null;
 
     /**
      * @param  string[]  $languages
@@ -29,8 +37,9 @@ final class LazyDictionary
      */
     public static function withWords(array $words): self
     {
+        $filteredWords = array_filter($words, fn($word) => '' !== $word);
         $instance = new self(['custom']);
-        $instance->words = $words;
+        $instance->customWords = array_unique($filteredWords);
 
         return $instance;
     }
@@ -43,24 +52,38 @@ final class LazyDictionary
         return new self($languages);
     }
 
-    /**+
-     * @return Generator<string>
+    /**
+     * @return Generator<int, string>
      */
-    public function getWords(): Generator
+    public function getIterator(): Generator
     {
-        if (null === $this->words) {
-            yield from $this->loadDictionaries();
-        } else {
-            yield from $this->words;
-        }
+        yield from $this->loadWordsLazily();
     }
 
     /**
-     * @return Generator<string>
+     * @return array<int, string>
      */
-    private function loadDictionaries(): Generator
+    public function getWords(): array
     {
-        $loadedWords = [];
+        return iterator_to_array($this->getIterator());
+    }
+
+    /**
+     * @return Generator<int, string>
+     */
+    private function loadWordsLazily(): Generator
+    {
+        if (null !== $this->customWords) {
+            foreach ($this->customWords as $word) {
+                if (is_string($word)) {
+                    yield $word;
+                }
+            }
+
+            return;
+        }
+
+        $seenWords = [];
 
         foreach ($this->languages as $language) {
             $dictionaryFile = sprintf('%s/%s.php', $this->dictionaryPath, $language);
@@ -71,14 +94,28 @@ final class LazyDictionary
 
             /** @var array<string> $words */
             $words = include $dictionaryFile;
+            $totalChunks = ceil(count($words) / self::CHUNK_SIZE);
 
-            foreach ($words as $word) {
-                if ( ! in_array($word, $loadedWords, true)) {
-                    $loadedWords[] = $word;
-                    $this->words[] = $word;
-                    yield $word;
+            for ($i = 0; $i < $totalChunks; $i++) {
+                /** @var array<int,string> $chunk */
+                $chunk = array_values(array_slice($words, $i * self::CHUNK_SIZE, self::CHUNK_SIZE));
+
+                $chunkKey = "{$language}_{$i}";
+                $fixedArray = SplFixedArray::fromArray($chunk);
+                $this->chunks[$chunkKey] = $fixedArray;
+
+                foreach ($this->chunks[$chunkKey] as $word) {
+                    if (is_string($word) && ! isset($seenWords[$word])) {
+                        $seenWords[$word] = true;
+                        yield $word;
+                    }
                 }
+
+                unset($this->chunks[$chunkKey]);
             }
+
+            unset($words);
+            gc_collect_cycles();
         }
     }
 }

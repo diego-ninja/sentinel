@@ -1,13 +1,13 @@
 <?php
 
 use Ninja\Censor\Checkers\Censor;
-use Ninja\Censor\Result\AbstractResult;
+use Ninja\Censor\Result\Result;
 
 test('censor result provides all required information', function (): void {
     $censor = app(Censor::class);
     $result = $censor->check('fuck this shit');
     expect($result)
-        ->toBeInstanceOf(AbstractResult::class)
+        ->toBeInstanceOf(Result::class)
         ->toBeOffensive()
         ->and($result->words())->toHaveCount(2)
         ->and($result->replaced())->toBe('**** this ****')

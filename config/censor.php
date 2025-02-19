@@ -231,7 +231,7 @@ return [
         ],
         'purgomalum' => [],
         'prism' => [
-            'provider' => env('PRISM_PROVIDER', EchoLabs\Prism\Enums\Provider::Anthropic),
+            'provider' => EchoLabs\Prism\Enums\Provider::from(env('PRISM_PROVIDER', EchoLabs\Prism\Enums\Provider::Anthropic->value)),
             'model' => env('PRISM_MODEL', 'claude-3-5-sonnet-20241022'),
         ],
         'local' => [

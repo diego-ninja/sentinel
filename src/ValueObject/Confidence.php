@@ -19,7 +19,7 @@ final readonly class Confidence
         }
 
         /** @var float $totalWeight */
-        $totalWeight = $matches->sum(fn(Coincidence $match) => $match->type->weight());
+        $totalWeight = $matches->sum(fn(Coincidence $match) => $match->type()->weight());
 
         return new self($totalWeight / count($matches));
     }

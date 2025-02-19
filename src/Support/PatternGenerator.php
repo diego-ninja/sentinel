@@ -7,31 +7,36 @@ use Ninja\Censor\Dictionary\LazyDictionary;
 final class PatternGenerator
 {
     /**
-     * @var array<string>
+     * @var array<int|string, string>
      */
     private array $patterns = [];
 
     /**
-     * @param  array<string>  $replacements
+     * @param array<string, string> $replacements
      */
     public function __construct(private array $replacements = [], private bool $fullWords = true) {}
 
     public static function withDictionary(LazyDictionary $dictionary): self
     {
-        /** @var array<string> $replacements */
+        /** @var array<string, string> $replacements */
         $replacements = config('censor.replacements', []);
 
-        /** @var array<string> $words */
-        $words = iterator_to_array($dictionary->getWords());
-
         $generator = new self($replacements);
-        $generator->patterns = $generator->forWords($words);
+
+        foreach ($dictionary as $word) {
+            if ( ! empty($word)) {
+                $generator->patterns = array_merge(
+                    $generator->patterns,
+                    $generator->forWord($word),
+                );
+            }
+        }
 
         return $generator;
     }
 
     /**
-     * @return array<string>
+     * @return array<int, string>
      */
     public function forWord(string $word): array
     {
@@ -50,8 +55,8 @@ final class PatternGenerator
     }
 
     /**
-     * @param  array<string>  $words
-     * @return array<string>
+     * @param array<int|string, string> $words
+     * @return array<int|string, string>
      */
     public function forWords(array $words): array
     {
@@ -63,7 +68,7 @@ final class PatternGenerator
     }
 
     /**
-     * @return array<string>
+     * @return array<int|string, string>
      */
     public function getPatterns(): array
     {
@@ -78,7 +83,7 @@ final class PatternGenerator
     }
 
     /**
-     * @param  array<string>  $replacements
+     * @param array<string, string> $replacements
      */
     public function setReplacements(array $replacements): self
     {

@@ -12,12 +12,10 @@ use EchoLabs\Prism\ValueObjects\Messages\UserMessage;
 use InvalidArgumentException;
 use JsonException;
 use Ninja\Censor\Checkers\Contracts\ProfanityChecker;
-use Ninja\Censor\Enums\Category;
-use Ninja\Censor\Result\Contracts\Result;
-use Ninja\Censor\Result\PrismResult;
+use Ninja\Censor\Result\Result;
 use Ninja\Censor\Schemas\CensorPrismSchema;
-use Ninja\Censor\ValueObject\Confidence;
-use Ninja\Censor\ValueObject\Score;
+use Ninja\Censor\Services\Contracts\ServiceAdapter;
+use Ninja\Censor\Services\Pipeline\TransformationPipeline;
 
 /**
  * LLM-based profanity checker using Laravel Prism.
@@ -26,6 +24,8 @@ final readonly class PrismAI implements ProfanityChecker
 {
     public function __construct(
         private Prism $prism,
+        private ServiceAdapter $adapter,
+        private TransformationPipeline $pipeline,
     ) {}
 
     public function check(string $text): Result
@@ -37,50 +37,59 @@ final readonly class PrismAI implements ProfanityChecker
         $model = config('censor.services.prism.model');
 
         if ($this->supports_structured($provider)) {
-            $response = $this->buildStructuredPrismRequest($provider, $model, $this->buildInstructions(), $text)->generate();
-            /** @var array{is_offensive: bool, offensive_words: array<string>, categories: array<string>, confidence: float, severity: float} $data */
+            $response = $this->buildStructuredPrismRequest($provider, $model, $text)->generate();
+            /** @var array{
+             *     is_offensive: bool,
+             *     offensive_words: array<string>,
+             *     categories: array<string>,
+             *     confidence: float,
+             *     severity: float,
+             *     sentiment: array{type: string, score: float},
+             *     matches: array<int, array{
+             *         text: string,
+             *         match_type: string,
+             *         score: float,
+             *         confidence: float,
+             *         occurrences: array<int, array{start: int, length: int}>,
+             *         context?: array{original?: string, surrounding?: string}
+             *     }>
+             * } $data
+             */
             $data = $response->structured;
         } else {
-            $response = $this->buildUnstructuredPrismRequest($provider, $model, $this->buildInstructions(), $text)->generate();
-            /** @var array{is_offensive: bool, offensive_words: array<string>, categories: array<string>, confidence: float, severity: float} $data */
+            $response = $this->buildUnstructuredPrismRequest($provider, $model, $text)->generate();
+            /** @var array{
+             *     is_offensive: bool,
+             *     offensive_words: array<string>,
+             *     categories: array<string>,
+             *     confidence: float,
+             *     severity: float,
+             *     sentiment: array{type: string, score: float},
+             *     matches: array<int, array{
+             *         text: string,
+             *         match_type: string,
+             *         score: float,
+             *         confidence: float,
+             *         occurrences: array<int, array{start: int, length: int}>,
+             *         context?: array{original?: string, surrounding?: string}
+             *     }>
+             * } $data
+             */
             $data = $this->processUnstructuredResponse($response->text);
         }
 
-        return new PrismResult(
-            offensive: $data['is_offensive'],
-            words: $data['offensive_words'],
-            replaced: $this->replaceWords($text, $data['offensive_words']),
-            original: $text,
-            matches: null,
-            score: new Score($data['severity']),
-            confidence: new Confidence($data['confidence']),
-            categories: $this->mapCategories($data['categories']),
-        );
+        $serviceResponse = $this->adapter->adapt($text, $data);
+        return $this->pipeline->process($serviceResponse);
+
     }
 
-    /**
-     * Replace offensive words with asterisks
-     *
-     * @param  string  $text  Original text
-     * @param  array<string>  $words  List of words to replace
-     * @return string Text with offensive words replaced
-     */
-    private function replaceWords(string $text, array $words): string
+    private function buildStructuredPrismRequest(Provider $provider, string $model, string $message): StructuredPendingRequest
     {
-        $replaced = $text;
-        foreach ($words as $word) {
-            $replaced = str_replace(
-                $word,
-                str_repeat('*', mb_strlen($word)),
-                $replaced,
-            );
+        $instructions = file_get_contents(__DIR__ . '/../../resources/prompts/structured.txt');
+        if (false === $instructions) {
+            throw new InvalidArgumentException('Failed to read structured prompt file');
         }
 
-        return $replaced;
-    }
-
-    private function buildStructuredPrismRequest(Provider $provider, string $model, string $instructions, string $message): StructuredPendingRequest
-    {
         if (Provider::Anthropic === $provider) {
             return $this->prism->structured()
                 ->using(
@@ -110,65 +119,20 @@ final readonly class PrismAI implements ProfanityChecker
             ->withSchema(new CensorPrismSchema());
     }
 
-    private function buildUnstructuredPrismRequest(Provider $provider, string $model, string $instructions, string $message): UnstructuredPendingRequest
+    private function buildUnstructuredPrismRequest(Provider $provider, string $model, string $message): UnstructuredPendingRequest
     {
+        $instructions = file_get_contents(__DIR__ . '/../../resources/prompts/unstructured.txt');
+        if (false === $instructions) {
+            throw new InvalidArgumentException('Failed to read unstructured prompt file');
+        }
+
         return $this->prism->text()
             ->using(provider: $provider, model: $model)
             ->withSystemPrompt($instructions)
-            ->withPrompt($this->buildPromptForUnstructuredProvider($message))
+            ->withPrompt($message)
             ->withClientOptions([
                 'timeout' => config('censor.services.prism.timeout', 30),
             ]);
-    }
-
-    private function buildPromptForUnstructuredProvider(string $message): string
-    {
-        return <<<PROMPT
-    Analyze this text for inappropriate or offensive content: {$message}
-
-    You must respond with ONLY a valid JSON object using this exact structure, with no additional text before or after, and no markup formatting:
-    {
-        "is_offensive": boolean,
-        "offensive_words": string[],
-        "categories": string[],
-        "confidence": number between 0 and 1,
-        "severity": number between 0 and 1
-    }
-    PROMPT;
-    }
-
-    /**
-     * @param  array<string>  $categories
-     * @return array<Category>
-     */
-    private function mapCategories(array $categories): array
-    {
-        return array_map(
-            function (string $category) {
-                return match (mb_strtolower($category)) {
-                    'hate_speech', 'hate' => Category::HateSpeech,
-                    'harassment' => Category::Harassment,
-                    'sexual', 'adult' => Category::Sexual,
-                    'violence' => Category::Violence,
-                    'threat' => Category::Threat,
-                    'toxicity' => Category::Toxicity,
-                    default => Category::Profanity,
-                };
-            },
-            array_unique($categories),
-        );
-    }
-
-    private function buildInstructions(): string
-    {
-
-
-        return 'Analyze the following text for inappropriate content, profanity, and offensive language. ' .
-            'Consider the context and provide detailed detection results. ' .
-            'Pay attention to attempted obfuscation or creative spelling of offensive words. ' .
-            'Only mark content as offensive if it would be inappropriate in a professional context. ' .
-            'Use any of the following categories: hate_speech, harassment, sexual, violence, adult, threat, toxicity, or profanity. ' .
-            'Use the following languages: ' . implode(', ', (array) config('censor.languages', ['en']));
     }
 
     /**
@@ -248,4 +212,5 @@ final readonly class PrismAI implements ProfanityChecker
 
         return mb_trim($jsonPart ?? $responseText);
     }
+
 }

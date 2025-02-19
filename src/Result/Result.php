@@ -4,12 +4,12 @@ namespace Ninja\Censor\Result;
 
 use Ninja\Censor\Collections\MatchCollection;
 use Ninja\Censor\Enums\Category;
-use Ninja\Censor\Result\Contracts\Result;
+use Ninja\Censor\Result\Contracts\Result as ResultContract;
 use Ninja\Censor\ValueObject\Confidence;
 use Ninja\Censor\ValueObject\Score;
 use Ninja\Censor\ValueObject\Sentiment;
 
-abstract class AbstractResult implements Result
+readonly class Result implements ResultContract
 {
     /**
      * @param  array<string>  $words
@@ -26,11 +26,6 @@ abstract class AbstractResult implements Result
         public ?Sentiment $sentiment = null,
         public ?array $categories = null,
     ) {}
-
-    /**
-     * @param  array<string, mixed>  $response
-     */
-    abstract public static function fromResponse(string $text, array $response): self;
 
     public function offensive(): bool
     {

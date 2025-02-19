@@ -24,8 +24,8 @@ test('levenshtein strategy detects similar words', function (): void {
             ->toHaveCount(1)
             ->sequence(
                 fn($match) => $match
-                    ->word->toBe($text)
-                    ->type->toBe(MatchType::Levenshtein),
+                    ->word()->toBe($text)
+                    ->type()->toBe(MatchType::Levenshtein),
             );
     }
 });
@@ -40,7 +40,7 @@ test('levenshtein strategy respects threshold', function (): void {
         ->toHaveCount(2)  // Should only match 'fuk', 'shet' is too different with threshold 1
         ->and($result->first())
         ->toBeInstanceOf(Coincidence::class)
-        ->and($result->first()->word)->toBe('fuk');
+        ->and($result->first()->word())->toBe('fuk');
 });
 
 test('levenshtein strategy handles short words correctly', function (): void {
@@ -60,7 +60,7 @@ test('levenshtein strategy ignores case in comparisons', function (): void {
 
     expect($result)
         ->toHaveCount(1)
-        ->and($result->first()->word)->toBe('FuK');
+        ->and($result->first()->word())->toBe('FuK');
 });
 
 test('levenshtein strategy preserves original case in matches', function (): void {
@@ -73,8 +73,8 @@ test('levenshtein strategy preserves original case in matches', function (): voi
     expect($result)
         ->toHaveCount(2)
         ->sequence(
-            fn($match) => $match->word->toBe('FuK'),
-            fn($match) => $match->word->toBe('ShEt'),
+            fn($match) => $match->word()->toBe('FuK'),
+            fn($match) => $match->word()->toBe('ShEt'),
         );
 });
 

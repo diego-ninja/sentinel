@@ -3,8 +3,9 @@
 namespace Ninja\Censor\Checkers;
 
 use GuzzleHttp\ClientInterface;
-use Ninja\Censor\Result\AzureResult;
 use Ninja\Censor\Result\Contracts\Result;
+use Ninja\Censor\Services\Contracts\ServiceAdapter;
+use Ninja\Censor\Services\Pipeline\TransformationPipeline;
 
 final class AzureAI extends AbstractProfanityChecker
 {
@@ -13,7 +14,9 @@ final class AzureAI extends AbstractProfanityChecker
     public function __construct(
         private readonly string $endpoint,
         private readonly string $key,
-        private readonly string $version = self::DEFAULT_API_VERSION,
+        private readonly string $version,
+        private readonly ServiceAdapter $adapter,
+        private readonly TransformationPipeline $pipeline,
         ?ClientInterface $httpClient = null,
     ) {
         parent::__construct($httpClient);
@@ -37,7 +40,9 @@ final class AzureAI extends AbstractProfanityChecker
             'Content-Type' => 'application/json',
         ]);
 
-        return AzureResult::fromResponse($text, $response);
+        return $this->pipeline->process(
+            $this->adapter->adapt($text, $response),
+        );
     }
 
     protected function baseUri(): string
