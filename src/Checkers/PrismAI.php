@@ -161,6 +161,8 @@ final readonly class PrismAI implements ProfanityChecker
 
     private function buildInstructions(): string
     {
+
+
         return 'Analyze the following text for inappropriate content, profanity, and offensive language. '.
             'Consider the context and provide detailed detection results. '.
             'Pay attention to attempted obfuscation or creative spelling of offensive words. '.

@@ -231,7 +231,8 @@ return [
         ],
         'purgomalum' => [],
         'prism' => [
-            'provider' => env('PRISM_PROVIDER', \EchoLabs\Prism\Enums\Provider::DeepSeek),
+            'provider' => env('PRISM_PROVIDER', \EchoLabs\Prism\Enums\Provider::Anthropic),
+            'model' => env('PRISM_MODEL', 'claude-3-5-sonnet-20241022'),
         ],
         'local' => [
             'levenshtein_threshold' => env('CENSOR_LEVENSHTEIN_THRESHOLD', 1),
