@@ -2,6 +2,7 @@
 
 namespace Ninja\Censor;
 
+use EchoLabs\Prism\Prism;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Validator;
 use Ninja\Censor\Cache\Contracts\PatternCache;
@@ -133,6 +134,15 @@ final class CensorServiceProvider extends ServiceProvider
                 });
             }
         }
+
+        $this->app->singleton(Provider::Prism->value, function () {
+            /** @var Prism $prism */
+            $prism = app(Prism::class);
+
+            return new \Ninja\Censor\Checkers\PrismAI(
+                prism: $prism
+            );
+        });
 
         $this->app->singleton(Provider::Local->value, function () {
             /** @var Processor $processor */
