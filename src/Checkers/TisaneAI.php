@@ -19,11 +19,6 @@ final class TisaneAI extends AbstractProfanityChecker
         parent::__construct($client);
     }
 
-    protected function baseUri(): string
-    {
-        return 'https://api.tisane.ai/';
-    }
-
     /**
      * @throws ClientException
      */
@@ -47,7 +42,7 @@ final class TisaneAI extends AbstractProfanityChecker
             [
                 'Content-Type' => 'application/json',
                 'Ocp-Apim-Subscription-Key' => $this->key,
-            ]
+            ],
         );
 
         /**
@@ -79,5 +74,10 @@ final class TisaneAI extends AbstractProfanityChecker
         return $this->pipeline->process(
             $this->adapter->adapt($text, $response)
         );
+    }
+
+    protected function baseUri(): string
+    {
+        return 'https://api.tisane.ai/';
     }
 }

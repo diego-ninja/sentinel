@@ -8,7 +8,7 @@ use Ninja\Censor\Checkers\PurgoMalum;
 use Ninja\Censor\Services\Adapters\PurgoMalumAdapter;
 use Ninja\Censor\Services\Pipeline\TransformationPipeline;
 
-test('purgomalum detects offensive content', function () {
+test('purgomalum detects offensive content', function (): void {
     $mock = new MockHandler([
         new Response(200, [], json_encode([
             'result' => '**** you ****',
@@ -34,7 +34,7 @@ test('purgomalum detects offensive content', function () {
 
 });
 
-test('purgomalum handles clean content', function () {
+test('purgomalum handles clean content', function (): void {
     $mock = new MockHandler([
         new Response(200, [], json_encode([
             'result' => 'clean text here',

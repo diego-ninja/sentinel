@@ -126,7 +126,7 @@ $result = Censor::with(Provider::Local, 'text to check');
 Free web service for profanity filtering.
 
 ```php
-$result = Censor::with(Service::PurgoMalum, 'text to check');
+$result = Censor::with(Provider::PurgoMalum, 'text to check');
 ```
 
 ### Azure AI Content Safety
@@ -134,7 +134,7 @@ $result = Censor::with(Service::PurgoMalum, 'text to check');
 Uses Azure's AI content moderation service.
 
 ```php
-$result = Censor::with(Service::Azure, 'text to check');
+$result = Censor::with(Provider::Azure, 'text to check');
 ```
 
 ### Perspective AI
@@ -142,7 +142,7 @@ $result = Censor::with(Service::Azure, 'text to check');
 Uses Google's Perspective API for content analysis.
 
 ```php
-$result = Censor::with(Service::Perspective, 'text to check');
+$result = Censor::with(Provider::Perspective, 'text to check');
 ```
 
 ### Tisane AI
@@ -150,7 +150,16 @@ $result = Censor::with(Service::Perspective, 'text to check');
 Natural language processing service for content moderation.
 
 ```php
-$result = Censor::with(Service::Tisane, 'text to check');
+$result = Censor::with(Provider::Tisane, 'text to check');
+```
+
+### LLMs via Prism
+
+Access various LLMs via [Prism](https://prism.echolabs.dev/) library.
+Please take a look at [documentation](https://prism.echolabs.dev/getting-started/configuration.html) on configuring LLMs to work with Prism.
+
+```php
+$result = Censor::with(Provider::Prism, 'text to check');
 ```
 
 ## Working with Results

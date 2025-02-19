@@ -25,8 +25,8 @@ final class TrieIndex
     {
         /** @var array<string, array<string, bool|array<string, bool|array<string, bool|array<string, bool>>>>> $node */
         $node = &$this->root;
-        foreach (str_split(strtolower($word)) as $char) {
-            if (! isset($node[$char])) {
+        foreach (mb_str_split(mb_strtolower($word)) as $char) {
+            if ( ! isset($node[$char])) {
                 $node[$char] = [];
             }
             $node = &$node[$char];
@@ -37,8 +37,8 @@ final class TrieIndex
     public function search(string $word): bool
     {
         $node = $this->root;
-        foreach (str_split(strtolower($word)) as $char) {
-            if (! isset($node[$char])) {
+        foreach (mb_str_split(mb_strtolower($word)) as $char) {
+            if ( ! isset($node[$char])) {
                 return false;
             }
             $node = $node[$char];
@@ -55,8 +55,8 @@ final class TrieIndex
         $node = $this->root;
         $words = [];
 
-        foreach (str_split(strtolower($prefix)) as $char) {
-            if (! isset($node[$char])) {
+        foreach (mb_str_split(mb_strtolower($prefix)) as $char) {
+            if ( ! isset($node[$char])) {
                 return [];
             }
             $node = $node[$char];
@@ -78,8 +78,8 @@ final class TrieIndex
         }
 
         foreach ($node as $char => $child) {
-            if ($char !== '$') {
-                $this->collectWords($child, $prefix.$char, $words);
+            if ('$' !== $char) {
+                $this->collectWords($child, $prefix . $char, $words);
             }
         }
     }

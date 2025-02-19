@@ -115,7 +115,7 @@ final class PerspectiveResult extends AbstractResult
             }
         }
 
-        $builder = new ResultBuilder;
+        $builder = new ResultBuilder();
 
         return $builder
             ->withOriginalText($text)

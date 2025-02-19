@@ -20,11 +20,6 @@ final class PerspectiveAI extends AbstractProfanityChecker
         parent::__construct($client);
     }
 
-    protected function baseUri(): string
-    {
-        return 'https://commentanalyzer.googleapis.com/v1alpha1/';
-    }
-
     /**
      * @throws ClientException
      */
@@ -48,5 +43,10 @@ final class PerspectiveAI extends AbstractProfanityChecker
         return $this->pipeline->process(
             $this->adapter->adapt($text, $response)
         );
+    }
+
+    protected function baseUri(): string
+    {
+        return 'https://commentanalyzer.googleapis.com/v1alpha1/';
     }
 }

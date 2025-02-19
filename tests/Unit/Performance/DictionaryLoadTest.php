@@ -4,11 +4,11 @@ namespace Tests\Unit\Performance;
 
 use Ninja\Censor\Dictionary\Dictionary;
 
-test('dictionary loads large wordlists efficiently', function () {
+test('dictionary loads large wordlists efficiently', function (): void {
     // Generate large dictionary
-    $words = array_map(fn ($i) => "word$i", range(1, 10000));
+    $words = array_map(fn($i) => "word{$i}", range(1, 10000));
     $tempFile = tempnam(sys_get_temp_dir(), 'dict_');
-    file_put_contents($tempFile, '<?php return '.var_export($words, true).';');
+    file_put_contents($tempFile, '<?php return ' . var_export($words, true) . ';');
 
     $startTime = microtime(true);
     $dictionary = Dictionary::fromFile($tempFile);
@@ -20,14 +20,14 @@ test('dictionary loads large wordlists efficiently', function () {
     unlink($tempFile);
 });
 
-test('dictionary handles duplicate words efficiently', function () {
+test('dictionary handles duplicate words efficiently', function (): void {
     $words = array_merge(
         array_fill(0, 1000, 'duplicate'),
-        range(1, 1000)
+        range(1, 1000),
     );
 
     $tempFile = tempnam(sys_get_temp_dir(), 'dict_');
-    file_put_contents($tempFile, '<?php return '.var_export($words, true).';');
+    file_put_contents($tempFile, '<?php return ' . var_export($words, true) . ';');
 
     $dictionary = Dictionary::fromFile($tempFile);
 

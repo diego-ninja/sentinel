@@ -2,6 +2,7 @@
 
 namespace Ninja\Censor;
 
+use EchoLabs\Prism\Prism;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Validator;
@@ -38,35 +39,33 @@ final class CensorServiceProvider extends ServiceProvider
     {
         if ($this->app->runningInConsole()) {
             $this->publishes([
-                __DIR__.'/../config/censor.php' => config_path('censor.php'),
+                __DIR__ . '/../config/censor.php' => config_path('censor.php'),
             ], 'censor-config');
 
             $this->publishes([
-                __DIR__.'/../resources/dict' => resource_path('dict'),
+                __DIR__ . '/../resources/dict' => resource_path('dict'),
             ], 'censor-dictionaries');
         }
 
         app('validator')->extend(
             rule: 'censor_check',
             extension: function ($attribute, $value, $parameters, Validator $validator) {
-                if ($value === null) {
+                if (null === $value) {
                     return true;
                 }
 
-                if (! is_string($value)) {
-                    $validator->addReplacer('censor_check', function () {
-                        return 'The :attribute must be a string.';
-                    });
+                if ( ! is_string($value)) {
+                    $validator->addReplacer('censor_check', fn () => 'The :attribute must be a string.');
 
                     return false;
                 }
 
-                return ! \Ninja\Censor\Facades\Censor::check($value)->offensive();
+                return ! Facades\Censor::check($value)->offensive();
             },
             message: 'The :attribute contains offensive language.'
         );
 
-        $this->loadRoutesFrom(__DIR__.'/../routes/censor.php');
+        $this->loadRoutesFrom(__DIR__ . '/../routes/censor.php');
     }
 
     public function register(): void
@@ -89,18 +88,16 @@ final class CensorServiceProvider extends ServiceProvider
 
         $this->app->when(AzureAI::class)->needs(ServiceAdapter::class)->give(AzureAdapter::class);
         $this->app->when(TisaneAI::class)->needs(ServiceAdapter::class)->give(TisaneAdapter::class);
-        $this->app->when(\Ninja\Censor\Checkers\Censor::class)->needs(ServiceAdapter::class)->give(CensorAdapter::class);
+        $this->app->when(Checkers\Censor::class)->needs(ServiceAdapter::class)->give(CensorAdapter::class);
         $this->app->when(PerspectiveAI::class)->needs(ServiceAdapter::class)->give(PerspectiveAdapter::class);
         $this->app->when(PurgoMalum::class)->needs(ServiceAdapter::class)->give(PurgoMalumAdapter::class);
 
-        $this->app->singleton(TransformationPipeline::class, function () {
-            return (new TransformationPipeline)
-                ->addStage(new ScoreStage)
-                ->addStage(new MatchesStage)
-                ->addStage(new TextStage(app(Whitelist::class)))
-                ->addStage(new MetadataStage)
-                ->addStage(new OffensiveStage);
-        });
+        $this->app->singleton(TransformationPipeline::class, fn () => (new TransformationPipeline())
+            ->addStage(new ScoreStage())
+            ->addStage(new MatchesStage())
+            ->addStage(new TextStage(app(Whitelist::class)))
+            ->addStage(new MetadataStage())
+            ->addStage(new OffensiveStage()));
 
         $this->registerProfanityProviders();
 
@@ -118,9 +115,9 @@ final class CensorServiceProvider extends ServiceProvider
             $cache = config('censor.cache', 'file');
 
             return match ($cache) {
-                'redis' => new Cache\RedisPatternCache,
-                'octane' => new Cache\OctanePatternCache,
-                default => new Cache\MemoryPatternCache,
+                'redis' => new Cache\RedisPatternCache(),
+                'octane' => new Cache\OctanePatternCache(),
+                default => new Cache\MemoryPatternCache(),
             };
         });
 
@@ -142,7 +139,7 @@ final class CensorServiceProvider extends ServiceProvider
             /** @var string[] $whitelist */
             $whitelist = config('censor.whitelist', []);
 
-            return (new Whitelist)->add($whitelist);
+            return (new Whitelist())->add($whitelist);
         });
 
         $this->app->singleton(TrieIndex::class, function (): TrieIndex {
@@ -163,11 +160,9 @@ final class CensorServiceProvider extends ServiceProvider
 
         });
 
-        $this->app->bind('censor', function () {
-            return new Censor;
-        });
+        $this->app->bind('censor', fn () => new Censor());
 
-        $this->mergeConfigFrom(__DIR__.'/../config/censor.php', 'censor');
+        $this->mergeConfigFrom(__DIR__ . '/../config/censor.php', 'censor');
     }
 
     private function registerProfanityProviders(): void
@@ -177,12 +172,19 @@ final class CensorServiceProvider extends ServiceProvider
             /** @var array<string,mixed> $config */
             $config = config(sprintf('censor.services.%s', $service->value));
 
-            if ($config !== null) {
-                $this->app->singleton($service->value, function () use ($service, $config): ProfanityChecker {
-                    return ProfanityCheckerFactory::create($service, $config);
-                });
+            if (null !== $config) {
+                $this->app->singleton($service->value, fn (): ProfanityChecker => ProfanityCheckerFactory::create($service, $config));
             }
         }
+
+        $this->app->singleton(Provider::Prism->value, function () {
+            /** @var Prism $prism */
+            $prism = app(Prism::class);
+
+            return new Checkers\PrismAI(
+                prism: $prism,
+            );
+        });
 
         $this->app->singleton(Provider::Local->value, function () {
             /** @var Processor $processor */
@@ -191,7 +193,7 @@ final class CensorServiceProvider extends ServiceProvider
             /** @var ServiceAdapter $adapter */
             $adapter = app(ServiceAdapter::class);
 
-            return new \Ninja\Censor\Checkers\Censor(
+            return new Checkers\Censor(
                 processor: $processor,
                 adapter: $adapter,
                 pipeline: app(TransformationPipeline::class)
