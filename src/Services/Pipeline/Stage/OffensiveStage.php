@@ -9,7 +9,7 @@ class OffensiveStage extends AbstractStage
 {
     public function transform(ServiceResponse $response, ResultBuilder $builder): ResultBuilder
     {
-        if ($response->matches() !== null) {
+        if (null !== $response->matches()) {
             return $builder->withOffensive($response->matches()->offensive());
         }
 

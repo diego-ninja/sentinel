@@ -9,6 +9,6 @@ abstract class AbstractStage
 {
     abstract public function transform(
         ServiceResponse $response,
-        ResultBuilder $builder
+        ResultBuilder $builder,
     ): ResultBuilder;
 }

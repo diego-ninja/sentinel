@@ -44,7 +44,7 @@ final class PurgoMalumResult extends AbstractResult
                     type: MatchType::Exact,
                     score: Calculator::score($word, $original, MatchType::Exact),
                     confidence: Calculator::confidence($word, $original, MatchType::Exact),
-                    context: ['original' => $word, 'replaced' => $replacedWords[$i]]
+                    context: ['original' => $word, 'replaced' => $replacedWords[$i]],
                 ));
             }
         }

@@ -24,10 +24,10 @@ final class PatternGenerator
         $generator = new self($replacements);
 
         foreach ($dictionary as $word) {
-            if (! empty($word)) {
+            if ( ! empty($word)) {
                 $generator->patterns = array_merge(
                     $generator->patterns,
-                    $generator->forWord($word)
+                    $generator->forWord($word),
                 );
             }
         }

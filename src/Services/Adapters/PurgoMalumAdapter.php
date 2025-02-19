@@ -22,12 +22,11 @@ final readonly class PurgoMalumAdapter extends AbstractAdapter
 
         $matches = $this->findDifferences($text, $replacedText);
 
-        return new class($text, $replacedText, $matches) implements ServiceResponse
-        {
+        return new class ($text, $replacedText, $matches) implements ServiceResponse {
             public function __construct(
                 private readonly string $original,
                 private readonly string $replaced,
-                private readonly MatchCollection $matches
+                private readonly MatchCollection $matches,
             ) {}
 
             public function original(): string
@@ -69,13 +68,13 @@ final readonly class PurgoMalumAdapter extends AbstractAdapter
 
     private function findDifferences(string $original, string $replaced): MatchCollection
     {
-        $matches = new MatchCollection;
+        $matches = new MatchCollection();
         $pattern = '/\*+/';
 
         if (preg_match_all($pattern, $replaced, $found, PREG_OFFSET_CAPTURE)) {
             foreach ($found[0] as [$match, $position]) {
-                $length = strlen($match);
-                $originalWord = substr($original, $position, $length);
+                $length = mb_strlen($match);
+                $originalWord = mb_substr($original, $position, $length);
 
                 $occurrences = new OccurrenceCollection([
                     new Position($position, $length),
@@ -88,8 +87,8 @@ final readonly class PurgoMalumAdapter extends AbstractAdapter
                         score: Calculator::score($original, $originalWord, MatchType::Exact, $occurrences),
                         confidence: Calculator::confidence($original, $originalWord, MatchType::Exact, $occurrences),
                         occurrences: $occurrences,
-                        context: ['replaced' => $match]
-                    )
+                        context: ['replaced' => $match],
+                    ),
                 );
             }
         }

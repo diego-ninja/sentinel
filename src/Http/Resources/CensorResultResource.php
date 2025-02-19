@@ -28,9 +28,7 @@ class CensorResultResource extends JsonResource
             'words' => $this->resource->words(),
             'score' => $this->resource->score()?->value(),
             'confidence' => $this->resource->confidence()?->value(),
-            'categories' => array_map(function (Category $category) {
-                return $category->value;
-            }, $this->resource->categories()),
+            'categories' => array_map(fn(Category $category) => $category->value, $this->resource->categories()),
             'matches' => MatchResource::collection($this->resource->matches()),
         ];
     }

@@ -9,7 +9,7 @@ final class MetadataStage extends AbstractStage
 {
     public function transform(
         ServiceResponse $response,
-        ResultBuilder $builder
+        ResultBuilder $builder,
     ): ResultBuilder {
         return $builder
             ->withConfidence($response->confidence())

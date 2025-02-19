@@ -14,8 +14,8 @@ final class TisaneAI extends AbstractProfanityChecker
         private readonly string $key,
         private readonly ServiceAdapter $adapter,
         private readonly TransformationPipeline $pipeline,
-        protected ?ClientInterface $client = null)
-    {
+        protected ?ClientInterface $client = null,
+    ) {
         parent::__construct($client);
     }
 
@@ -72,7 +72,7 @@ final class TisaneAI extends AbstractProfanityChecker
          * } $response
          */
         return $this->pipeline->process(
-            $this->adapter->adapt($text, $response)
+            $this->adapter->adapt($text, $response),
         );
     }
 

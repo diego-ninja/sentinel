@@ -4,7 +4,7 @@ namespace Tests\Unit\EdgeCases;
 
 use Ninja\Censor\Checkers\Censor;
 
-test('handles unicode characters correctly', function () {
+test('handles unicode characters correctly', function (): void {
     $censor = app(Censor::class);
 
     $texts = [
@@ -19,11 +19,11 @@ test('handles unicode characters correctly', function () {
 
     foreach ($texts as $input => $expected) {
         $result = $censor->check($input)->replaced();
-        expect($result)->toBe($expected, "Failed asserting that '$input' is censored as '$expected', got '$result'");
+        expect($result)->toBe($expected, "Failed asserting that '{$input}' is censored as '{$expected}', got '{$result}'");
     }
 });
 
-test('handles emojis correctly', function () {
+test('handles emojis correctly', function (): void {
     $censor = app(Censor::class);
 
     $texts = [
@@ -34,11 +34,11 @@ test('handles emojis correctly', function () {
 
     foreach ($texts as $input => $expected) {
         $result = $censor->check($input)->replaced();
-        expect($result)->toBe($expected, "Failed asserting that '$input' is censored as '$expected', got '$result'");
+        expect($result)->toBe($expected, "Failed asserting that '{$input}' is censored as '{$expected}', got '{$result}'");
     }
 });
 
-test('handles mixed case with accents correctly', function () {
+test('handles mixed case with accents correctly', function (): void {
     $censor = app(Censor::class);
 
     $texts = [
@@ -49,11 +49,11 @@ test('handles mixed case with accents correctly', function () {
 
     foreach ($texts as $input => $expected) {
         $result = $censor->check($input)->replaced();
-        expect($result)->toBe($expected, "Failed asserting that '$input' is censored as '$expected', got '$result'");
+        expect($result)->toBe($expected, "Failed asserting that '{$input}' is censored as '{$expected}', got '{$result}'");
     }
 });
 
-test('respects word boundaries with unicode', function () {
+test('respects word boundaries with unicode', function (): void {
     $censor = app(Censor::class);
 
     $texts = [

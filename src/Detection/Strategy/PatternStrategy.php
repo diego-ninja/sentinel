@@ -19,13 +19,13 @@ final class PatternStrategy extends AbstractStrategy
 
     public function __construct(
         private readonly PatternGenerator $generator,
-        private readonly PatternCache $cache
+        private readonly PatternCache $cache,
     ) {
         $this->patterns = $this->generator->getPatterns();
 
         foreach ($this->patterns as $pattern) {
-            if (@preg_match($pattern, '') === false) {
-                throw new InvalidArgumentException("Invalid regex pattern: $pattern");
+            if (false === @preg_match($pattern, '')) {
+                throw new InvalidArgumentException("Invalid regex pattern: {$pattern}");
             }
 
             $this->cache->set(md5($pattern), $pattern);
@@ -34,11 +34,11 @@ final class PatternStrategy extends AbstractStrategy
 
     public function detect(string $text, iterable $words): MatchCollection
     {
-        $matches = new MatchCollection;
+        $matches = new MatchCollection();
 
         foreach ($this->patterns as $pattern) {
             $cachedPattern = $this->cache->get(md5($pattern));
-            if ($cachedPattern === null) {
+            if (null === $cachedPattern) {
                 continue;
             }
 
@@ -55,8 +55,8 @@ final class PatternStrategy extends AbstractStrategy
                             score: Calculator::score($text, $match, MatchType::Pattern, $occurrences),
                             confidence: Calculator::confidence($text, $match, MatchType::Pattern, $occurrences),
                             occurrences: $occurrences,
-                            context: ['pattern' => $pattern]
-                        )
+                            context: ['pattern' => $pattern],
+                        ),
                     );
                 }
             }

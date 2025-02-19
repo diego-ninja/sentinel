@@ -35,7 +35,7 @@ final readonly class TisaneAdapter extends AbstractAdapter
      */
     public function adapt(string $text, array $response): ServiceResponse
     {
-        $matches = new MatchCollection;
+        $matches = new MatchCollection();
         $categories = [];
 
         foreach ($response['abuse'] ?? [] as $abuse) {
@@ -59,8 +59,8 @@ final readonly class TisaneAdapter extends AbstractAdapter
                     context: [
                         'type' => $abuse['type'],
                         'severity' => $abuse['severity'],
-                    ]
-                )
+                    ],
+                ),
             );
 
         }
@@ -68,8 +68,7 @@ final readonly class TisaneAdapter extends AbstractAdapter
         $sentiment = $this->createSentiment($response['sentiment']);
         $score = $this->calculateScore($matches, $sentiment);
 
-        return new class($text, $matches, $score, $sentiment, $categories) implements ServiceResponse
-        {
+        return new class ($text, $matches, $score, $sentiment, $categories) implements ServiceResponse {
             /**
              * @param  array<Category>  $categories
              */
@@ -78,7 +77,7 @@ final readonly class TisaneAdapter extends AbstractAdapter
                 private readonly MatchCollection $matches,
                 private readonly Score $score,
                 private readonly Sentiment $sentiment,
-                private readonly array $categories
+                private readonly array $categories,
             ) {}
 
             public function original(): string
@@ -121,13 +120,13 @@ final readonly class TisaneAdapter extends AbstractAdapter
 
     private function calculateScore(MatchCollection $matches, Sentiment $sentiment): Score
     {
-        if (! $matches->isEmpty()) {
+        if ( ! $matches->isEmpty()) {
             $matchScore = $matches->score()->value();
 
             $sentimentModifier = match (true) {
                 $sentiment->value() < 0 => abs($sentiment->value()) * 0.2,
                 $sentiment->value() > 0 => -($sentiment->value() * 0.1),
-                default => 0
+                default => 0,
             };
 
             return new Score(min(1.0, $matchScore + $sentimentModifier));

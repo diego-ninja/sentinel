@@ -54,7 +54,7 @@ final class AffixStrategy extends AbstractStrategy
                     $pos += mb_strlen($textWord);
                 }
 
-                if (! empty($positions)) {
+                if ( ! empty($positions)) {
                     $occurrences = new OccurrenceCollection($positions);
 
                     $matches->addCoincidence(
@@ -67,8 +67,8 @@ final class AffixStrategy extends AbstractStrategy
                             context: [
                                 'original' => $index[$lowerTextWord],
                                 'variation_type' => 'affix',
-                            ]
-                        )
+                            ],
+                        ),
                     );
                 }
             }

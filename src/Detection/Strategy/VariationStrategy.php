@@ -16,7 +16,7 @@ final class VariationStrategy extends AbstractStrategy
 
     public function detect(string $text, iterable $words): MatchCollection
     {
-        $matches = new MatchCollection;
+        $matches = new MatchCollection();
 
         foreach ($words as $word) {
             if ($this->fullWords) {
@@ -29,19 +29,24 @@ final class VariationStrategy extends AbstractStrategy
         return $matches;
     }
 
+    public function weight(): float
+    {
+        return MatchType::Variation->weight();
+    }
+
     private function detectFullWords(string $text, string $word, MatchCollection $matches): void
     {
         $chars = preg_split('//u', $word, -1, PREG_SPLIT_NO_EMPTY);
-        if ($chars === false) {
+        if (false === $chars) {
             return;
         }
 
-        $pattern = '/\b'.implode('[\s\.\-_\/]*', array_map(
-            fn ($c) => preg_quote($c, '/'),
-            $chars
-        )).'\b/iu';
+        $pattern = '/\b' . implode('[\s\.\-_\/]*', array_map(
+            fn($c) => preg_quote($c, '/'),
+            $chars,
+        )) . '\b/iu';
 
-        if (preg_match_all($pattern, $text, $found, PREG_OFFSET_CAPTURE) !== false) {
+        if (false !== preg_match_all($pattern, $text, $found, PREG_OFFSET_CAPTURE)) {
             foreach ($found[0] as [$match, $offset]) {
                 $occurrences = new OccurrenceCollection([
                     new Position($offset, mb_strlen($match)),
@@ -54,8 +59,8 @@ final class VariationStrategy extends AbstractStrategy
                         score: Calculator::score($text, $match, MatchType::Variation, $occurrences),
                         confidence: Calculator::confidence($text, $match, MatchType::Variation, $occurrences),
                         occurrences: $occurrences,
-                        context: ['original' => $word, 'full_word' => true]
-                    )
+                        context: ['original' => $word, 'full_word' => true],
+                    ),
                 );
             }
         }
@@ -75,7 +80,7 @@ final class VariationStrategy extends AbstractStrategy
                 $pos += mb_strlen($variation);
             }
 
-            if (! empty($positions)) {
+            if ( ! empty($positions)) {
                 $occurrences = new OccurrenceCollection($positions);
 
                 $matches->addCoincidence(
@@ -85,15 +90,10 @@ final class VariationStrategy extends AbstractStrategy
                         score: Calculator::score($text, $variation, MatchType::Variation, $occurrences),
                         confidence: Calculator::confidence($text, $variation, MatchType::Variation, $occurrences),
                         occurrences: $occurrences,
-                        context: ['original' => $word, 'full_word' => false]
-                    )
+                        context: ['original' => $word, 'full_word' => false],
+                    ),
                 );
             }
         }
-    }
-
-    public function weight(): float
-    {
-        return MatchType::Variation->weight();
     }
 }

@@ -25,11 +25,31 @@ final class LazyDictionary implements IteratorAggregate
      */
     public function __construct(
         private readonly array $languages,
-        private ?string $dictionaryPath = null
+        private ?string $dictionaryPath = null,
     ) {
         /** @var string $path */
         $path = config('censor.dictionary_path');
         $this->dictionaryPath = $dictionaryPath ?? $path;
+    }
+
+    /**
+     * @param  string[]  $words
+     */
+    public static function withWords(array $words): self
+    {
+        $filteredWords = array_filter($words, fn($word) => '' !== $word);
+        $instance = new self(['custom']);
+        $instance->customWords = array_unique($filteredWords);
+
+        return $instance;
+    }
+
+    /**
+     * @param  string[]  $languages
+     */
+    public static function withLanguages(array $languages): self
+    {
+        return new self($languages);
     }
 
     /**
@@ -41,11 +61,19 @@ final class LazyDictionary implements IteratorAggregate
     }
 
     /**
+     * @return array<string>
+     */
+    public function getWords(): array
+    {
+        return iterator_to_array($this->getIterator());
+    }
+
+    /**
      * @return Generator<int, string>
      */
     private function loadWordsLazily(): Generator
     {
-        if ($this->customWords !== null) {
+        if (null !== $this->customWords) {
             foreach ($this->customWords as $word) {
                 if (is_string($word)) {
                     yield $word;
@@ -60,7 +88,7 @@ final class LazyDictionary implements IteratorAggregate
         foreach ($this->languages as $language) {
             $dictionaryFile = sprintf('%s/%s.php', $this->dictionaryPath, $language);
 
-            if (! file_exists($dictionaryFile)) {
+            if ( ! file_exists($dictionaryFile)) {
                 throw DictionaryFileNotFound::withFile($dictionaryFile);
             }
 
@@ -72,7 +100,7 @@ final class LazyDictionary implements IteratorAggregate
                 /** @var array<int,string> $chunk */
                 $chunk = array_values(array_slice($words, $i * self::CHUNK_SIZE, self::CHUNK_SIZE));
 
-                $chunkKey = "{$language}_$i";
+                $chunkKey = "{$language}_{$i}";
                 $fixedArray = SplFixedArray::fromArray($chunk);
                 $this->chunks[$chunkKey] = $fixedArray;
 
@@ -89,33 +117,5 @@ final class LazyDictionary implements IteratorAggregate
             unset($words);
             gc_collect_cycles();
         }
-    }
-
-    /**
-     * @param  string[]  $words
-     */
-    public static function withWords(array $words): self
-    {
-        $filteredWords = array_filter($words, fn ($word) => $word !== '');
-        $instance = new self(['custom']);
-        $instance->customWords = array_unique($filteredWords);
-
-        return $instance;
-    }
-
-    /**
-     * @param  string[]  $languages
-     */
-    public static function withLanguages(array $languages): self
-    {
-        return new self($languages);
-    }
-
-    /**
-     * @return array<string>
-     */
-    public function getWords(): array
-    {
-        return iterator_to_array($this->getIterator());
     }
 }

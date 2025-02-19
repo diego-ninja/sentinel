@@ -5,21 +5,21 @@ namespace Tests\Unit\Detection;
 use Ninja\Censor\Detection\Strategy\VariationStrategy;
 use Ninja\Censor\Enums\MatchType;
 
-test('variation strategy detects separated characters', function () {
+test('variation strategy detects separated characters', function (): void {
     $strategy = new VariationStrategy(true);
     $result = $strategy->detect('f u c k this', ['fuck']);
 
     expect($result)
         ->toHaveCount(1)
         ->sequence(
-            fn ($match) => $match
+            fn($match) => $match
                 ->word()->toBe('f u c k')
-                ->type()->toBe(MatchType::Variation)
+                ->type()->toBe(MatchType::Variation),
         );
 
 });
 
-test('variation strategy handles multiple separators', function () {
+test('variation strategy handles multiple separators', function (): void {
     $strategy = new VariationStrategy(false);
     $variations = [
         'f.u.c.k',
@@ -35,7 +35,7 @@ test('variation strategy handles multiple separators', function () {
     }
 });
 
-test('variation strategy handles multiple spaces between characters', function () {
+test('variation strategy handles multiple spaces between characters', function (): void {
     $strategy = new VariationStrategy(true);
     $result = $strategy->detect('f  u  c  k', ['fuck']);
 
@@ -43,7 +43,7 @@ test('variation strategy handles multiple spaces between characters', function (
         ->toHaveCount(1);
 });
 
-test('variation strategy preserves other words', function () {
+test('variation strategy preserves other words', function (): void {
     $strategy = new VariationStrategy(false);
     $result = $strategy->detect('this f.u.c.k test', ['fuck']);
 

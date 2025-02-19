@@ -22,13 +22,26 @@ final class OccurrenceCollection extends Collection
         parent::__construct($positions);
     }
 
+    /**
+     * @param  array<array{start: int, length: int}>  $ranges
+     */
+    public static function fromRanges(array $ranges): self
+    {
+        $positions = array_map(
+            fn(array $range) => new Position($range['start'], $range['length']),
+            $ranges,
+        );
+
+        return new self($positions);
+    }
+
     public function density(int $totalLength): float
     {
-        if ($totalLength === 0) {
+        if (0 === $totalLength) {
             return 0.0;
         }
 
-        return $this->sum(fn (Position $pos) => $pos->length()) / $totalLength;
+        return $this->sum(fn(Position $pos) => $pos->length()) / $totalLength;
     }
 
     /**
@@ -36,7 +49,7 @@ final class OccurrenceCollection extends Collection
      */
     public function toArray(): array
     {
-        return $this->map(fn (Position $pos) => [
+        return $this->map(fn(Position $pos) => [
             'start' => $pos->start(),
             'end' => $pos->end(),
             'length' => $pos->length(),
@@ -56,7 +69,39 @@ final class OccurrenceCollection extends Collection
 
     public function ordered(): self
     {
-        return $this->sortBy(fn (Position $pos) => $pos->start());
+        return $this->sortBy(fn(Position $pos) => $pos->start());
+    }
+
+    public function apply(string $text, string $replacement = '*'): string
+    {
+        $result = $text;
+        $offset = 0;
+
+        foreach ($this->ordered() as $position) {
+            $replacementText = str_repeat($replacement, $position->length());
+            $result = substr_replace(
+                $result,
+                $replacementText,
+                $position->start() + $offset,
+                $position->length(),
+            );
+        }
+
+        return $result;
+    }
+
+    /**
+     * @throws InvalidArgumentException
+     */
+    public function merge($items): self
+    {
+        if ($items instanceof OccurrenceCollection) {
+            foreach ($items as $position) {
+                $this->validatePosition($position);
+            }
+        }
+
+        return parent::merge($items);
     }
 
     /**
@@ -77,56 +122,11 @@ final class OccurrenceCollection extends Collection
     private function validatePosition(Position $newPosition): void
     {
         $hasOverlap = $this->contains(
-            fn (Position $existing) => $existing->overlaps($newPosition)
+            fn(Position $existing) => $existing->overlaps($newPosition),
         );
 
         if ($hasOverlap) {
             throw new InvalidArgumentException('New position overlaps with existing positions');
         }
-    }
-
-    public function apply(string $text, string $replacement = '*'): string
-    {
-        $result = $text;
-        $offset = 0;
-
-        foreach ($this->ordered() as $position) {
-            $replacementText = str_repeat($replacement, $position->length());
-            $result = substr_replace(
-                $result,
-                $replacementText,
-                $position->start() + $offset,
-                $position->length()
-            );
-        }
-
-        return $result;
-    }
-
-    /**
-     * @param  array<array{start: int, length: int}>  $ranges
-     */
-    public static function fromRanges(array $ranges): self
-    {
-        $positions = array_map(
-            fn (array $range) => new Position($range['start'], $range['length']),
-            $ranges
-        );
-
-        return new self($positions);
-    }
-
-    /**
-     * @throws InvalidArgumentException
-     */
-    public function merge($items): self
-    {
-        if ($items instanceof OccurrenceCollection) {
-            foreach ($items as $position) {
-                $this->validatePosition($position);
-            }
-        }
-
-        return parent::merge($items);
     }
 }

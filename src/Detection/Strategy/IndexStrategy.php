@@ -14,17 +14,17 @@ final class IndexStrategy extends AbstractStrategy
 {
     public function __construct(
         private readonly TrieIndex $index,
-        private readonly bool $fullWords = true
+        private readonly bool $fullWords = true,
     ) {}
 
     public function detect(string $text, iterable $words): MatchCollection
     {
-        $matches = new MatchCollection;
+        $matches = new MatchCollection();
         $textWords = $this->fullWords
             ? preg_split('/\b|\s+/', $text, -1, PREG_SPLIT_NO_EMPTY)
             : [$text];
 
-        if (! $textWords) {
+        if ( ! $textWords) {
             return $matches;
         }
 
@@ -40,6 +40,11 @@ final class IndexStrategy extends AbstractStrategy
         }
 
         return $matches;
+    }
+
+    public function weight(): float
+    {
+        return MatchType::Trie->weight();
     }
 
     private function detectFullWord(string $text, string $word, MatchCollection $matches): void
@@ -59,7 +64,7 @@ final class IndexStrategy extends AbstractStrategy
             $pos += mb_strlen($word);
         }
 
-        if (! empty($positions)) {
+        if ( ! empty($positions)) {
             $occurrences = new OccurrenceCollection($positions);
             $matches->addCoincidence(
                 new Coincidence(
@@ -68,8 +73,8 @@ final class IndexStrategy extends AbstractStrategy
                     score: Calculator::score($text, $word, MatchType::Trie, $occurrences),
                     confidence: Calculator::confidence($text, $word, MatchType::Trie, $occurrences),
                     occurrences: $occurrences,
-                    context: ['method' => 'trie_index', 'full_word' => true]
-                )
+                    context: ['method' => 'trie_index', 'full_word' => true],
+                ),
             );
         }
     }
@@ -84,7 +89,7 @@ final class IndexStrategy extends AbstractStrategy
             $pos += mb_strlen($word);
         }
 
-        if (! empty($positions)) {
+        if ( ! empty($positions)) {
             $occurrences = new OccurrenceCollection($positions);
             $matches->addCoincidence(
                 new Coincidence(
@@ -93,14 +98,9 @@ final class IndexStrategy extends AbstractStrategy
                     score: Calculator::score($text, $word, MatchType::Trie, $occurrences),
                     confidence: Calculator::confidence($text, $word, MatchType::Trie, $occurrences),
                     occurrences: $occurrences,
-                    context: ['method' => 'trie_index', 'full_word' => false]
-                )
+                    context: ['method' => 'trie_index', 'full_word' => false],
+                ),
             );
         }
-    }
-
-    public function weight(): float
-    {
-        return MatchType::Trie->weight();
     }
 }

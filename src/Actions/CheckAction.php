@@ -21,7 +21,7 @@ final readonly class CheckAction
 
     public function asController(Request $request): CensorResultResource
     {
-        if (! $request->has('text')) {
+        if ( ! $request->has('text')) {
             abort(400, 'Missing text parameter');
         }
 

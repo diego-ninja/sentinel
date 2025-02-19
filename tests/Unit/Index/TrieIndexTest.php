@@ -5,7 +5,7 @@ namespace Tests\Unit\Index;
 use Ninja\Censor\Dictionary\LazyDictionary;
 use Ninja\Censor\Index\TrieIndex;
 
-test('trie index works with lazy dictionary', function () {
+test('trie index works with lazy dictionary', function (): void {
     $words = ['test', 'testing', 'tested'];
     $dictionary = LazyDictionary::withWords($words);
 
@@ -17,8 +17,8 @@ test('trie index works with lazy dictionary', function () {
         ->and($index->search('invalid'))->toBeFalse();
 });
 
-test('trie index handles large dictionaries efficiently', function () {
-    $words = array_map(fn($i) => "word$i", range(1, 5000));
+test('trie index handles large dictionaries efficiently', function (): void {
+    $words = array_map(fn($i) => "word{$i}", range(1, 5000));
     $dictionary = LazyDictionary::withWords($words);
 
     $memoryBefore = memory_get_usage();

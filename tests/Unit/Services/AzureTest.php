@@ -34,9 +34,9 @@ test('azure detects harmful content', function (): void {
         endpoint: 'endpoint',
         key: 'fake-key',
         version: '2024-09-01',
-        adapter: new AzureAdapter,
+        adapter: new AzureAdapter(),
         pipeline: app(TransformationPipeline::class),
-        httpClient: $client
+        httpClient: $client,
     );
 
     $result = $checker->check('offensive content');
@@ -67,9 +67,9 @@ test('azure handles clean content', function (): void {
         endpoint: 'endpoint',
         key: 'fake-key',
         version: '2024-09-01',
-        adapter: new AzureAdapter,
+        adapter: new AzureAdapter(),
         pipeline: app(TransformationPipeline::class),
-        httpClient: $client
+        httpClient: $client,
     );
 
     $result = $checker->check('clean content');

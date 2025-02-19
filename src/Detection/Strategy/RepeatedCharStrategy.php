@@ -13,15 +13,15 @@ final class RepeatedCharStrategy extends AbstractStrategy
 {
     public function detect(string $text, iterable $words): MatchCollection
     {
-        $matches = new MatchCollection;
+        $matches = new MatchCollection();
 
         foreach ($words as $badWord) {
-            if (! $this->hasRepeatedChars($text)) {
+            if ( ! $this->hasRepeatedChars($text)) {
                 continue;
             }
 
             $pattern = $this->createPattern($badWord);
-            if (preg_match_all($pattern, $text, $found, PREG_OFFSET_CAPTURE) !== false) {
+            if (false !== preg_match_all($pattern, $text, $found, PREG_OFFSET_CAPTURE)) {
                 foreach ($found[0] as [$match, $offset]) {
                     if ($this->hasRepeatedChars($match)) {
                         $occurrences = new OccurrenceCollection([
@@ -35,8 +35,8 @@ final class RepeatedCharStrategy extends AbstractStrategy
                                 score: Calculator::score($text, $match, MatchType::Repeated, $occurrences),
                                 confidence: Calculator::confidence($text, $match, MatchType::Repeated, $occurrences),
                                 occurrences: $occurrences,
-                                context: ['original' => $badWord]
-                            )
+                                context: ['original' => $badWord],
+                            ),
                         );
                     }
                 }
@@ -46,23 +46,23 @@ final class RepeatedCharStrategy extends AbstractStrategy
         return $matches;
     }
 
+    public function weight(): float
+    {
+        return MatchType::Repeated->weight();
+    }
+
     private function createPattern(string $word): string
     {
         $pattern = '/\b';
-        foreach (str_split($word) as $char) {
-            $pattern .= preg_quote($char, '/').'+';
+        foreach (mb_str_split($word) as $char) {
+            $pattern .= preg_quote($char, '/') . '+';
         }
 
-        return $pattern.'\b/iu';
+        return $pattern . '\b/iu';
     }
 
     private function hasRepeatedChars(string $text): bool
     {
         return (bool) preg_match('/(.)\1+/u', $text);
-    }
-
-    public function weight(): float
-    {
-        return MatchType::Repeated->weight();
     }
 }

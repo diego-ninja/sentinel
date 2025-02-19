@@ -88,12 +88,12 @@ abstract class AbstractProcessor implements Processor
      */
     protected function merge(array $results): AbstractResult
     {
-        $matches = new MatchCollection;
+        $matches = new MatchCollection();
         $replaced = '';
-        $original = implode('', array_map(fn ($r) => $r->original(), $results));
+        $original = implode('', array_map(fn($r) => $r->original(), $results));
 
         foreach ($results as $result) {
-            foreach ($result->matches() ?? new MatchCollection as $match) {
+            foreach ($result->matches() ?? new MatchCollection() as $match) {
                 $positions = [];
                 $pos = 0;
                 while (($pos = mb_stripos($original, $match->word(), $pos)) !== false) {
@@ -101,7 +101,7 @@ abstract class AbstractProcessor implements Processor
                     $pos += mb_strlen($match->word());
                 }
 
-                if (! empty($positions)) {
+                if ( ! empty($positions)) {
                     $occurrences = new OccurrenceCollection($positions);
                     $matches->addCoincidence(
                         new Coincidence(
@@ -110,8 +110,8 @@ abstract class AbstractProcessor implements Processor
                             score: Calculator::score($original, $match->word(), $match->type(), $occurrences),
                             confidence: Calculator::confidence($original, $match->word(), $match->type(), $occurrences),
                             occurrences: $occurrences,
-                            context: $match->context()
-                        )
+                            context: $match->context(),
+                        ),
                     );
                 }
             }

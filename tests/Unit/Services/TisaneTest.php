@@ -34,9 +34,9 @@ test('tisane detects abuse and profanity', function (): void {
     $client = new Client(['handler' => HandlerStack::create($mock)]);
     $checker = new TisaneAI(
         key: 'fake-key',
-        adapter: new TisaneAdapter,
+        adapter: new TisaneAdapter(),
         pipeline: app(TransformationPipeline::class),
-        client: $client
+        client: $client,
     );
 
     $result = $checker->check('offensive content with badword');
@@ -62,9 +62,9 @@ test('tisane handles clean content', function (): void {
     $client = new Client(['handler' => HandlerStack::create($mock)]);
     $checker = new TisaneAI(
         key: 'fake-key',
-        adapter: new TisaneAdapter,
+        adapter: new TisaneAdapter(),
         pipeline: app(TransformationPipeline::class),
-        client: $client
+        client: $client,
     );
 
     $result = $checker->check('clean content');

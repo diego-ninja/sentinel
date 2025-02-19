@@ -22,7 +22,7 @@ final class TransformationPipeline
 
     public function process(ServiceResponse $response): AbstractResult
     {
-        $builder = new ResultBuilder;
+        $builder = new ResultBuilder();
         $builder = $builder->withOriginalText($response->original());
 
         foreach ($this->stages as $stage) {

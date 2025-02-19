@@ -24,18 +24,18 @@ final class LevenshteinStrategy extends AbstractStrategy
 
     public function detect(string $text, iterable $words): MatchCollection
     {
-        $matches = new MatchCollection;
+        $matches = new MatchCollection();
         $dictionary = is_array($words) ? $words : iterator_to_array($words);
         $levenshtein = new OptimizedLevenshtein($dictionary);
 
         $textWords = preg_split('/\s+/', $text);
-        if ($textWords === false) {
+        if (false === $textWords) {
             return $matches;
         }
 
         foreach ($textWords as $textWord) {
             $similarWords = $levenshtein->findSimilar($textWord, $this->threshold);
-            if (! empty($similarWords)) {
+            if ( ! empty($similarWords)) {
                 $positions = [];
                 $pos = 0;
                 while (($pos = mb_stripos($text, $textWord, $pos)) !== false) {
@@ -52,8 +52,8 @@ final class LevenshteinStrategy extends AbstractStrategy
                         score: Calculator::score($text, $textWord, MatchType::Levenshtein, $occurrences),
                         confidence: Calculator::confidence($text, $textWord, MatchType::Levenshtein, $occurrences),
                         occurrences: $occurrences,
-                        context: ['similar_words' => $similarWords]
-                    )
+                        context: ['similar_words' => $similarWords],
+                    ),
                 );
             }
         }

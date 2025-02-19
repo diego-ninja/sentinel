@@ -17,9 +17,9 @@ test('purgomalum detects offensive content', function (): void {
 
     $client = new Client(['handler' => HandlerStack::create($mock)]);
     $checker = new PurgoMalum(
-        adapter: new PurgoMalumAdapter,
+        adapter: new PurgoMalumAdapter(),
         pipeline: app(TransformationPipeline::class),
-        client: $client
+        client: $client,
     );
 
     $result = $checker->check('fuck you shit');
@@ -43,9 +43,9 @@ test('purgomalum handles clean content', function (): void {
 
     $client = new Client(['handler' => HandlerStack::create($mock)]);
     $checker = new PurgoMalum(
-        adapter: new PurgoMalumAdapter,
+        adapter: new PurgoMalumAdapter(),
         pipeline: app(TransformationPipeline::class),
-        client: $client
+        client: $client,
     );
 
     $result = $checker->check('clean text here');

@@ -61,15 +61,14 @@ final readonly class AzureAdapter extends AbstractAdapter
             ? new Score($maxScore)
             : $matches->score();
 
-        return new class($text, $matches, $finalScore, new Confidence($confidenceValue), $categories) implements ServiceResponse
-        {
+        return new class ($text, $matches, $finalScore, new Confidence($confidenceValue), $categories) implements ServiceResponse {
             public function __construct(
                 private readonly string $original,
                 private readonly MatchCollection $matches,
                 private readonly Score $score,
                 private readonly Confidence $confidence,
                 /** @var array<Category> */
-                private readonly array $categories
+                private readonly array $categories,
             ) {}
 
             public function original(): string
@@ -119,11 +118,11 @@ final readonly class AzureAdapter extends AbstractAdapter
      */
     private function createMatches(string $text, array $blocklistMatches): MatchCollection
     {
-        $matches = new MatchCollection;
+        $matches = new MatchCollection();
 
         foreach ($blocklistMatches as $match) {
             // Si no tenemos offset/length, buscamos la palabra en el texto
-            if (! isset($match['offset']) || ! isset($match['length'])) {
+            if ( ! isset($match['offset']) || ! isset($match['length'])) {
                 $offset = mb_stripos($text, $match['text']);
                 $length = mb_strlen($match['text']);
             } else {
@@ -131,7 +130,7 @@ final readonly class AzureAdapter extends AbstractAdapter
                 $length = $match['length'];
             }
 
-            if ($offset !== false) {
+            if (false !== $offset) {
                 $occurrences = new OccurrenceCollection([
                     new Position($offset, $length),
                 ]);
@@ -143,8 +142,8 @@ final readonly class AzureAdapter extends AbstractAdapter
                         score: Calculator::score($text, $match['text'], MatchType::Exact, $occurrences),
                         confidence: Calculator::confidence($text, $match['text'], MatchType::Exact, $occurrences),
                         occurrences: $occurrences,
-                        context: ['source' => 'azure_blocklist']
-                    )
+                        context: ['source' => 'azure_blocklist'],
+                    ),
                 );
             }
         }

@@ -9,7 +9,6 @@ use Ninja\Censor\Services\Contracts\ServiceResponse;
 use Ninja\Censor\ValueObject\Confidence;
 use Ninja\Censor\ValueObject\Score;
 use Ninja\Censor\ValueObject\Sentiment;
-use Ninja\Censor\Whitelist;
 
 final readonly class CensorAdapter extends AbstractAdapter
 {
@@ -21,10 +20,9 @@ final readonly class CensorAdapter extends AbstractAdapter
         /** @var AbstractResult $result */
         $result = $response['result'];
 
-        return new class($result) implements ServiceResponse
-        {
+        return new class ($result) implements ServiceResponse {
             public function __construct(
-                private readonly AbstractResult $result
+                private readonly AbstractResult $result,
             ) {}
 
             public function original(): string

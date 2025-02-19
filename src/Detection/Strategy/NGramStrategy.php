@@ -13,14 +13,14 @@ final class NGramStrategy extends AbstractStrategy
 {
     public function detect(string $text, iterable $words): MatchCollection
     {
-        $matches = new MatchCollection;
-        $phrases = array_filter((array) $words, fn ($word) => str_contains($word, ' '));
+        $matches = new MatchCollection();
+        $phrases = array_filter((array) $words, fn($word) => str_contains($word, ' '));
 
         foreach ($phrases as $phrase) {
             $phrasePattern = preg_quote(mb_strtolower($phrase), '/');
-            $pattern = '/\b'.$phrasePattern.'\b/iu';
+            $pattern = '/\b' . $phrasePattern . '\b/iu';
 
-            if (preg_match_all($pattern, $text, $found, PREG_OFFSET_CAPTURE) !== false) {
+            if (false !== preg_match_all($pattern, $text, $found, PREG_OFFSET_CAPTURE)) {
                 foreach ($found[0] as [$match, $offset]) {
                     $occurrences = new OccurrenceCollection([
                         new Position($offset, mb_strlen($match)),
@@ -33,8 +33,8 @@ final class NGramStrategy extends AbstractStrategy
                             score: Calculator::score($text, $match, MatchType::NGram, $occurrences),
                             confidence: Calculator::confidence($text, $match, MatchType::NGram, $occurrences),
                             occurrences: $occurrences,
-                            context: ['original' => $phrase]
-                        )
+                            context: ['original' => $phrase],
+                        ),
                     );
                 }
             }

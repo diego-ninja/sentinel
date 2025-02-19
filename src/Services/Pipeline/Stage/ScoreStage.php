@@ -9,13 +9,13 @@ final class ScoreStage extends AbstractStage
 {
     public function transform(
         ServiceResponse $response,
-        ResultBuilder $builder
+        ResultBuilder $builder,
     ): ResultBuilder {
-        if ($response->score() !== null) {
+        if (null !== $response->score()) {
             return $builder->withScore($response->score());
         }
 
-        if ($response->matches() !== null) {
+        if (null !== $response->matches()) {
             return $builder->withScore($response->matches()->score());
         }
 

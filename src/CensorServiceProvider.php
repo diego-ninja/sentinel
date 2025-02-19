@@ -55,14 +55,14 @@ final class CensorServiceProvider extends ServiceProvider
                 }
 
                 if ( ! is_string($value)) {
-                    $validator->addReplacer('censor_check', fn () => 'The :attribute must be a string.');
+                    $validator->addReplacer('censor_check', fn() => 'The :attribute must be a string.');
 
                     return false;
                 }
 
                 return ! Facades\Censor::check($value)->offensive();
             },
-            message: 'The :attribute contains offensive language.'
+            message: 'The :attribute contains offensive language.',
         );
 
         $this->loadRoutesFrom(__DIR__ . '/../routes/censor.php');
@@ -92,7 +92,7 @@ final class CensorServiceProvider extends ServiceProvider
         $this->app->when(PerspectiveAI::class)->needs(ServiceAdapter::class)->give(PerspectiveAdapter::class);
         $this->app->when(PurgoMalum::class)->needs(ServiceAdapter::class)->give(PurgoMalumAdapter::class);
 
-        $this->app->singleton(TransformationPipeline::class, fn () => (new TransformationPipeline())
+        $this->app->singleton(TransformationPipeline::class, fn() => (new TransformationPipeline())
             ->addStage(new ScoreStage())
             ->addStage(new MatchesStage())
             ->addStage(new TextStage(app(Whitelist::class)))
@@ -155,12 +155,12 @@ final class CensorServiceProvider extends ServiceProvider
 
             return new $processorClass(
                 app(Whitelist::class),
-                app(LazyDictionary::class)
+                app(LazyDictionary::class),
             );
 
         });
 
-        $this->app->bind('censor', fn () => new Censor());
+        $this->app->bind('censor', fn() => new Censor());
 
         $this->mergeConfigFrom(__DIR__ . '/../config/censor.php', 'censor');
     }
@@ -173,7 +173,7 @@ final class CensorServiceProvider extends ServiceProvider
             $config = config(sprintf('censor.services.%s', $service->value));
 
             if (null !== $config) {
-                $this->app->singleton($service->value, fn (): ProfanityChecker => ProfanityCheckerFactory::create($service, $config));
+                $this->app->singleton($service->value, fn(): ProfanityChecker => ProfanityCheckerFactory::create($service, $config));
             }
         }
 
@@ -196,7 +196,7 @@ final class CensorServiceProvider extends ServiceProvider
             return new Checkers\Censor(
                 processor: $processor,
                 adapter: $adapter,
-                pipeline: app(TransformationPipeline::class)
+                pipeline: app(TransformationPipeline::class),
             );
         });
     }

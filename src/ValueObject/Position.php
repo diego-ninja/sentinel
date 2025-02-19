@@ -11,7 +11,7 @@ final readonly class Position
 {
     public function __construct(
         private int $start,
-        private int $length
+        private int $length,
     ) {
         if ($start < 0 || $length < 1) {
             throw new InvalidArgumentException('Invalid position values');

@@ -5,7 +5,6 @@ namespace Ninja\Censor\Checkers;
 use GuzzleHttp\ClientInterface;
 use Ninja\Censor\Exceptions\ClientException;
 use Ninja\Censor\Result\Contracts\Result;
-use Ninja\Censor\Result\PerspectiveResult;
 use Ninja\Censor\Services\Contracts\ServiceAdapter;
 use Ninja\Censor\Services\Pipeline\TransformationPipeline;
 
@@ -15,8 +14,8 @@ final class PerspectiveAI extends AbstractProfanityChecker
         private readonly string $key,
         private readonly ServiceAdapter $adapter,
         private readonly TransformationPipeline $pipeline,
-        protected ?ClientInterface $client = null)
-    {
+        protected ?ClientInterface $client = null,
+    ) {
         parent::__construct($client);
     }
 
@@ -41,7 +40,7 @@ final class PerspectiveAI extends AbstractProfanityChecker
         $response = $this->post(sprintf('comments:analyze?key=%s', $this->key), $params);
 
         return $this->pipeline->process(
-            $this->adapter->adapt($text, $response)
+            $this->adapter->adapt($text, $response),
         );
     }
 

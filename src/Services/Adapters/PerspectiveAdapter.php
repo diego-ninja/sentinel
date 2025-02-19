@@ -39,7 +39,7 @@ final readonly class PerspectiveAdapter extends AbstractAdapter
      */
     public function adapt(string $text, array $response): ServiceResponse
     {
-        $matches = new MatchCollection;
+        $matches = new MatchCollection();
         $maxScore = 0.0;
         $avgConfidence = 0.0;
         $categories = [];
@@ -74,8 +74,8 @@ final readonly class PerspectiveAdapter extends AbstractAdapter
                             context: [
                                 'attribute' => $attribute,
                                 'score' => $span['score']['value'],
-                            ]
-                        )
+                            ],
+                        ),
                     );
                 }
             }
@@ -85,15 +85,14 @@ final readonly class PerspectiveAdapter extends AbstractAdapter
             ? $avgConfidence / count($response['attributeScores'])
             : 0.0;
 
-        return new class($text, $matches, new Score($maxScore), new Confidence($confidenceValue), $categories) implements ServiceResponse
-        {
+        return new class ($text, $matches, new Score($maxScore), new Confidence($confidenceValue), $categories) implements ServiceResponse {
             public function __construct(
                 private readonly string $original,
                 private readonly MatchCollection $matches,
                 private readonly Score $score,
                 private readonly Confidence $confidence,
                 /** @var array<Category> */
-                private readonly array $categories
+                private readonly array $categories,
             ) {}
 
             public function original(): string

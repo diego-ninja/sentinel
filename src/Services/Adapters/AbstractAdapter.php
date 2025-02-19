@@ -26,12 +26,12 @@ abstract readonly class AbstractAdapter implements ServiceAdapter
     {
         return OccurrenceCollection::fromRanges(
             array_map(
-                fn (array $range) => [
+                fn(array $range) => [
                     'start' => $range['offset'],
                     'length' => $range['length'],
                 ],
-                $ranges
-            )
+                $ranges,
+            ),
         );
     }
 
@@ -42,8 +42,8 @@ abstract readonly class AbstractAdapter implements ServiceAdapter
     protected function createCategories(array $categories): array
     {
         return array_map(
-            fn (string $category) => Category::tryFrom($category),
-            $categories
+            fn(string $category) => Category::tryFrom($category),
+            $categories,
         );
     }
 

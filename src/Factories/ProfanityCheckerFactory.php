@@ -35,7 +35,7 @@ final readonly class ProfanityCheckerFactory
             Provider::Azure => AzureAI::class,
         };
 
-        if (! class_exists($class)) {
+        if ( ! class_exists($class)) {
             throw new RuntimeException(sprintf('The class %s does not exist.', $class));
         }
 
@@ -43,27 +43,27 @@ final readonly class ProfanityCheckerFactory
             Provider::Local => new $class(
                 processor: app()->make(Processor::class),
                 adapter: app()->make(ServiceAdapter::class),
-                pipeline: $pipeline
+                pipeline: $pipeline,
             ),
             Provider::Azure => new $class(
                 endpoint: $config['endpoint'],
                 key: $config['key'],
                 version: $config['version'],
                 adapter: app()->make(ServiceAdapter::class),
-                pipeline: $pipeline
+                pipeline: $pipeline,
             ),
             Provider::Perspective, Provider::Tisane => new $class(
                 key: $config['key'],
                 adapter: app()->make(ServiceAdapter::class),
-                pipeline: $pipeline
+                pipeline: $pipeline,
             ),
             Provider::PurgoMalum => new $class(
                 adapter: app()->make(ServiceAdapter::class),
-                pipeline: $pipeline
+                pipeline: $pipeline,
             ),
         };
 
-        if (config('censor.cache.enabled', false) === true) {
+        if (true === config('censor.cache.enabled', false)) {
             /** @var int $ttl */
             $ttl = config('censor.cache.ttl', 3600);
 

@@ -31,9 +31,9 @@ test('perspective detects toxic content', function (): void {
     $client = new Client(['handler' => HandlerStack::create($mock)]);
     $checker = new PerspectiveAI(
         key: 'fake-key',
-        adapter: new PerspectiveAdapter,
+        adapter: new PerspectiveAdapter(),
         pipeline: app(TransformationPipeline::class),
-        client: $client
+        client: $client,
     );
 
     $result = $checker->check('toxic content');
@@ -62,9 +62,9 @@ test('perspective handles clean content', function (): void {
     $client = new Client(['handler' => HandlerStack::create($mock)]);
     $checker = new PerspectiveAI(
         key: 'fake-key',
-        adapter: new PerspectiveAdapter,
+        adapter: new PerspectiveAdapter(),
         pipeline: app(TransformationPipeline::class),
-        client: $client
+        client: $client,
     );
 
     $result = $checker->check('clean content');

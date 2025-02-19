@@ -5,7 +5,7 @@ namespace Tests\Unit\Support;
 use Ninja\Censor\Dictionary\LazyDictionary;
 use Ninja\Censor\Support\PatternGenerator;
 
-test('pattern generator handles lazy dictionary correctly', function () {
+test('pattern generator handles lazy dictionary correctly', function (): void {
     $words = ['test1', 'test2', 'test3'];
     $dictionary = LazyDictionary::withWords($words);
 
@@ -21,8 +21,8 @@ test('pattern generator handles lazy dictionary correctly', function () {
         ->and($patternsArray)->toHaveCount(3);
 });
 
-test('pattern generator creates patterns progressively', function () {
-    $words = array_map(fn($i) => "word$i", range(1, 1000));
+test('pattern generator creates patterns progressively', function (): void {
+    $words = array_map(fn($i) => "word{$i}", range(1, 1000));
     $dictionary = LazyDictionary::withWords($words);
 
     $memoryBefore = memory_get_usage();
@@ -36,7 +36,7 @@ test('pattern generator creates patterns progressively', function () {
 });
 
 
-test('pattern generator handles multiple words', function () {
+test('pattern generator handles multiple words', function (): void {
     $words = ['test', 'word'];
     $dictionary = LazyDictionary::withWords($words);
 

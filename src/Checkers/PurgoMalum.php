@@ -12,14 +12,9 @@ final class PurgoMalum extends AbstractProfanityChecker
     public function __construct(
         private readonly ServiceAdapter $adapter,
         private readonly TransformationPipeline $pipeline,
-        protected ?ClientInterface $client = null
+        protected ?ClientInterface $client = null,
     ) {
         parent::__construct($client);
-    }
-
-    protected function baseUri(): string
-    {
-        return 'https://www.purgomalum.com/service/';
     }
 
     public function check(string $text): Result
@@ -30,7 +25,12 @@ final class PurgoMalum extends AbstractProfanityChecker
         ]);
 
         return $this->pipeline->process(
-            $this->adapter->adapt($text, $response)
+            $this->adapter->adapt($text, $response),
         );
+    }
+
+    protected function baseUri(): string
+    {
+        return 'https://www.purgomalum.com/service/';
     }
 }

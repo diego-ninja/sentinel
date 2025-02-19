@@ -2,7 +2,6 @@
 
 namespace Ninja\Censor\Index;
 
-use Generator;
 use Ninja\Censor\Dictionary\LazyDictionary;
 
 final class TrieIndex

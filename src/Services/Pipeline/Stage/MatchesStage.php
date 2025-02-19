@@ -10,16 +10,16 @@ final class MatchesStage extends AbstractStage
 {
     public function transform(
         ServiceResponse $response,
-        ResultBuilder $builder
+        ResultBuilder $builder,
     ): ResultBuilder {
-        if ($response->matches() !== null) {
+        if (null !== $response->matches()) {
             return $builder
                 ->withMatches($response->matches())
                 ->withWords($response->matches()->words());
         }
 
         return $builder
-            ->withMatches(new MatchCollection)
+            ->withMatches(new MatchCollection())
             ->withWords([]);
     }
 }

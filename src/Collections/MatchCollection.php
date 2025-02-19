@@ -14,7 +14,7 @@ class MatchCollection extends Collection
 {
     public function addCoincidence(Coincidence $coincidence): void
     {
-        if (! $this->contains(fn (Coincidence $existingItem) => $existingItem->word() === $coincidence->word())) {
+        if ( ! $this->contains(fn(Coincidence $existingItem) => $existingItem->word() === $coincidence->word())) {
             $this->add($coincidence);
         }
     }
@@ -26,7 +26,7 @@ class MatchCollection extends Collection
         }
 
         /** @var float $score */
-        $score = $this->sum(fn (Coincidence $match) => $match->score()->value());
+        $score = $this->sum(fn(Coincidence $match) => $match->score()->value());
 
         return new Score(min(1.0, $score));
     }
@@ -38,7 +38,7 @@ class MatchCollection extends Collection
         }
 
         return new Confidence(
-            (float) $this->average(fn (Coincidence $match) => $match->confidence()->value())
+            (float) $this->average(fn(Coincidence $match) => $match->confidence()->value()),
         );
     }
 
@@ -56,7 +56,7 @@ class MatchCollection extends Collection
     public function words(): array
     {
         // @phpstan-ignore return.type
-        return $this->map(fn (Coincidence $match) => $match->word())->toArray();
+        return $this->map(fn(Coincidence $match) => $match->word())->toArray();
     }
 
     /**
@@ -65,7 +65,7 @@ class MatchCollection extends Collection
     public function merge($items): self
     {
         foreach ($items as $item) {
-            if (! $this->contains(fn (Coincidence $existingItem) => $existingItem->word() === $item->word())) {
+            if ( ! $this->contains(fn(Coincidence $existingItem) => $existingItem->word() === $item->word())) {
                 $this->add($item);
             }
         }
@@ -93,9 +93,7 @@ class MatchCollection extends Collection
             }
         }
 
-        usort($positions, function ($a, $b) {
-            return $b['start'] - $a['start'];
-        });
+        usort($positions, fn($a, $b) => $b['start'] - $a['start']);
 
         $result = $text;
         /** @var string $replacer */
@@ -103,8 +101,8 @@ class MatchCollection extends Collection
 
         foreach ($positions as $position) {
             $replacement = str_repeat($replacer, $position['length']);
-            $result = mb_substr($result, 0, $position['start']).
-                $replacement.
+            $result = mb_substr($result, 0, $position['start']) .
+                $replacement .
                 mb_substr($result, $position['start'] + $position['length']);
         }
 

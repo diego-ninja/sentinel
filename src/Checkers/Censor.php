@@ -15,7 +15,7 @@ final class Censor implements ProfanityChecker
     public function __construct(
         private readonly Processor $processor,
         private readonly ServiceAdapter $adapter,
-        private readonly TransformationPipeline $pipeline
+        private readonly TransformationPipeline $pipeline,
     ) {}
 
     public function check(string $text): Result
@@ -46,7 +46,7 @@ final class Censor implements ProfanityChecker
     private function split(string $text): array
     {
         $sentences = preg_split('/(?<=[.!?])\s+/', $text, -1, PREG_SPLIT_NO_EMPTY);
-        if (! $sentences) {
+        if ( ! $sentences) {
             return [$text];
         }
 
@@ -54,16 +54,16 @@ final class Censor implements ProfanityChecker
         $currentChunk = '';
 
         foreach ($sentences as $sentence) {
-            if (mb_strlen($currentChunk.$sentence) > self::CHUNK_SIZE) {
-                $chunks[] = trim($currentChunk);
+            if (mb_strlen($currentChunk . $sentence) > self::CHUNK_SIZE) {
+                $chunks[] = mb_trim($currentChunk);
                 $currentChunk = $sentence;
             } else {
-                $currentChunk .= ' '.$sentence;
+                $currentChunk .= ' ' . $sentence;
             }
         }
 
-        if (! empty($currentChunk)) {
-            $chunks[] = trim($currentChunk);
+        if ( ! empty($currentChunk)) {
+            $chunks[] = mb_trim($currentChunk);
         }
 
         return $chunks;
