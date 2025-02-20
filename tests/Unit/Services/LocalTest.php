@@ -1,13 +1,13 @@
 <?php
 
-use Ninja\Censor\Checkers\Censor;
-use Ninja\Censor\ValueObject\Score;
+use Ninja\Sentinel\Checkers\Local;
+use Ninja\Sentinel\ValueObject\Score;
 
 test('detects exact matches', function (): void {
-    /** @var Censor $censor */
-    $censor = app(Censor::class);
+    /** @var Local $local */
+    $local = app(Local::class);
 
-    $result = $censor->check('fuck this shit');
+    $result = $local->check('fuck this shit');
     expect($result)
         ->toBeOffensive()
         ->and($result->words())->toHaveCount(2)
@@ -16,8 +16,8 @@ test('detects exact matches', function (): void {
 });
 
 test('detects character replacements', function (): void {
-    /** @var Censor $censor */
-    $censor = app(Censor::class);
+    /** @var Local $local */
+    $local = app(Local::class);
 
     $variations = [
         '@ss',
@@ -28,7 +28,7 @@ test('detects character replacements', function (): void {
     ];
 
     foreach ($variations as $text) {
-        $result = $censor->check($text);
+        $result = $local->check($text);
         expect($result)
             ->toBeOffensive()
             ->and($result->replaced())->toBe(str_repeat('*', mb_strlen($text)));
@@ -36,8 +36,8 @@ test('detects character replacements', function (): void {
 });
 
 test('detects separated characters', function (): void {
-    /** @var Censor $censor */
-    $censor = app(Censor::class);
+    /** @var Local $local */
+    $local = app(Local::class);
 
     $variations = [
         'f u c k',
@@ -47,7 +47,7 @@ test('detects separated characters', function (): void {
     ];
 
     foreach ($variations as $text) {
-        $result = $censor->check($text);
+        $result = $local->check($text);
         expect($result)
             ->toBeOffensive()
             ->and(mb_strlen($result->replaced()))->toBe(mb_strlen($text));
@@ -55,8 +55,8 @@ test('detects separated characters', function (): void {
 });
 
 test('detects similar words using levenshtein', function (): void {
-    /** @var Censor $censor */
-    $censor = app(Censor::class);
+    /** @var Local $local */
+    $local = app(Local::class);
     $variations = [
         'fück',
         'fucc',
@@ -66,7 +66,7 @@ test('detects similar words using levenshtein', function (): void {
     ];
 
     foreach ($variations as $text) {
-        $result = $censor->check($text);
+        $result = $local->check($text);
         expect($result)
             ->toBeOffensive()
             ->and($result->words())->toHaveCount(1)
@@ -75,8 +75,8 @@ test('detects similar words using levenshtein', function (): void {
 });
 
 test('detects offensive phrases using ngrams', function (): void {
-    /** @var Censor $censor */
-    $censor = app(Censor::class);
+    /** @var Local $local */
+    $local = app(Local::class);
 
     $phrases = [
         'fuck you',
@@ -85,7 +85,7 @@ test('detects offensive phrases using ngrams', function (): void {
     ];
 
     foreach ($phrases as $phrase) {
-        $result = $censor->check($phrase);
+        $result = $local->check($phrase);
         expect($result)
             ->toBeOffensive()
             ->and($result->score()->value())->toBeGreaterThan(0.2);
@@ -93,10 +93,10 @@ test('detects offensive phrases using ngrams', function (): void {
 });
 
 test('respects whitelist', function (): void {
-    config(['censor.whitelist' => ['assessment', 'class']]);
+    config(['sentinel.whitelist' => ['assessment', 'class']]);
 
-    /** @var Censor $censor */
-    $censor = app(Censor::class);
+    /** @var Local $local */
+    $local = app(Local::class);
 
     $texts = [
         'assessment',
@@ -105,7 +105,7 @@ test('respects whitelist', function (): void {
     ];
 
     foreach ($texts as $text) {
-        $result = $censor->check($text);
+        $result = $local->check($text);
         expect($result)
             ->offensive()->toBeFalse()
             ->and($result->replaced())->toBe($text);
@@ -113,16 +113,16 @@ test('respects whitelist', function (): void {
 });
 
 test('handles empty and null inputs', function (): void {
-    /** @var Censor $censor */
-    $censor = app(Censor::class);
+    /** @var Local $local */
+    $local = app(Local::class);
 
-    $result1 = $censor->check('');
+    $result1 = $local->check('');
     expect($result1)
         ->offensive()->toBeFalse()
         ->and($result1->replaced())->toBe('')
         ->and($result1->score()->value())->toBe(0.0);
 
-    $result2 = $censor->check('   ');
+    $result2 = $local->check('   ');
     expect($result2)
         ->offensive()->toBeFalse()
         ->and(mb_trim($result2->replaced()))->toBe('')
@@ -130,8 +130,8 @@ test('handles empty and null inputs', function (): void {
 });
 
 test('calculates appropriate scores', function (): void {
-    /** @var Censor $censor */
-    $censor = app(Censor::class);
+    /** @var Local $local */
+    $local = app(Local::class);
 
     // Test different scenarios
     $scenarios = [
@@ -143,7 +143,7 @@ test('calculates appropriate scores', function (): void {
     ];
 
     foreach ($scenarios as [$text, [$min, $max]]) {
-        $result = $censor->check($text);
+        $result = $local->check($text);
         expect($result->score())
             ->toBeInstanceOf(Score::class)
             ->and($result->score()->value())
@@ -154,26 +154,26 @@ test('calculates appropriate scores', function (): void {
 });
 
 test('handles unicode and special characters', function (): void {
-    /** @var Censor $censor */
-    $censor = app(Censor::class);
+    /** @var Local $local */
+    $local = app(Local::class);
 
     $texts = [
         'fück' => '****',
         'shït' => '****',
         'fůck' => '****',
-        'シット' => 'シット',  // Should not censor Japanese
-        'мат' => 'мат',     // Should not censor Russian
+        'シット' => 'シット',  // Should not moderate Japanese
+        'мат' => 'мат',     // Should not moderate Russian
     ];
 
     foreach ($texts as $input => $expected) {
-        $result = $censor->check($input);
+        $result = $local->check($input);
         expect($result->replaced())->toBe($expected);
     }
 });
 
 test('handles repeating characters', function (): void {
-    /** @var Censor $censor */
-    $censor = app(Censor::class);
+    /** @var Local $local */
+    $local = app(Local::class);
 
     $variations = [
         'fuuuck',
@@ -183,7 +183,7 @@ test('handles repeating characters', function (): void {
     ];
 
     foreach ($variations as $text) {
-        $result = $censor->check($text);
+        $result = $local->check($text);
         expect($result)
             ->toBeOffensive()
             ->and(mb_strlen($result->replaced()))->toBe(mb_strlen($text));
@@ -191,11 +191,11 @@ test('handles repeating characters', function (): void {
 });
 
 test('combines multiple detection strategies correctly', function (): void {
-    /** @var Censor $censor */
-    $censor = app(Censor::class);
+    /** @var Local $local */
+    $local = app(Local::class);
 
     $text = 'This f.u.c.k contains sh!t and fuuuck';
-    $result = $censor->check($text);
+    $result = $local->check($text);
 
     expect($result)
         ->toBeOffensive()

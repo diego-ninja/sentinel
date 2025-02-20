@@ -1,15 +1,15 @@
-# Laravel Censor
+# Sentinel for Laravel
 
 <p align="center">
-    <img src="./.github/assets/logo.png" alt="Laravel Censor Logo"/>
+    <img src="./.github/assets/logo.png" alt="Sentinel Logo"/>
 </p>
 
 [![Laravel Package](https://img.shields.io/badge/Laravel%2010+%20Package-red?logo=laravel&logoColor=white)](https://www.laravel.com)
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/diego-ninja/laravel-censor.svg?style=flat&color=blue)](https://packagist.org/packages/diego-ninja/laravel-censor)
-[![Total Downloads](https://img.shields.io/packagist/dt/diego-ninja/laravel-censor.svg?style=flat&color=blue)](https://packagist.org/packages/diego-ninja/laravel-censor)
-![PHP Version](https://img.shields.io/packagist/php-v/diego-ninja/laravel-censor.svg?style=flat&color=blue)
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/diego-ninja/sentinel.svg?style=flat&color=blue)](https://packagist.org/packages/diego-ninja/sentinel)
+[![Total Downloads](https://img.shields.io/packagist/dt/diego-ninja/sentinel.svg?style=flat&color=blue)](https://packagist.org/packages/diego-ninja/sentinel)
+![PHP Version](https://img.shields.io/packagist/php-v/diego-ninja/laravel-sentinel.svg?style=flat&color=blue)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-![GitHub last commit](https://img.shields.io/github/last-commit/diego-ninja/laravel-censor?color=blue)
+![GitHub last commit](https://img.shields.io/github/last-commit/diego-ninja/sentinel?color=blue)
 [![PHPStan Level](https://img.shields.io/badge/phpstan-level%2010-blue?logo=php)]()
 
 # Introduction
@@ -57,23 +57,23 @@ This documentation has been generated almost in its entirety using 🦠 [Claude 
 You can install the package via composer:
 
 ```bash
-composer require diego-ninja/laravel-censor
+composer require diego-ninja/sentinel
 ```
 
 After installing, publish the configuration file and dictionaries:
 
 ```bash
-php artisan vendor:publish --tag="censor-config"
-php artisan vendor:publish --tag="censor-dictionaries"
+php artisan vendor:publish --tag="sentinel-config"
+php artisan vendor:publish --tag="sentinel-dictionaries"
 ```
 
 ## 🎛️ Configuration
 
-The package configuration file will be published at `config/censor.php`. Here you can configure:
+The package configuration file will be published at `config/sentinel.php`. Here you can configure:
 
 - Default language and available languages
 - Default profanity service
-- Mask character for censored words
+- Mask character for moderated words
 - Character replacements for evasion detection
 - Whitelisted words
 - Dictionary path
@@ -86,10 +86,10 @@ The package configuration file will be published at `config/censor.php`. Here yo
 Some services require API keys. Add these to your `.env` file:
 
 ```env
-CENSOR_THRESHOLD_SCORE=0.5
-CENSOR_CACHE_ENABLED=true
-CENSOR_CACHE_TTL=3600
-CENSOR_CACHE_STORE=redis
+SENTINEL_THRESHOLD_SCORE=0.5
+SENTINEL_CACHE_ENABLED=true
+SENTINEL_CACHE_TTL=3600
+SENTINEL_CACHE_STORE=redis
 
 PERSPECTIVE_AI_API_KEY=your-perspective-api-key
 TISANE_AI_API_KEY=your-tisane-api-key
@@ -103,24 +103,24 @@ PRISM_MODEL=claude-3-sonnet-latest
 
 ## ⚙️ Basic Usage
 
-You can use Laravel Censor in three ways:
+You can use Sentinel in three ways:
 
 ### 1. Facade
 
 ```php
-use Ninja\Censor\Facades\Censor;
+use Ninja\Sentinel\Facades\Sentinel;
 
 // Check if text contains offensive content
-$isOffensive = Censor::offensive('some text');
+$isOffensive = Sentinel::offensive('some text');
 
 // Get cleaned version of text
-$cleanText = Censor::clean('some text');
+$cleanText = Sentinel::clean('some text');
 
 // Get detailed analysis with sentiment and matches
-$result = Censor::check('some text');
+$result = Sentinel::check('some text');
 
 // Use a specific provider
-$result = Censor::with(Provider::Prism, 'some text');
+$result = Sentinel::with(Provider::Prism, 'some text');
 ```
 
 ### 2. Helper Functions
@@ -137,20 +137,20 @@ $cleanText = clean('some text');
 
 ```php
 $rules = [
-    'comment' => ['required', 'string', 'censor_check']
+    'comment' => ['required', 'string', 'offensive']
 ];
 ```
 
-## Available Service Providers
+## Available Moderation Providers
 
-### Local Censor
+### Local Provider
 
 Uses local dictionaries with multiple detection strategies for offline profanity checking.
 
 ```php
-use Ninja\Censor\Enums\Provider;
+use Ninja\Sentinel\Enums\Provider;
 
-$result = Censor::with(Provider::Local, 'text to check');
+$result = Sentinel::with(Provider::Local, 'text to check');
 ```
 
 Features:
@@ -164,7 +164,7 @@ Features:
 Free web service for basic profanity filtering.
 
 ```php
-$result = Censor::with(Provider::PurgoMalum, 'text to check');
+$result = Sentinel::with(Provider::PurgoMalum, 'text to check');
 ```
 
 ### Azure AI Content Safety
@@ -172,7 +172,7 @@ $result = Censor::with(Provider::PurgoMalum, 'text to check');
 Uses Azure's AI content moderation service with advanced content analysis.
 
 ```php
-$result = Censor::with(Provider::Azure, 'text to check');
+$result = Sentinel::with(Provider::Azure, 'text to check');
 ```
 
 ### Perspective AI
@@ -180,7 +180,7 @@ $result = Censor::with(Provider::Azure, 'text to check');
 Uses Google's Perspective API for toxicity and content analysis.
 
 ```php
-$result = Censor::with(Provider::Perspective, 'text to check');
+$result = Sentinel::with(Provider::Perspective, 'text to check');
 ```
 
 ### Tisane AI
@@ -188,7 +188,7 @@ $result = Censor::with(Provider::Perspective, 'text to check');
 Natural language processing service for content moderation.
 
 ```php
-$result = Censor::with(Provider::Tisane, 'text to check');
+$result = Sentinel::with(Provider::Tisane, 'text to check');
 ```
 
 ### Prism LLM Support
@@ -196,9 +196,9 @@ $result = Censor::with(Provider::Tisane, 'text to check');
 Access various Large Language Models through Prism:
 
 ```php
-use Ninja\Censor\Enums\Provider;
+use Ninja\Sentinel\Enums\Provider;
 
-$result = Censor::with(Provider::Prism, 'text to check');
+$result = Sentinel::with(Provider::Prism, 'text to check');
 ```
 
 Supported models through Prism:
@@ -216,7 +216,7 @@ Supported models through Prism:
 All services return a Result object with consistent methods:
 
 ```php
-$result = Censor::check('some text');
+$result = Sentinel::check('some text');
 
 // Basic information
 $result->offensive();    // bool: whether the text contains offensive content
@@ -266,7 +266,7 @@ foreach ($matches as $match) {
 The package can detect various content categories:
 
 ```php
-use Ninja\Censor\Enums\Category;
+use Ninja\Sentinel\Enums\Category;
 
 $categories = $result->categories();
 // Can include:
@@ -294,25 +294,25 @@ echo $sentiment->score();   // -1.0 to 1.0
 
 External service responses are automatically cached to improve performance and reduce API calls. By default, all external services will cache their responses for 1 hour.
 
-The local censor service is not cached as it's already performant enough.
+The local provider is not cached as it's already performant enough.
 
 ### Configuring Cache
 
 You can configure the cache in your `.env` file:
 
 ```env
-CENSOR_CACHE_ENABLED=true # Enable caching (default: true)
-CENSOR_CACHE_TTL=3600 # Cache duration in seconds (default: 1 hour)
-CENSOR_CACHE_STORE=redis # Cache store (default: file)
+SENTINEL_CACHE_ENABLED=true # Enable caching (default: true)
+SENTINEL_CACHE_TTL=3600 # Cache duration in seconds (default: 1 hour)
+SENTINEL_CACHE_STORE=redis # Cache store (default: file)
 ```
 
-Or in your `config/censor.php`:
+Or in your `config/sentinel.php`:
 
 ```php
     'cache' => [
-        'enabled' => env('CENSOR_CACHE_ENABLED', true),
-        'store' => env('CENSOR_CACHE_STORE', 'file'),
-        'ttl' => env('CENSOR_CACHE_TTL', 60),
+        'enabled' => env('SENTINEL_CACHE_ENABLED', true),
+        'store' => env('SENTINEL_CACHE_STORE', 'file'),
+        'ttl' => env('SENTINEL_CACHE_TTL', 60),
     ],
 ```
 
@@ -320,7 +320,7 @@ Or in your `config/censor.php`:
 
 Cache keys are generated using the following format:
 ```
-censor:{ServiceName}:{md5(text)}
+sentinel:{ServiceName}:{md5(text)}
 ```
 
 ## Detection Strategies
@@ -341,7 +341,7 @@ Each strategy can operate in either full word or partial matching mode. Results 
 You can add your own dictionaries or modify existing ones:
 
 1. Create a new PHP file in your `resources/dict` directory
-2. Return an array of words to be censored
+2. Return an array of words to be moderated
 3. Update your config to include the new language
 
 ```php
@@ -352,16 +352,16 @@ return [
     // ...
 ];
 
-// config/censor.php
+// config/sentinel.php
 'languages' => ['en', 'custom'],
 ```
 
 ## Whitelist
 
-You can whitelist words to prevent them from being censored:
+You can whitelist words to prevent them from being moderated:
 
 ```php
-// config/censor.php
+// config/sentinel.php
 'whitelist' => [
     'word1',
     'word2',
@@ -373,7 +373,7 @@ You can whitelist words to prevent them from being censored:
 The package detects common character substitutions. Configure these in:
 
 ```php
-// config/censor.php
+// config/sentinel.php
 'replacements' => [
     'a' => '(a|@|4)',
     'i' => '(i|1|!)',
@@ -388,7 +388,7 @@ This project is developed and maintained by 🥷 [Diego Rin](https://diego.ninja
 Special thanks to:
 
 - [Laravel Framework](https://laravel.com/) for providing the most exciting and well-crafted PHP framework.
-- [Snipe](https://github.com/snipe) for developing the [initial code](https://github.com/snipe/banbuilder) that serves Laravel Censor as starting point.
+- [Snipe](https://github.com/snipe) for developing the [initial code](https://github.com/snipe/banbuilder) that serves Sentinel as starting point.
 - All the contributors and testers who have helped to improve this project through their contributions.
 
 If you find this project useful, please consider giving it a ⭐ on GitHub!

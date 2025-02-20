@@ -1,7 +1,7 @@
 <?php
 
-namespace Ninja\Censor\Detection\Strategy;
+namespace Ninja\Sentinel\Detection\Strategy;
 
-use Ninja\Censor\Detection\Contracts\DetectionStrategy;
+use Ninja\Sentinel\Detection\Contracts\DetectionStrategy;
 
 abstract class AbstractStrategy implements DetectionStrategy {}

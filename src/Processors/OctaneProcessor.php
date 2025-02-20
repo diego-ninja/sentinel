@@ -1,9 +1,9 @@
 <?php
 
-namespace Ninja\Censor\Processors;
+namespace Ninja\Sentinel\Processors;
 
 use Laravel\Octane\Facades\Octane;
-use Ninja\Censor\Result\Result;
+use Ninja\Sentinel\Result\Result;
 
 final class OctaneProcessor extends AbstractProcessor
 {

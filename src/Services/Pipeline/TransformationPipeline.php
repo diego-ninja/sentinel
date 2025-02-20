@@ -1,11 +1,11 @@
 <?php
 
-namespace Ninja\Censor\Services\Pipeline;
+namespace Ninja\Sentinel\Services\Pipeline;
 
-use Ninja\Censor\Result\Builder\ResultBuilder;
-use Ninja\Censor\Result\Result;
-use Ninja\Censor\Services\Contracts\ServiceResponse;
-use Ninja\Censor\Services\Pipeline\Stage\AbstractStage;
+use Ninja\Sentinel\Result\Builder\ResultBuilder;
+use Ninja\Sentinel\Result\Result;
+use Ninja\Sentinel\Services\Contracts\ServiceResponse;
+use Ninja\Sentinel\Services\Pipeline\Stage\AbstractStage;
 
 final class TransformationPipeline
 {

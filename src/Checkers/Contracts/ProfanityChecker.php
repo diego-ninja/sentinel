@@ -1,8 +1,8 @@
 <?php
 
-namespace Ninja\Censor\Checkers\Contracts;
+namespace Ninja\Sentinel\Checkers\Contracts;
 
-use Ninja\Censor\Result\Contracts\Result;
+use Ninja\Sentinel\Result\Contracts\Result;
 
 interface ProfanityChecker
 {

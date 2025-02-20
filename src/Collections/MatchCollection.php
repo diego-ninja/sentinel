@@ -1,11 +1,11 @@
 <?php
 
-namespace Ninja\Censor\Collections;
+namespace Ninja\Sentinel\Collections;
 
 use Illuminate\Support\Collection;
-use Ninja\Censor\ValueObject\Coincidence;
-use Ninja\Censor\ValueObject\Confidence;
-use Ninja\Censor\ValueObject\Score;
+use Ninja\Sentinel\ValueObject\Coincidence;
+use Ninja\Sentinel\ValueObject\Confidence;
+use Ninja\Sentinel\ValueObject\Score;
 
 /**
  * @extends Collection<int, Coincidence>
@@ -45,7 +45,7 @@ class MatchCollection extends Collection
     public function offensive(): bool
     {
         /** @var float $threshold */
-        $threshold = config('censor.threshold_score', 0.5);
+        $threshold = config('sentinel.threshold_score', 0.5);
 
         return $this->isNotEmpty() && ($this->score()->value() >= $threshold);
     }
@@ -97,7 +97,7 @@ class MatchCollection extends Collection
 
         $result = $text;
         /** @var string $replacer */
-        $replacer = config('censor.mask_char', '*');
+        $replacer = config('sentinel.mask_char', '*');
 
         foreach ($positions as $position) {
             $replacement = str_repeat($replacer, $position['length']);

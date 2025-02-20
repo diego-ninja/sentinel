@@ -1,10 +1,10 @@
 <?php
 
-namespace Ninja\Censor\Dictionary;
+namespace Ninja\Sentinel\Dictionary;
 
 use Generator;
 use IteratorAggregate;
-use Ninja\Censor\Exceptions\DictionaryFileNotFound;
+use Ninja\Sentinel\Exceptions\DictionaryFileNotFound;
 use SplFixedArray;
 
 /**
@@ -28,7 +28,7 @@ final class LazyDictionary implements IteratorAggregate
         private ?string $dictionaryPath = null,
     ) {
         /** @var string $path */
-        $path = config('censor.dictionary_path');
+        $path = config('sentinel.dictionary_path');
         $this->dictionaryPath = $dictionaryPath ?? $path;
     }
 

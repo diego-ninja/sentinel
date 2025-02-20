@@ -1,8 +1,8 @@
 <?php
 
-namespace Ninja\Censor\Support;
+namespace Ninja\Sentinel\Support;
 
-use Ninja\Censor\Dictionary\LazyDictionary;
+use Ninja\Sentinel\Dictionary\LazyDictionary;
 
 final class PatternGenerator
 {
@@ -19,7 +19,7 @@ final class PatternGenerator
     public static function withDictionary(LazyDictionary $dictionary): self
     {
         /** @var array<string, string> $replacements */
-        $replacements = config('censor.replacements', []);
+        $replacements = config('sentinel.replacements', []);
 
         $generator = new self($replacements);
 

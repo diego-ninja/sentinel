@@ -1,14 +1,14 @@
 <?php
 
-namespace Ninja\Censor\Result\Builder;
+namespace Ninja\Sentinel\Result\Builder;
 
-use Ninja\Censor\Collections\MatchCollection;
-use Ninja\Censor\Enums\Category;
-use Ninja\Censor\Result\Contracts\ResultBuilder as ResultBuilderContract;
-use Ninja\Censor\Result\Result;
-use Ninja\Censor\ValueObject\Confidence;
-use Ninja\Censor\ValueObject\Score;
-use Ninja\Censor\ValueObject\Sentiment;
+use Ninja\Sentinel\Collections\MatchCollection;
+use Ninja\Sentinel\Enums\Category;
+use Ninja\Sentinel\Result\Contracts\ResultBuilder as ResultBuilderContract;
+use Ninja\Sentinel\Result\Result;
+use Ninja\Sentinel\ValueObject\Confidence;
+use Ninja\Sentinel\ValueObject\Score;
+use Ninja\Sentinel\ValueObject\Sentiment;
 
 final class ResultBuilder implements ResultBuilderContract
 {

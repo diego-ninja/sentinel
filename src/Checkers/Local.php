@@ -1,14 +1,14 @@
 <?php
 
-namespace Ninja\Censor\Checkers;
+namespace Ninja\Sentinel\Checkers;
 
-use Ninja\Censor\Checkers\Contracts\ProfanityChecker;
-use Ninja\Censor\Processors\Contracts\Processor;
-use Ninja\Censor\Result\Contracts\Result;
-use Ninja\Censor\Services\Contracts\ServiceAdapter;
-use Ninja\Censor\Services\Pipeline\TransformationPipeline;
+use Ninja\Sentinel\Checkers\Contracts\ProfanityChecker;
+use Ninja\Sentinel\Processors\Contracts\Processor;
+use Ninja\Sentinel\Result\Contracts\Result;
+use Ninja\Sentinel\Services\Contracts\ServiceAdapter;
+use Ninja\Sentinel\Services\Pipeline\TransformationPipeline;
 
-final class Censor implements ProfanityChecker
+final class Local implements ProfanityChecker
 {
     private const int CHUNK_SIZE = 500;
 

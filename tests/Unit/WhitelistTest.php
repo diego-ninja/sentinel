@@ -1,6 +1,6 @@
 <?php
 
-use Ninja\Censor\Whitelist;
+use Ninja\Sentinel\Whitelist;
 
 test('whitelist correctly protects words', function (): void {
     $whitelist = new Whitelist();

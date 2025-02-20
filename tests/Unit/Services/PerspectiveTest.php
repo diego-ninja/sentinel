@@ -4,9 +4,9 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
-use Ninja\Censor\Checkers\PerspectiveAI;
-use Ninja\Censor\Services\Adapters\PerspectiveAdapter;
-use Ninja\Censor\Services\Pipeline\TransformationPipeline;
+use Ninja\Sentinel\Checkers\PerspectiveAI;
+use Ninja\Sentinel\Services\Adapters\PerspectiveAdapter;
+use Ninja\Sentinel\Services\Pipeline\TransformationPipeline;
 
 test('perspective detects toxic content', function (): void {
     $mock = new MockHandler([
@@ -42,7 +42,7 @@ test('perspective detects toxic content', function (): void {
         ->toBeOffensive()
         ->and($result->score()->value())->toBeGreaterThan(0.7)
         ->and($result->confidence()->value())->toBeGreaterThan(0.7)
-        ->and($result->categories())->toContain(Ninja\Censor\Enums\Category::Toxicity);
+        ->and($result->categories())->toContain(Ninja\Sentinel\Enums\Category::Toxicity);
 });
 
 test('perspective handles clean content', function (): void {

@@ -1,10 +1,10 @@
 <?php
 
-namespace Ninja\Censor\Collections;
+namespace Ninja\Sentinel\Collections;
 
 use Illuminate\Support\Collection;
 use InvalidArgumentException;
-use Ninja\Censor\ValueObject\Position;
+use Ninja\Sentinel\ValueObject\Position;
 
 /**
  * @extends Collection<int, Position>

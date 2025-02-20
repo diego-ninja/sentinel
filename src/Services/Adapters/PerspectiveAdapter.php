@@ -1,17 +1,17 @@
 <?php
 
-namespace Ninja\Censor\Services\Adapters;
+namespace Ninja\Sentinel\Services\Adapters;
 
-use Ninja\Censor\Collections\MatchCollection;
-use Ninja\Censor\Collections\OccurrenceCollection;
-use Ninja\Censor\Enums\Category;
-use Ninja\Censor\Enums\MatchType;
-use Ninja\Censor\Services\Contracts\ServiceResponse;
-use Ninja\Censor\ValueObject\Coincidence;
-use Ninja\Censor\ValueObject\Confidence;
-use Ninja\Censor\ValueObject\Position;
-use Ninja\Censor\ValueObject\Score;
-use Ninja\Censor\ValueObject\Sentiment;
+use Ninja\Sentinel\Collections\MatchCollection;
+use Ninja\Sentinel\Collections\OccurrenceCollection;
+use Ninja\Sentinel\Enums\Category;
+use Ninja\Sentinel\Enums\MatchType;
+use Ninja\Sentinel\Services\Contracts\ServiceResponse;
+use Ninja\Sentinel\ValueObject\Coincidence;
+use Ninja\Sentinel\ValueObject\Confidence;
+use Ninja\Sentinel\ValueObject\Position;
+use Ninja\Sentinel\ValueObject\Score;
+use Ninja\Sentinel\ValueObject\Sentiment;
 
 final readonly class PerspectiveAdapter extends AbstractAdapter
 {

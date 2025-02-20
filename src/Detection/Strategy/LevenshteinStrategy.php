@@ -1,14 +1,14 @@
 <?php
 
-namespace Ninja\Censor\Detection\Strategy;
+namespace Ninja\Sentinel\Detection\Strategy;
 
-use Ninja\Censor\Collections\MatchCollection;
-use Ninja\Censor\Collections\OccurrenceCollection;
-use Ninja\Censor\Detection\OptimizedLevenshtein;
-use Ninja\Censor\Enums\MatchType;
-use Ninja\Censor\Support\Calculator;
-use Ninja\Censor\ValueObject\Coincidence;
-use Ninja\Censor\ValueObject\Position;
+use Ninja\Sentinel\Collections\MatchCollection;
+use Ninja\Sentinel\Collections\OccurrenceCollection;
+use Ninja\Sentinel\Detection\OptimizedLevenshtein;
+use Ninja\Sentinel\Enums\MatchType;
+use Ninja\Sentinel\Support\Calculator;
+use Ninja\Sentinel\ValueObject\Coincidence;
+use Ninja\Sentinel\ValueObject\Position;
 
 final class LevenshteinStrategy extends AbstractStrategy
 {
@@ -18,7 +18,7 @@ final class LevenshteinStrategy extends AbstractStrategy
     {
 
         /** @var int $threshold */
-        $threshold = config('censor.services.local.levenshtein_threshold', 1);
+        $threshold = config('sentinel.services.local.levenshtein_threshold', 1);
         $this->threshold = $threshold;
     }
 

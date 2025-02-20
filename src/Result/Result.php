@@ -1,13 +1,13 @@
 <?php
 
-namespace Ninja\Censor\Result;
+namespace Ninja\Sentinel\Result;
 
-use Ninja\Censor\Collections\MatchCollection;
-use Ninja\Censor\Enums\Category;
-use Ninja\Censor\Result\Contracts\Result as ResultContract;
-use Ninja\Censor\ValueObject\Confidence;
-use Ninja\Censor\ValueObject\Score;
-use Ninja\Censor\ValueObject\Sentiment;
+use Ninja\Sentinel\Collections\MatchCollection;
+use Ninja\Sentinel\Enums\Category;
+use Ninja\Sentinel\Result\Contracts\Result as ResultContract;
+use Ninja\Sentinel\ValueObject\Confidence;
+use Ninja\Sentinel\ValueObject\Score;
+use Ninja\Sentinel\ValueObject\Sentiment;
 
 readonly class Result implements ResultContract
 {
@@ -78,7 +78,7 @@ readonly class Result implements ResultContract
     protected static function clean(string $text, array $words): string
     {
         /** @var string $replaceChar */
-        $replaceChar = config('censor.mask_char', '*');
+        $replaceChar = config('sentinel.mask_char', '*');
 
         foreach ($words as $word) {
             $text = str_replace($word, str_repeat($replaceChar, mb_strlen($word)), $text);

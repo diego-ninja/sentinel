@@ -1,7 +1,7 @@
 <?php
 
-use Ninja\Censor\Dictionary\Dictionary;
-use Ninja\Censor\Exceptions\DictionaryFileNotFound;
+use Ninja\Sentinel\Dictionary\Dictionary;
+use Ninja\Sentinel\Exceptions\DictionaryFileNotFound;
 
 test('dictionary loads words correctly', function (): void {
     $dictFile = createTestDictionaryFile();

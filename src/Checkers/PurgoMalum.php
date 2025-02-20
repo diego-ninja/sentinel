@@ -1,11 +1,11 @@
 <?php
 
-namespace Ninja\Censor\Checkers;
+namespace Ninja\Sentinel\Checkers;
 
 use GuzzleHttp\ClientInterface;
-use Ninja\Censor\Result\Contracts\Result;
-use Ninja\Censor\Services\Contracts\ServiceAdapter;
-use Ninja\Censor\Services\Pipeline\TransformationPipeline;
+use Ninja\Sentinel\Result\Contracts\Result;
+use Ninja\Sentinel\Services\Contracts\ServiceAdapter;
+use Ninja\Sentinel\Services\Pipeline\TransformationPipeline;
 
 final class PurgoMalum extends AbstractProfanityChecker
 {
@@ -21,7 +21,7 @@ final class PurgoMalum extends AbstractProfanityChecker
     {
         $response = $this->get('json', [
             'text' => $text,
-            'fill_char' => config('censor.mask_char'),
+            'fill_char' => config('sentinel.mask_char'),
         ]);
 
         return $this->pipeline->process(

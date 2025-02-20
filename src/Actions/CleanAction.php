@@ -1,9 +1,9 @@
 <?php
 
-namespace Ninja\Censor\Actions;
+namespace Ninja\Sentinel\Actions;
 
 use Lorisleiva\Actions\Concerns\AsAction;
-use Ninja\Censor\Checkers\Contracts\ProfanityChecker;
+use Ninja\Sentinel\Checkers\Contracts\ProfanityChecker;
 
 final readonly class CleanAction
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Ninja\Censor\Support;
+namespace Ninja\Sentinel\Support;
 
 use Normalizer;
 

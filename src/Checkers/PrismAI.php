@@ -1,6 +1,6 @@
 <?php
 
-namespace Ninja\Censor\Checkers;
+namespace Ninja\Sentinel\Checkers;
 
 use EchoLabs\Prism\Enums\Provider;
 use EchoLabs\Prism\Prism;
@@ -11,11 +11,11 @@ use EchoLabs\Prism\ValueObjects\Messages\SystemMessage;
 use EchoLabs\Prism\ValueObjects\Messages\UserMessage;
 use InvalidArgumentException;
 use JsonException;
-use Ninja\Censor\Checkers\Contracts\ProfanityChecker;
-use Ninja\Censor\Result\Result;
-use Ninja\Censor\Schemas\CensorPrismSchema;
-use Ninja\Censor\Services\Contracts\ServiceAdapter;
-use Ninja\Censor\Services\Pipeline\TransformationPipeline;
+use Ninja\Sentinel\Checkers\Contracts\ProfanityChecker;
+use Ninja\Sentinel\Result\Result;
+use Ninja\Sentinel\Schemas\SentinelPrismSchema;
+use Ninja\Sentinel\Services\Contracts\ServiceAdapter;
+use Ninja\Sentinel\Services\Pipeline\TransformationPipeline;
 
 /**
  * LLM-based profanity checker using Laravel Prism.
@@ -31,10 +31,10 @@ final readonly class PrismAI implements ProfanityChecker
     public function check(string $text): Result
     {
         /** @var Provider $provider */
-        $provider = config('censor.services.prism_ai.provider');
+        $provider = config('sentinel.services.prism_ai.provider');
 
         /** @var string $model */
-        $model = config('censor.services.prism_ai.model');
+        $model = config('sentinel.services.prism_ai.model');
 
         if ($this->supports_structured($provider)) {
             $response = $this->buildStructuredPrismRequest($provider, $model, $text)->generate();
@@ -101,9 +101,9 @@ final readonly class PrismAI implements ProfanityChecker
                     (new UserMessage($message))->withProviderMeta(Provider::Anthropic, ['cacheType' => AnthropicCacheType::Ephemeral]),
                 ])
                 ->withClientOptions([
-                    'timeout' => config('censor.services.prism.timeout', 30),
+                    'timeout' => config('sentinel.services.prism.timeout', 30),
                 ])
-                ->withSchema(new CensorPrismSchema());
+                ->withSchema(new SentinelPrismSchema());
         }
 
         return $this->prism->structured()
@@ -114,9 +114,9 @@ final readonly class PrismAI implements ProfanityChecker
             ->withSystemPrompt($instructions)
             ->withPrompt($message)
             ->withClientOptions([
-                'timeout' => config('censor.services.prism.timeout', 30),
+                'timeout' => config('sentinel.services.prism.timeout', 30),
             ])
-            ->withSchema(new CensorPrismSchema());
+            ->withSchema(new SentinelPrismSchema());
     }
 
     private function buildUnstructuredPrismRequest(Provider $provider, string $model, string $message): UnstructuredPendingRequest
@@ -131,7 +131,7 @@ final readonly class PrismAI implements ProfanityChecker
             ->withSystemPrompt($instructions)
             ->withPrompt($message)
             ->withClientOptions([
-                'timeout' => config('censor.services.prism.timeout', 30),
+                'timeout' => config('sentinel.services.prism.timeout', 30),
             ]);
     }
 

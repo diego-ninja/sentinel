@@ -1,6 +1,6 @@
 <?php
 
-namespace Ninja\Censor\Schemas;
+namespace Ninja\Sentinel\Schemas;
 
 use EchoLabs\Prism\Schema\ArraySchema;
 use EchoLabs\Prism\Schema\BooleanSchema;
@@ -8,7 +8,7 @@ use EchoLabs\Prism\Schema\NumberSchema;
 use EchoLabs\Prism\Schema\ObjectSchema;
 use EchoLabs\Prism\Schema\StringSchema;
 
-class CensorPrismSchema extends ObjectSchema
+class SentinelPrismSchema extends ObjectSchema
 {
     public function __construct()
     {

@@ -4,9 +4,9 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
-use Ninja\Censor\Checkers\PurgoMalum;
-use Ninja\Censor\Services\Adapters\PurgoMalumAdapter;
-use Ninja\Censor\Services\Pipeline\TransformationPipeline;
+use Ninja\Sentinel\Checkers\PurgoMalum;
+use Ninja\Sentinel\Services\Adapters\PurgoMalumAdapter;
+use Ninja\Sentinel\Services\Pipeline\TransformationPipeline;
 
 test('purgomalum detects offensive content', function (): void {
     $mock = new MockHandler([

@@ -1,8 +1,8 @@
 <?php
 
-namespace Ninja\Censor\Processors\Contracts;
+namespace Ninja\Sentinel\Processors\Contracts;
 
-use Ninja\Censor\Result\Result;
+use Ninja\Sentinel\Result\Result;
 
 interface Processor
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Ninja\Censor\Enums;
+namespace Ninja\Sentinel\Enums;
 
 enum SentimentType: string
 {

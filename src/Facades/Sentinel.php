@@ -1,10 +1,10 @@
 <?php
 
-namespace Ninja\Censor\Facades;
+namespace Ninja\Sentinel\Facades;
 
 use Illuminate\Support\Facades\Facade;
-use Ninja\Censor\Enums\Provider;
-use Ninja\Censor\Result\Contracts\Result;
+use Ninja\Sentinel\Enums\Provider;
+use Ninja\Sentinel\Result\Contracts\Result;
 
 /**
  * @method static Result check(string $text)
@@ -12,10 +12,10 @@ use Ninja\Censor\Result\Contracts\Result;
  * @method static string clean(string $text)
  * @method static Result|null with(Provider $service, string $text)
  */
-class Censor extends Facade
+class Sentinel extends Facade
 {
     protected static function getFacadeAccessor(): string
     {
-        return 'censor';
+        return 'sentinel';
     }
 }

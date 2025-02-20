@@ -1,10 +1,10 @@
 <?php
 
-namespace Ninja\Censor\Decorators;
+namespace Ninja\Sentinel\Decorators;
 
 use Illuminate\Support\Facades\Cache;
-use Ninja\Censor\Checkers\Contracts\ProfanityChecker;
-use Ninja\Censor\Result\Contracts\Result;
+use Ninja\Sentinel\Checkers\Contracts\ProfanityChecker;
+use Ninja\Sentinel\Result\Contracts\Result;
 
 final readonly class CachedProfanityChecker implements ProfanityChecker
 {
@@ -16,13 +16,13 @@ final readonly class CachedProfanityChecker implements ProfanityChecker
     public function check(string $text): Result
     {
         $cacheKey = sprintf(
-            'censor:%s:%s',
+            'sentinel:%s:%s',
             class_basename($this->checker),
             md5($text),
         );
 
         /** @var string $store */
-        $store = config('censor.cache.store', 'default');
+        $store = config('sentinel.cache.store', 'default');
 
         /** @var Result $result */
         $result = Cache::store($store)->remember($cacheKey, $this->ttl, fn(): Result => $this->checker->check($text));

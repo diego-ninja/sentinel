@@ -1,6 +1,6 @@
 <?php
 
-namespace Ninja\Censor\Exceptions;
+namespace Ninja\Sentinel\Exceptions;
 
 use RuntimeException;
 

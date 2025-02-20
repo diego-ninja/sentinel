@@ -1,8 +1,8 @@
 <?php
 
-namespace Ninja\Censor\ValueObject;
+namespace Ninja\Sentinel\ValueObject;
 
-use Ninja\Censor\Enums\SentimentType;
+use Ninja\Sentinel\Enums\SentimentType;
 
 final readonly class Sentiment
 {

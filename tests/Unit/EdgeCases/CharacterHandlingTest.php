@@ -2,10 +2,10 @@
 
 namespace Tests\Unit\EdgeCases;
 
-use Ninja\Censor\Checkers\Censor;
+use Ninja\Sentinel\Checkers\Local;
 
 test('handles unicode characters correctly', function (): void {
-    $censor = app(Censor::class);
+    $checker = app(Local::class);
 
     $texts = [
         'fūćk' => 'fūćk',
@@ -18,13 +18,13 @@ test('handles unicode characters correctly', function (): void {
     ];
 
     foreach ($texts as $input => $expected) {
-        $result = $censor->check($input)->replaced();
-        expect($result)->toBe($expected, "Failed asserting that '{$input}' is censored as '{$expected}', got '{$result}'");
+        $result = $checker->check($input)->replaced();
+        expect($result)->toBe($expected, "Failed asserting that '{$input}' is moderated as '{$expected}', got '{$result}'");
     }
 });
 
 test('handles emojis correctly', function (): void {
-    $censor = app(Censor::class);
+    $checker = app(Local::class);
 
     $texts = [
         'fuck 🤬' => '**** 🤬',
@@ -33,13 +33,13 @@ test('handles emojis correctly', function (): void {
     ];
 
     foreach ($texts as $input => $expected) {
-        $result = $censor->check($input)->replaced();
-        expect($result)->toBe($expected, "Failed asserting that '{$input}' is censored as '{$expected}', got '{$result}'");
+        $result = $checker->check($input)->replaced();
+        expect($result)->toBe($expected, "Failed asserting that '{$input}' is moderated as '{$expected}', got '{$result}'");
     }
 });
 
 test('handles mixed case with accents correctly', function (): void {
-    $censor = app(Censor::class);
+    $checker = app(Local::class);
 
     $texts = [
         'FüCk' => '****',
@@ -48,22 +48,22 @@ test('handles mixed case with accents correctly', function (): void {
     ];
 
     foreach ($texts as $input => $expected) {
-        $result = $censor->check($input)->replaced();
-        expect($result)->toBe($expected, "Failed asserting that '{$input}' is censored as '{$expected}', got '{$result}'");
+        $result = $checker->check($input)->replaced();
+        expect($result)->toBe($expected, "Failed asserting that '{$input}' is moderated as '{$expected}', got '{$result}'");
     }
 });
 
 test('respects word boundaries with unicode', function (): void {
-    $censor = app(Censor::class);
+    $checker = app(Local::class);
 
     $texts = [
-        'scrapped' => 'scrapped',           // Should not censor 'crap'
-        'räpeseed' => 'räpeseed',           // Should not censor 'rape'
-        'classification' => 'classification',  // Should not censor 'ass'
+        'scrapped' => 'scrapped',           // Should not moderate 'crap'
+        'räpeseed' => 'räpeseed',           // Should not moderate 'rape'
+        'classification' => 'classification',  // Should not moderate 'ass'
     ];
 
     foreach ($texts as $input => $expected) {
-        $result = $censor->check($input);
+        $result = $checker->check($input);
         expect($result->replaced())->toBe($expected, sprintf("Failed asserting that '%s' is preserved as '%s', got '%s'", $input, $expected, $result->replaced()));
     }
 });

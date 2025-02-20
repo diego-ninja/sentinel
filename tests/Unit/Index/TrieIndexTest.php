@@ -2,8 +2,8 @@
 
 namespace Tests\Unit\Index;
 
-use Ninja\Censor\Dictionary\LazyDictionary;
-use Ninja\Censor\Index\TrieIndex;
+use Ninja\Sentinel\Dictionary\LazyDictionary;
+use Ninja\Sentinel\Index\TrieIndex;
 
 test('trie index works with lazy dictionary', function (): void {
     $words = ['test', 'testing', 'tested'];

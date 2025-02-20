@@ -1,10 +1,10 @@
 <?php
 
-namespace Ninja\Censor\Services\Pipeline\Stage;
+namespace Ninja\Sentinel\Services\Pipeline\Stage;
 
-use Ninja\Censor\Collections\MatchCollection;
-use Ninja\Censor\Result\Contracts\ResultBuilder;
-use Ninja\Censor\Services\Contracts\ServiceResponse;
+use Ninja\Sentinel\Collections\MatchCollection;
+use Ninja\Sentinel\Result\Contracts\ResultBuilder;
+use Ninja\Sentinel\Services\Contracts\ServiceResponse;
 
 final class MatchesStage extends AbstractStage
 {

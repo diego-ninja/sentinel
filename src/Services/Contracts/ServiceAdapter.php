@@ -1,6 +1,6 @@
 <?php
 
-namespace Ninja\Censor\Services\Contracts;
+namespace Ninja\Sentinel\Services\Contracts;
 
 interface ServiceAdapter
 {

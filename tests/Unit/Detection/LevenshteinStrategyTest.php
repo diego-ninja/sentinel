@@ -2,13 +2,13 @@
 
 namespace Tests\Unit\Detection;
 
-use Ninja\Censor\Collections\MatchCollection;
-use Ninja\Censor\Detection\Strategy\LevenshteinStrategy;
-use Ninja\Censor\Enums\MatchType;
-use Ninja\Censor\ValueObject\Coincidence;
+use Ninja\Sentinel\Collections\MatchCollection;
+use Ninja\Sentinel\Detection\Strategy\LevenshteinStrategy;
+use Ninja\Sentinel\Enums\MatchType;
+use Ninja\Sentinel\ValueObject\Coincidence;
 
 test('levenshtein strategy detects similar words', function (): void {
-    config(['censor.services.local.levenshtein_threshold' => 2]);
+    config(['sentinel.services.local.levenshtein_threshold' => 2]);
 
     $strategy = new LevenshteinStrategy();
     $variations = [
@@ -31,7 +31,7 @@ test('levenshtein strategy detects similar words', function (): void {
 });
 
 test('levenshtein strategy respects threshold', function (): void {
-    config(['censor.services.local.levenshtein_threshold' => 1]);
+    config(['sentinel.services.local.levenshtein_threshold' => 1]);
 
     $strategy = new LevenshteinStrategy();
     $result = $strategy->detect('fuk this shet', ['fuck', 'shit']);
@@ -44,7 +44,7 @@ test('levenshtein strategy respects threshold', function (): void {
 });
 
 test('levenshtein strategy handles short words correctly', function (): void {
-    config(['censor.services.local.levenshtein_threshold' => 1]);
+    config(['sentinel.services.local.levenshtein_threshold' => 1]);
 
     $strategy = new LevenshteinStrategy();
     $result = $strategy->detect('This is a text', ['shit']);
@@ -64,7 +64,7 @@ test('levenshtein strategy ignores case in comparisons', function (): void {
 });
 
 test('levenshtein strategy preserves original case in matches', function (): void {
-    config(['censor.services.local.levenshtein_threshold' => 1]);
+    config(['sentinel.services.local.levenshtein_threshold' => 1]);
 
     $strategy = new LevenshteinStrategy();
     $text = 'FuK ThIs ShEt';

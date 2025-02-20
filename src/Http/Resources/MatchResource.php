@@ -1,9 +1,9 @@
 <?php
 
-namespace Ninja\Censor\Http\Resources;
+namespace Ninja\Sentinel\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
-use Ninja\Censor\ValueObject\Coincidence;
+use Ninja\Sentinel\ValueObject\Coincidence;
 
 /**
  * @property Coincidence $resource

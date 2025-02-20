@@ -1,18 +1,18 @@
 <?php
 
-namespace Ninja\Censor\Http\Resources;
+namespace Ninja\Sentinel\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Ninja\Censor\Enums\Category;
-use Ninja\Censor\Result\Result;
+use Ninja\Sentinel\Enums\Category;
+use Ninja\Sentinel\Result\Result;
 
 /**
  * @property Result $resource
  *
  * @mixin Result
  */
-class CensorResultResource extends JsonResource
+class ResultResource extends JsonResource
 {
     /**
      * @return array<string, mixed>

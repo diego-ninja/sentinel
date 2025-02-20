@@ -2,7 +2,7 @@
 
 namespace Tests\Unit\Performance;
 
-use Ninja\Censor\Dictionary\Dictionary;
+use Ninja\Sentinel\Dictionary\Dictionary;
 
 test('dictionary loads large wordlists efficiently', function (): void {
     // Generate large dictionary

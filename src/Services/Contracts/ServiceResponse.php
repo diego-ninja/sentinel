@@ -1,12 +1,12 @@
 <?php
 
-namespace Ninja\Censor\Services\Contracts;
+namespace Ninja\Sentinel\Services\Contracts;
 
-use Ninja\Censor\Collections\MatchCollection;
-use Ninja\Censor\Enums\Category;
-use Ninja\Censor\ValueObject\Confidence;
-use Ninja\Censor\ValueObject\Score;
-use Ninja\Censor\ValueObject\Sentiment;
+use Ninja\Sentinel\Collections\MatchCollection;
+use Ninja\Sentinel\Enums\Category;
+use Ninja\Sentinel\ValueObject\Confidence;
+use Ninja\Sentinel\ValueObject\Score;
+use Ninja\Sentinel\ValueObject\Sentiment;
 
 interface ServiceResponse
 {

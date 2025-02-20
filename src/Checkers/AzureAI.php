@@ -1,11 +1,11 @@
 <?php
 
-namespace Ninja\Censor\Checkers;
+namespace Ninja\Sentinel\Checkers;
 
 use GuzzleHttp\ClientInterface;
-use Ninja\Censor\Result\Contracts\Result;
-use Ninja\Censor\Services\Contracts\ServiceAdapter;
-use Ninja\Censor\Services\Pipeline\TransformationPipeline;
+use Ninja\Sentinel\Result\Contracts\Result;
+use Ninja\Sentinel\Services\Contracts\ServiceAdapter;
+use Ninja\Sentinel\Services\Pipeline\TransformationPipeline;
 
 final class AzureAI extends AbstractProfanityChecker
 {

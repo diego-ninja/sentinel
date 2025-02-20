@@ -2,8 +2,8 @@
 
 namespace Tests\Unit\Detection;
 
-use Ninja\Censor\Detection\Strategy\VariationStrategy;
-use Ninja\Censor\Enums\MatchType;
+use Ninja\Sentinel\Detection\Strategy\VariationStrategy;
+use Ninja\Sentinel\Enums\MatchType;
 
 test('variation strategy detects separated characters', function (): void {
     $strategy = new VariationStrategy(true);

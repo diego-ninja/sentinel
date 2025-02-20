@@ -1,9 +1,9 @@
 {
-    "name": "diego-ninja/laravel-censor",
-    "description": "A censor and word filtering library for Laravel 10+",
-	"keywords": ["profanity", "filter", "strings", "swear", "language", "laravel"],
-	"license": "AGPL-3.0",
-    "homepage": "https://github.com/diego-ninja/laravel-censor",
+    "name": "diego-ninja/sentinel",
+    "description": "A content moderation and sentiment analysis library for Laravel 10+",
+	"keywords": ["profanity", "filter", "strings", "swear", "language", "laravel", "content", "moderation"],
+	"license": "MIT",
+    "homepage": "https://github.com/diego-ninja/sentinel",
 	"authors": [
         {
             "name": "Diego Rin Martín",
@@ -43,7 +43,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Ninja\\Censor\\": "src/"
+            "Ninja\\Sentinel\\": "src/"
         },
         "files": [
             "helpers.php"
@@ -62,10 +62,10 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Ninja\\Censor\\CensorServiceProvider"
+                "Ninja\\Sentinel\\SentinelServiceProvider"
             ],
             "aliases": {
-                "Censor": "Ninja\\Censor\\Facades\\Censor"
+                "Sentinel": "Ninja\\Sentinel\\Facades\\Sentinel"
             }
         }
     }

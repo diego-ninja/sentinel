@@ -1,9 +1,9 @@
 <?php
 
-namespace Ninja\Censor\ValueObject;
+namespace Ninja\Sentinel\ValueObject;
 
 use InvalidArgumentException;
-use Ninja\Censor\Collections\MatchCollection;
+use Ninja\Sentinel\Collections\MatchCollection;
 
 final readonly class Confidence
 {

@@ -1,9 +1,9 @@
 <?php
 
-namespace Ninja\Censor\Cache;
+namespace Ninja\Sentinel\Cache;
 
 use Illuminate\Support\Facades\Cache;
-use Ninja\Censor\Cache\Contracts\PatternCache;
+use Ninja\Sentinel\Cache\Contracts\PatternCache;
 use Psr\SimpleCache\InvalidArgumentException;
 
 final readonly class RedisPatternCache implements PatternCache
