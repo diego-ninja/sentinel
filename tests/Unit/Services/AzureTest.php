@@ -4,9 +4,9 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
-use Ninja\Censor\Checkers\AzureAI;
-use Ninja\Censor\Services\Adapters\AzureAdapter;
-use Ninja\Censor\Services\Pipeline\TransformationPipeline;
+use Ninja\Sentinel\Checkers\AzureAI;
+use Ninja\Sentinel\Services\Adapters\AzureAdapter;
+use Ninja\Sentinel\Services\Pipeline\TransformationPipeline;
 
 test('azure detects harmful content', function (): void {
     $mock = new MockHandler([
@@ -43,7 +43,7 @@ test('azure detects harmful content', function (): void {
 
     expect($result)
         ->toBeOffensive()
-        ->and($result->categories())->toContain(Ninja\Censor\Enums\Category::HateSpeech, Ninja\Censor\Enums\Category::Violence)
+        ->and($result->categories())->toContain(Ninja\Sentinel\Enums\Category::HateSpeech, Ninja\Sentinel\Enums\Category::Violence)
         ->and($result->words())->toContain('offensive')
         ->and($result->confidence()->value())->toBeGreaterThan(0.8);
 });

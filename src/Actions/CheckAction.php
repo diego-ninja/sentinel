@@ -1,12 +1,12 @@
 <?php
 
-namespace Ninja\Censor\Actions;
+namespace Ninja\Sentinel\Actions;
 
 use Illuminate\Http\Request;
 use Lorisleiva\Actions\Concerns\AsAction;
-use Ninja\Censor\Checkers\Contracts\ProfanityChecker;
-use Ninja\Censor\Http\Resources\CensorResultResource;
-use Ninja\Censor\Result\Contracts\Result;
+use Ninja\Sentinel\Checkers\Contracts\ProfanityChecker;
+use Ninja\Sentinel\Http\Resources\ResultResource;
+use Ninja\Sentinel\Result\Contracts\Result;
 
 final readonly class CheckAction
 {
@@ -19,7 +19,7 @@ final readonly class CheckAction
         return $this->checker->check($text);
     }
 
-    public function asController(Request $request): CensorResultResource
+    public function asController(Request $request): ResultResource
     {
         if ( ! $request->has('text')) {
             abort(400, 'Missing text parameter');
@@ -29,6 +29,6 @@ final readonly class CheckAction
         $text = $request->input('text');
 
         $result = $this->handle($text);
-        return new CensorResultResource($result);
+        return new ResultResource($result);
     }
 }

@@ -1,13 +1,13 @@
 <?php
 
-namespace Ninja\Censor\Checkers;
+namespace Ninja\Sentinel\Checkers;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\ClientTrait;
 use GuzzleHttp\Exception\GuzzleException;
-use Ninja\Censor\Checkers\Contracts\ProfanityChecker;
-use Ninja\Censor\Exceptions\ClientException;
+use Ninja\Sentinel\Checkers\Contracts\ProfanityChecker;
+use Ninja\Sentinel\Exceptions\ClientException;
 use Psr\Http\Message\ResponseInterface;
 
 abstract class AbstractProfanityChecker implements ProfanityChecker

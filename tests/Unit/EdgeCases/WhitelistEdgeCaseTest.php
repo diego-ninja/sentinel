@@ -2,8 +2,8 @@
 
 namespace Tests\Unit\EdgeCases;
 
-use Ninja\Censor\Checkers\Censor;
-use Ninja\Censor\Whitelist;
+use Ninja\Sentinel\Checkers\Local;
+use Ninja\Sentinel\Whitelist;
 
 test('whitelist handles special regex characters', function (): void {
     $whitelist = new Whitelist();
@@ -17,7 +17,7 @@ test('whitelist handles special regex characters', function (): void {
 });
 
 test('whitelist handles overlapping terms', function (): void {
-    config(['censor.whitelist' => [
+    config(['sentinel.whitelist' => [
         'assessment',
         'assess',
         'class',
@@ -25,12 +25,12 @@ test('whitelist handles overlapping terms', function (): void {
     ]]);
 
     app()->forgetInstance(Whitelist::class);
-    app()->forgetInstance(Censor::class);
+    app()->forgetInstance(Local::class);
 
-    $censor = app(Censor::class);
+    $local = app(Local::class);
 
     $text = 'This class assessment will assess your assessment skills';
-    $result = $censor->check($text);
+    $result = $local->check($text);
 
     expect($result->offensive())->toBeFalse();
 });

@@ -1,8 +1,8 @@
 <?php
 
-namespace Ninja\Censor\Detection\Contracts;
+namespace Ninja\Sentinel\Detection\Contracts;
 
-use Ninja\Censor\Collections\MatchCollection;
+use Ninja\Sentinel\Collections\MatchCollection;
 
 interface DetectionStrategy
 {

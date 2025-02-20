@@ -1,11 +1,11 @@
 <?php
 
-use Ninja\Censor\Checkers\Censor;
-use Ninja\Censor\Result\Result;
+use Ninja\Sentinel\Checkers\Local;
+use Ninja\Sentinel\Result\Result;
 
-test('censor result provides all required information', function (): void {
-    $censor = app(Censor::class);
-    $result = $censor->check('fuck this shit');
+test('sentinel result provides all required information', function (): void {
+    $local = app(Local::class);
+    $result = $local->check('fuck this shit');
     expect($result)
         ->toBeInstanceOf(Result::class)
         ->toBeOffensive()

@@ -1,8 +1,8 @@
 <?php
 
-namespace Ninja\Censor\Processors;
+namespace Ninja\Sentinel\Processors;
 
-use Ninja\Censor\Result\Result;
+use Ninja\Sentinel\Result\Result;
 
 final class DefaultProcessor extends AbstractProcessor
 {

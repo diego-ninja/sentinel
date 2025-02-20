@@ -2,8 +2,8 @@
 
 namespace Tests\Unit\Detection;
 
-use Ninja\Censor\Detection\Strategy\NGramStrategy;
-use Ninja\Censor\Enums\MatchType;
+use Ninja\Sentinel\Detection\Strategy\NGramStrategy;
+use Ninja\Sentinel\Enums\MatchType;
 
 test('ngram strategy detects offensive phrases', function (): void {
     $strategy = new NGramStrategy();

@@ -2,12 +2,12 @@
 
 namespace Tests\Unit\Detection;
 
-use Ninja\Censor\Detection\Strategy\AffixStrategy;
-use Ninja\Censor\Enums\MatchType;
+use Ninja\Sentinel\Detection\Strategy\AffixStrategy;
+use Ninja\Sentinel\Enums\MatchType;
 
 test('word variant strategy detects suffixes', function (): void {
-    $suffixes = config('censor.suffixes');
-    $prefixes = config('censor.prefixes');
+    $suffixes = config('sentinel.suffixes');
+    $prefixes = config('sentinel.prefixes');
 
     $strategy = new AffixStrategy($prefixes, $suffixes);
     $variations = [
@@ -31,8 +31,8 @@ test('word variant strategy detects suffixes', function (): void {
 });
 
 test('word variant strategy detects prefixes', function (): void {
-    $suffixes = config('censor.suffixes');
-    $prefixes = config('censor.prefixes');
+    $suffixes = config('sentinel.suffixes');
+    $prefixes = config('sentinel.prefixes');
 
     $strategy = new AffixStrategy($prefixes, $suffixes);
     $variations = [
@@ -56,8 +56,8 @@ test('word variant strategy detects prefixes', function (): void {
 });
 
 test('word variant strategy detects prefix-suffix combinations', function (): void {
-    $suffixes = config('censor.suffixes');
-    $prefixes = config('censor.prefixes');
+    $suffixes = config('sentinel.suffixes');
+    $prefixes = config('sentinel.prefixes');
 
     $strategy = new AffixStrategy($prefixes, $suffixes);
     $variations = [
@@ -81,8 +81,8 @@ test('word variant strategy detects prefix-suffix combinations', function (): vo
 });
 
 test('word variant strategy handles special ending rules', function (): void {
-    $suffixes = config('censor.suffixes');
-    $prefixes = config('censor.prefixes');
+    $suffixes = config('sentinel.suffixes');
+    $prefixes = config('sentinel.prefixes');
 
     $strategy = new AffixStrategy($prefixes, $suffixes);
 
@@ -98,8 +98,8 @@ test('word variant strategy handles special ending rules', function (): void {
 });
 
 test('word variant strategy preserves case', function (): void {
-    $suffixes = config('censor.suffixes');
-    $prefixes = config('censor.prefixes');
+    $suffixes = config('sentinel.suffixes');
+    $prefixes = config('sentinel.prefixes');
 
     $strategy = new AffixStrategy($prefixes, $suffixes);
 
@@ -116,8 +116,8 @@ test('word variant strategy preserves case', function (): void {
 });
 
 test('word variant strategy handles multiple words in text', function (): void {
-    $suffixes = config('censor.suffixes');
-    $prefixes = config('censor.prefixes');
+    $suffixes = config('sentinel.suffixes');
+    $prefixes = config('sentinel.prefixes');
 
     $strategy = new AffixStrategy($prefixes, $suffixes);
 

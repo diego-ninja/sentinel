@@ -1,8 +1,8 @@
 <?php
 
-namespace Ninja\Censor\Index;
+namespace Ninja\Sentinel\Index;
 
-use Ninja\Censor\Dictionary\LazyDictionary;
+use Ninja\Sentinel\Dictionary\LazyDictionary;
 
 final class TrieIndex
 {

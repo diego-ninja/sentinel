@@ -1,8 +1,8 @@
 <?php
 
-namespace Ninja\Censor\Dictionary;
+namespace Ninja\Sentinel\Dictionary;
 
-use Ninja\Censor\Exceptions\DictionaryFileNotFound;
+use Ninja\Sentinel\Exceptions\DictionaryFileNotFound;
 
 final readonly class Dictionary
 {
@@ -30,7 +30,7 @@ final readonly class Dictionary
     public static function withLanguage(string $language): self
     {
         /** @var string $dictionaryPath */
-        $dictionaryPath = config('censor.dictionary_path');
+        $dictionaryPath = config('sentinel.dictionary_path');
 
         return new self(self::read(sprintf('%s/%s.php', $dictionaryPath, $language)));
     }

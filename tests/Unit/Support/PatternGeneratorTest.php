@@ -2,8 +2,8 @@
 
 namespace Tests\Unit\Support;
 
-use Ninja\Censor\Dictionary\LazyDictionary;
-use Ninja\Censor\Support\PatternGenerator;
+use Ninja\Sentinel\Dictionary\LazyDictionary;
+use Ninja\Sentinel\Support\PatternGenerator;
 
 test('pattern generator handles lazy dictionary correctly', function (): void {
     $words = ['test1', 'test2', 'test3'];

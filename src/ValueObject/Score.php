@@ -1,6 +1,6 @@
 <?php
 
-namespace Ninja\Censor\ValueObject;
+namespace Ninja\Sentinel\ValueObject;
 
 use InvalidArgumentException;
 

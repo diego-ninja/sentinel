@@ -4,9 +4,9 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
-use Ninja\Censor\Checkers\TisaneAI;
-use Ninja\Censor\Services\Adapters\TisaneAdapter;
-use Ninja\Censor\Services\Pipeline\TransformationPipeline;
+use Ninja\Sentinel\Checkers\TisaneAI;
+use Ninja\Sentinel\Services\Adapters\TisaneAdapter;
+use Ninja\Sentinel\Services\Pipeline\TransformationPipeline;
 
 test('tisane detects abuse and profanity', function (): void {
     $mock = new MockHandler([
@@ -43,11 +43,11 @@ test('tisane detects abuse and profanity', function (): void {
 
     expect($result)
         ->toBeOffensive()
-        ->and($result->categories())->toContain(Ninja\Censor\Enums\Category::HateSpeech)
-        ->and($result->categories())->toContain(Ninja\Censor\Enums\Category::Profanity)
+        ->and($result->categories())->toContain(Ninja\Sentinel\Enums\Category::HateSpeech)
+        ->and($result->categories())->toContain(Ninja\Sentinel\Enums\Category::Profanity)
         ->and($result->words())->toContain('offensive', 'badword')
         ->and($result->sentiment()->value())->toBe(-0.5)
-        ->and($result->sentiment()->type())->toBe(Ninja\Censor\Enums\SentimentType::Negative)
+        ->and($result->sentiment()->type())->toBe(Ninja\Sentinel\Enums\SentimentType::Negative)
         ->and($result->score()->value())->toBeGreaterThan(0.7);
 });
 

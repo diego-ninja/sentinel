@@ -1,12 +1,12 @@
 <?php
 
-namespace Ninja\Censor\Checkers;
+namespace Ninja\Sentinel\Checkers;
 
 use GuzzleHttp\ClientInterface;
-use Ninja\Censor\Exceptions\ClientException;
-use Ninja\Censor\Result\Contracts\Result;
-use Ninja\Censor\Services\Contracts\ServiceAdapter;
-use Ninja\Censor\Services\Pipeline\TransformationPipeline;
+use Ninja\Sentinel\Exceptions\ClientException;
+use Ninja\Sentinel\Result\Contracts\Result;
+use Ninja\Sentinel\Services\Contracts\ServiceAdapter;
+use Ninja\Sentinel\Services\Pipeline\TransformationPipeline;
 
 final class PerspectiveAI extends AbstractProfanityChecker
 {
@@ -26,7 +26,7 @@ final class PerspectiveAI extends AbstractProfanityChecker
     {
         $params = [
             'comment' => ['text' => $text],
-            'languages' => config('censor.languages', ['en']),
+            'languages' => config('sentinel.languages', ['en']),
             'requestedAttributes' => [
                 'TOXICITY' => ['scoreType' => 'PROBABILITY', 'scoreThreshold' => 0],
                 'SEVERE_TOXICITY' => ['scoreType' => 'PROBABILITY', 'scoreThreshold' => 0],

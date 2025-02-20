@@ -1,9 +1,9 @@
 <?php
 
-namespace Ninja\Censor\ValueObject;
+namespace Ninja\Sentinel\ValueObject;
 
-use Ninja\Censor\Collections\OccurrenceCollection;
-use Ninja\Censor\Enums\MatchType;
+use Ninja\Sentinel\Collections\OccurrenceCollection;
+use Ninja\Sentinel\Enums\MatchType;
 
 /**
  * @immutable
@@ -58,7 +58,7 @@ final readonly class Coincidence
     public function clean(string $text): string
     {
         /** @var string $replacer */
-        $replacer = config('censor.mask_char', '*');
+        $replacer = config('sentinel.mask_char', '*');
 
         return $this->occurrences->apply($text, $replacer);
     }

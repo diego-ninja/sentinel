@@ -1,6 +1,6 @@
 <?php
 
-namespace Ninja\Censor\Detection;
+namespace Ninja\Sentinel\Detection;
 
 final class OptimizedLevenshtein
 {

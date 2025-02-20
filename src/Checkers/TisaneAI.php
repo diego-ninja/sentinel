@@ -1,12 +1,12 @@
 <?php
 
-namespace Ninja\Censor\Checkers;
+namespace Ninja\Sentinel\Checkers;
 
 use GuzzleHttp\ClientInterface;
-use Ninja\Censor\Exceptions\ClientException;
-use Ninja\Censor\Result\Contracts\Result;
-use Ninja\Censor\Services\Contracts\ServiceAdapter;
-use Ninja\Censor\Services\Pipeline\TransformationPipeline;
+use Ninja\Sentinel\Exceptions\ClientException;
+use Ninja\Sentinel\Result\Contracts\Result;
+use Ninja\Sentinel\Services\Contracts\ServiceAdapter;
+use Ninja\Sentinel\Services\Pipeline\TransformationPipeline;
 
 final class TisaneAI extends AbstractProfanityChecker
 {
@@ -25,7 +25,7 @@ final class TisaneAI extends AbstractProfanityChecker
     public function check(string $text): Result
     {
         /** @var string[] $languages */
-        $languages = config('censor.languages', ['en']);
+        $languages = config('sentinel.languages', ['en']);
         $response = $this->post(
             'parse',
             [

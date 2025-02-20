@@ -2,8 +2,8 @@
 
 namespace Tests\Unit\Detection;
 
-use Ninja\Censor\Detection\Strategy\RepeatedCharStrategy;
-use Ninja\Censor\Enums\MatchType;
+use Ninja\Sentinel\Detection\Strategy\RepeatedCharStrategy;
+use Ninja\Sentinel\Enums\MatchType;
 
 test('repeated chars strategy detects repeated characters', function (): void {
     $strategy = new RepeatedCharStrategy();

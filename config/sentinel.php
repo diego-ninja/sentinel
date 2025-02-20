@@ -11,7 +11,7 @@ return [
     |
     |
     */
-    'threshold_score' => env('CENSOR_THRESHOLD_SCORE', 0.5),
+    'threshold_score' => env('SENTINEL_THRESHOLD_SCORE', 0.5),
 
     /*
     |--------------------------------------------------------------------------
@@ -22,7 +22,7 @@ return [
     |
     |
     */
-    'default_language' => env('CENSOR_DEFAULT_LANGUAGE', 'en'),
+    'default_language' => env('SENTINEL_DEFAULT_LANGUAGE', 'en'),
 
     /*
     |--------------------------------------------------------------------------
@@ -33,7 +33,7 @@ return [
     |
     |
     */
-    'languages' => explode(',', env('CENSOR_LANGUAGES', 'en')),
+    'languages' => explode(',', env('SENTINEL_LANGUAGES', 'en')),
 
     /*
     |--------------------------------------------------------------------------
@@ -42,7 +42,7 @@ return [
     | Define the default profanity service to use
     |
     */
-    'default_service' => Ninja\Censor\Enums\Provider::Local,
+    'default_service' => Ninja\Sentinel\Enums\Provider::Local,
 
     /*
     |--------------------------------------------------------------------------
@@ -53,7 +53,7 @@ return [
     |
     |
     */
-    'mask_char' => env('CENSOR_MASK_CHAR', '*'),
+    'mask_char' => env('SENTINEL_MASK_CHAR', '*'),
 
     /*
     |--------------------------------------------------------------------------
@@ -193,7 +193,7 @@ return [
     | Whitelisted words
     |--------------------------------------------------------------------------
     |
-    | Define the list of words that should not be censored
+    | Define the list of words that should not be moderated
     |
     */
     'whitelist' => [
@@ -231,19 +231,19 @@ return [
         'azure_ai' => [
             'key' => env('AZURE_AI_API_KEY'),
             'endpoint' => env('AZURE_AI_ENDPOINT'),
-            'version' => env('AZURE_AI_VERSION', Ninja\Censor\Checkers\AzureAI::DEFAULT_API_VERSION),
+            'version' => env('AZURE_AI_VERSION', Ninja\Sentinel\Checkers\AzureAI::DEFAULT_API_VERSION),
         ],
         'purgomalum' => [],
         'local' => [
-            'levenshtein_threshold' => env('CENSOR_LEVENSHTEIN_THRESHOLD', 1),
-            'processor' => Ninja\Censor\Processors\DefaultProcessor::class,
+            'levenshtein_threshold' => env('SENTINEL_LEVENSHTEIN_THRESHOLD', 1),
+            'processor' => Ninja\Sentinel\Processors\DefaultProcessor::class,
             'strategies' => [
-                Ninja\Censor\Detection\Strategy\IndexStrategy::class,
-                Ninja\Censor\Detection\Strategy\PatternStrategy::class,
-                Ninja\Censor\Detection\Strategy\NGramStrategy::class,
-                Ninja\Censor\Detection\Strategy\AffixStrategy::class,
-                Ninja\Censor\Detection\Strategy\VariationStrategy::class,
-                Ninja\Censor\Detection\Strategy\RepeatedCharStrategy::class,
+                Ninja\Sentinel\Detection\Strategy\IndexStrategy::class,
+                Ninja\Sentinel\Detection\Strategy\PatternStrategy::class,
+                Ninja\Sentinel\Detection\Strategy\NGramStrategy::class,
+                Ninja\Sentinel\Detection\Strategy\AffixStrategy::class,
+                Ninja\Sentinel\Detection\Strategy\VariationStrategy::class,
+                Ninja\Sentinel\Detection\Strategy\RepeatedCharStrategy::class,
             ],
         ],
     ],
@@ -256,8 +256,8 @@ return [
     |
     */
     'cache' => [
-        'enabled' => env('CENSOR_CACHE_ENABLED', true),
-        'store' => env('CENSOR_CACHE_STORE', 'file'),
-        'ttl' => env('CENSOR_CACHE_TTL', 60),
+        'enabled' => env('SENTINEL_CACHE_ENABLED', true),
+        'store' => env('SENTINEL_CACHE_STORE', 'file'),
+        'ttl' => env('SENTINEL_CACHE_TTL', 60),
     ],
 ];

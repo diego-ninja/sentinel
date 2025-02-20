@@ -1,22 +1,22 @@
 <?php
 
-namespace Ninja\Censor\Processors;
+namespace Ninja\Sentinel\Processors;
 
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Container\CircularDependencyException;
-use Ninja\Censor\Collections\MatchCollection;
-use Ninja\Censor\Collections\OccurrenceCollection;
-use Ninja\Censor\Collections\StrategyCollection;
-use Ninja\Censor\Detection\Contracts\DetectionStrategy;
-use Ninja\Censor\Dictionary\LazyDictionary;
-use Ninja\Censor\Processors\Contracts\Processor;
-use Ninja\Censor\Result\Builder\ResultBuilder;
-use Ninja\Censor\Result\Result;
-use Ninja\Censor\Support\Calculator;
-use Ninja\Censor\Support\TextNormalizer;
-use Ninja\Censor\ValueObject\Coincidence;
-use Ninja\Censor\ValueObject\Position;
-use Ninja\Censor\Whitelist;
+use Ninja\Sentinel\Collections\MatchCollection;
+use Ninja\Sentinel\Collections\OccurrenceCollection;
+use Ninja\Sentinel\Collections\StrategyCollection;
+use Ninja\Sentinel\Detection\Contracts\DetectionStrategy;
+use Ninja\Sentinel\Dictionary\LazyDictionary;
+use Ninja\Sentinel\Processors\Contracts\Processor;
+use Ninja\Sentinel\Result\Builder\ResultBuilder;
+use Ninja\Sentinel\Result\Result;
+use Ninja\Sentinel\Support\Calculator;
+use Ninja\Sentinel\Support\TextNormalizer;
+use Ninja\Sentinel\ValueObject\Coincidence;
+use Ninja\Sentinel\ValueObject\Position;
+use Ninja\Sentinel\Whitelist;
 
 abstract class AbstractProcessor implements Processor
 {
@@ -33,7 +33,7 @@ abstract class AbstractProcessor implements Processor
         private readonly LazyDictionary $dictionary,
     ) {
         /** @var string $replaceChar */
-        $replaceChar = config('censor.mask_char', '*');
+        $replaceChar = config('sentinel.mask_char', '*');
         $this->replacer = $replaceChar;
 
         $this->initializeStrategies();
@@ -54,7 +54,7 @@ abstract class AbstractProcessor implements Processor
     protected function initializeStrategies(): void
     {
         /** @var array<class-string<DetectionStrategy>> $strategies */
-        $strategies = config('censor.services.local.strategies', []);
+        $strategies = config('sentinel.services.local.strategies', []);
 
         $this->strategies = new StrategyCollection();
         foreach ($strategies as $strategy) {

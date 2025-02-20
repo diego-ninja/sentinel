@@ -1,9 +1,9 @@
 <?php
 
-namespace Ninja\Censor\Collections;
+namespace Ninja\Sentinel\Collections;
 
 use Illuminate\Support\Collection;
-use Ninja\Censor\Detection\Contracts\DetectionStrategy;
+use Ninja\Sentinel\Detection\Contracts\DetectionStrategy;
 
 /**
  * @extends Collection<int, DetectionStrategy>

@@ -1,13 +1,13 @@
 <?php
 
-use Ninja\Censor\Checkers\AzureAI;
-use Ninja\Censor\Checkers\Censor;
-use Ninja\Censor\Checkers\PerspectiveAI;
-use Ninja\Censor\Checkers\PurgoMalum;
-use Ninja\Censor\Checkers\TisaneAI;
-use Ninja\Censor\Decorators\CachedProfanityChecker;
-use Ninja\Censor\Enums\Provider;
-use Ninja\Censor\Factories\ProfanityCheckerFactory;
+use Ninja\Sentinel\Checkers\AzureAI;
+use Ninja\Sentinel\Checkers\Local;
+use Ninja\Sentinel\Checkers\PerspectiveAI;
+use Ninja\Sentinel\Checkers\PurgoMalum;
+use Ninja\Sentinel\Checkers\TisaneAI;
+use Ninja\Sentinel\Decorators\CachedProfanityChecker;
+use Ninja\Sentinel\Enums\Provider;
+use Ninja\Sentinel\Factories\ProfanityCheckerFactory;
 
 test('factory creates correct service instances', function (Provider $service, string $expectedClass): void {
     $config = match ($service) {
@@ -19,7 +19,7 @@ test('factory creates correct service instances', function (Provider $service, s
     $checker = ProfanityCheckerFactory::create($service, $config);
     expect($checker)->toBeInstanceOf($expectedClass);
 })->with([
-    [Provider::Local, Censor::class],
+    [Provider::Local, Local::class],
     [Provider::PurgoMalum, PurgoMalum::class],
     [Provider::Azure, AzureAI::class],
     [Provider::Perspective, PerspectiveAI::class],
@@ -27,7 +27,7 @@ test('factory creates correct service instances', function (Provider $service, s
 ]);
 
 test('factory creates cached decorator when cache is enabled', function (Provider $service, string $expectedClass): void {
-    config(['censor.cache.enabled' => true]);
+    config(['sentinel.cache.enabled' => true]);
     $config = match ($service) {
         Provider::Azure => ['endpoint' => 'test', 'key' => 'test', 'version' => '2024-09-01'],
         Provider::Perspective, Provider::Tisane => ['key' => 'test'],
@@ -38,7 +38,7 @@ test('factory creates cached decorator when cache is enabled', function (Provide
     expect($checker)->toBeInstanceOf(CachedProfanityChecker::class);
 
 })->with([
-    [Provider::Local, Censor::class],
+    [Provider::Local, Local::class],
     [Provider::PurgoMalum, PurgoMalum::class],
     [Provider::Azure, AzureAI::class],
     [Provider::Perspective, PerspectiveAI::class],

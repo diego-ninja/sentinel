@@ -1,6 +1,6 @@
 <?php
 
-namespace Ninja\Censor\Cache\Contracts;
+namespace Ninja\Sentinel\Cache\Contracts;
 
 interface PatternCache
 {

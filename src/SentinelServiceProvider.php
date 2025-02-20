@@ -1,88 +1,88 @@
 <?php
 
-namespace Ninja\Censor;
+namespace Ninja\Sentinel;
 
 use Illuminate\Foundation\Application;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Validator;
-use Ninja\Censor\Cache\Contracts\PatternCache;
-use Ninja\Censor\Checkers\AzureAI;
-use Ninja\Censor\Checkers\Contracts\ProfanityChecker;
-use Ninja\Censor\Checkers\PerspectiveAI;
-use Ninja\Censor\Checkers\PrismAI;
-use Ninja\Censor\Checkers\PurgoMalum;
-use Ninja\Censor\Checkers\TisaneAI;
-use Ninja\Censor\Dictionary\LazyDictionary;
-use Ninja\Censor\Enums\Provider;
-use Ninja\Censor\Factories\ProfanityCheckerFactory;
-use Ninja\Censor\Index\TrieIndex;
-use Ninja\Censor\Processors\AbstractProcessor;
-use Ninja\Censor\Processors\Contracts\Processor;
-use Ninja\Censor\Processors\DefaultProcessor;
-use Ninja\Censor\Services\Adapters\AzureAdapter;
-use Ninja\Censor\Services\Adapters\CensorAdapter;
-use Ninja\Censor\Services\Adapters\PerspectiveAdapter;
-use Ninja\Censor\Services\Adapters\PrismAdapter;
-use Ninja\Censor\Services\Adapters\PurgoMalumAdapter;
-use Ninja\Censor\Services\Adapters\TisaneAdapter;
-use Ninja\Censor\Services\Contracts\ServiceAdapter;
-use Ninja\Censor\Services\Pipeline\Stage\MatchesStage;
-use Ninja\Censor\Services\Pipeline\Stage\MetadataStage;
-use Ninja\Censor\Services\Pipeline\Stage\OffensiveStage;
-use Ninja\Censor\Services\Pipeline\Stage\ScoreStage;
-use Ninja\Censor\Services\Pipeline\Stage\TextStage;
-use Ninja\Censor\Services\Pipeline\TransformationPipeline;
-use Ninja\Censor\Support\PatternGenerator;
+use Ninja\Sentinel\Cache\Contracts\PatternCache;
+use Ninja\Sentinel\Checkers\AzureAI;
+use Ninja\Sentinel\Checkers\Contracts\ProfanityChecker;
+use Ninja\Sentinel\Checkers\PerspectiveAI;
+use Ninja\Sentinel\Checkers\PrismAI;
+use Ninja\Sentinel\Checkers\PurgoMalum;
+use Ninja\Sentinel\Checkers\TisaneAI;
+use Ninja\Sentinel\Dictionary\LazyDictionary;
+use Ninja\Sentinel\Enums\Provider;
+use Ninja\Sentinel\Factories\ProfanityCheckerFactory;
+use Ninja\Sentinel\Index\TrieIndex;
+use Ninja\Sentinel\Processors\AbstractProcessor;
+use Ninja\Sentinel\Processors\Contracts\Processor;
+use Ninja\Sentinel\Processors\DefaultProcessor;
+use Ninja\Sentinel\Services\Adapters\AzureAdapter;
+use Ninja\Sentinel\Services\Adapters\LocalAdapter;
+use Ninja\Sentinel\Services\Adapters\PerspectiveAdapter;
+use Ninja\Sentinel\Services\Adapters\PrismAdapter;
+use Ninja\Sentinel\Services\Adapters\PurgoMalumAdapter;
+use Ninja\Sentinel\Services\Adapters\TisaneAdapter;
+use Ninja\Sentinel\Services\Contracts\ServiceAdapter;
+use Ninja\Sentinel\Services\Pipeline\Stage\MatchesStage;
+use Ninja\Sentinel\Services\Pipeline\Stage\MetadataStage;
+use Ninja\Sentinel\Services\Pipeline\Stage\OffensiveStage;
+use Ninja\Sentinel\Services\Pipeline\Stage\ScoreStage;
+use Ninja\Sentinel\Services\Pipeline\Stage\TextStage;
+use Ninja\Sentinel\Services\Pipeline\TransformationPipeline;
+use Ninja\Sentinel\Support\PatternGenerator;
 
-final class CensorServiceProvider extends ServiceProvider
+final class SentinelServiceProvider extends ServiceProvider
 {
     public function boot(): void
     {
         if ($this->app->runningInConsole()) {
             $this->publishes([
-                __DIR__ . '/../config/censor.php' => config_path('censor.php'),
-            ], 'censor-config');
+                __DIR__ . '/../config/sentinel.php' => config_path('sentinel.php'),
+            ], 'sentinel-config');
 
             $this->publishes([
                 __DIR__ . '/../resources/dict' => resource_path('dict'),
-            ], 'censor-dictionaries');
+            ], 'sentinel-dictionaries');
         }
 
         app('validator')->extend(
-            rule: 'censor_check',
+            rule: 'offensive',
             extension: function ($attribute, $value, $parameters, Validator $validator) {
                 if (null === $value) {
                     return true;
                 }
 
                 if ( ! is_string($value)) {
-                    $validator->addReplacer('censor_check', fn() => 'The :attribute must be a string.');
+                    $validator->addReplacer('offensive', fn() => 'The :attribute must be a string.');
 
                     return false;
                 }
 
-                return ! Facades\Censor::check($value)->offensive();
+                return ! Facades\Sentinel::check($value)->offensive();
             },
             message: 'The :attribute contains offensive language.',
         );
 
-        $this->loadRoutesFrom(__DIR__ . '/../routes/censor.php');
+        $this->loadRoutesFrom(__DIR__ . '/../routes/sentinel.php');
     }
 
     public function register(): void
     {
         $this->app->bind(ServiceAdapter::class, function (Application $app) {
-            return match (config('censor.default_service', Provider::Local)) {
+            return match (config('sentinel.default_service', Provider::Local)) {
                 Provider::Azure => $app->make(AzureAdapter::class),
                 Provider::Perspective => $app->make(PerspectiveAdapter::class),
                 Provider::PurgoMalum => $app->make(PurgoMalumAdapter::class),
                 Provider::Tisane => $app->make(TisaneAdapter::class),
                 Provider::Prism => $app->make(PrismAdapter::class),
-                default => $app->make(CensorAdapter::class),
+                default => $app->make(LocalAdapter::class),
             };
         });
 
-        $this->app->singleton(CensorAdapter::class);
+        $this->app->singleton(LocalAdapter::class);
         $this->app->singleton(AzureAdapter::class);
         $this->app->singleton(PerspectiveAdapter::class);
         $this->app->singleton(PurgoMalumAdapter::class);
@@ -91,7 +91,7 @@ final class CensorServiceProvider extends ServiceProvider
 
         $this->app->when(AzureAI::class)->needs(ServiceAdapter::class)->give(AzureAdapter::class);
         $this->app->when(TisaneAI::class)->needs(ServiceAdapter::class)->give(TisaneAdapter::class);
-        $this->app->when(Checkers\Censor::class)->needs(ServiceAdapter::class)->give(CensorAdapter::class);
+        $this->app->when(Checkers\Local::class)->needs(ServiceAdapter::class)->give(LocalAdapter::class);
         $this->app->when(PerspectiveAI::class)->needs(ServiceAdapter::class)->give(PerspectiveAdapter::class);
         $this->app->when(PurgoMalum::class)->needs(ServiceAdapter::class)->give(PurgoMalumAdapter::class);
         $this->app->when(PrismAI::class)->needs(ServiceAdapter::class)->give(PrismAdapter::class);
@@ -106,7 +106,7 @@ final class CensorServiceProvider extends ServiceProvider
         $this->registerProfanityProviders();
 
         /** @var Provider $default */
-        $default = config('censor.default_service', Provider::Local);
+        $default = config('sentinel.default_service', Provider::Local);
         $this->app->bind(ProfanityChecker::class, function () use ($default): ProfanityChecker {
             /** @var ProfanityChecker $service */
             $service = app($default->value);
@@ -116,7 +116,7 @@ final class CensorServiceProvider extends ServiceProvider
 
         $this->app->singleton(PatternCache::class, function () {
             /** @var string $cache */
-            $cache = config('censor.cache', 'file');
+            $cache = config('sentinel.cache', 'file');
 
             return match ($cache) {
                 'redis' => new Cache\RedisPatternCache(),
@@ -134,14 +134,14 @@ final class CensorServiceProvider extends ServiceProvider
 
         $this->app->singleton(LazyDictionary::class, function (): LazyDictionary {
             /** @var string[] $languages */
-            $languages = config('censor.languages', [config('app.locale')]);
+            $languages = config('sentinel.languages', [config('app.locale')]);
 
             return LazyDictionary::withLanguages($languages);
         });
 
         $this->app->singleton(Whitelist::class, function (): Whitelist {
             /** @var string[] $whitelist */
-            $whitelist = config('censor.whitelist', []);
+            $whitelist = config('sentinel.whitelist', []);
 
             return (new Whitelist())->add($whitelist);
         });
@@ -155,7 +155,7 @@ final class CensorServiceProvider extends ServiceProvider
 
         $this->app->singleton(Processor::class, function (): AbstractProcessor {
             /** @var class-string<AbstractProcessor> $processorClass */
-            $processorClass = config('censor.services.local.processor', DefaultProcessor::class);
+            $processorClass = config('sentinel.services.local.processor', DefaultProcessor::class);
 
             return new $processorClass(
                 app(Whitelist::class),
@@ -164,9 +164,9 @@ final class CensorServiceProvider extends ServiceProvider
 
         });
 
-        $this->app->bind('censor', fn() => new Censor());
+        $this->app->bind('sentinel', fn() => new Sentinel());
 
-        $this->mergeConfigFrom(__DIR__ . '/../config/censor.php', 'censor');
+        $this->mergeConfigFrom(__DIR__ . '/../config/sentinel.php', 'sentinel');
     }
 
     private function registerProfanityProviders(): void
@@ -174,7 +174,7 @@ final class CensorServiceProvider extends ServiceProvider
         $services = Provider::values();
         foreach ($services as $service) {
             /** @var array<string,mixed> $config */
-            $config = config(sprintf('censor.services.%s', $service->value));
+            $config = config(sprintf('sentinel.services.%s', $service->value));
 
             if (null !== $config) {
                 $this->app->singleton($service->value, fn(): ProfanityChecker => ProfanityCheckerFactory::create($service, $config));
@@ -189,7 +189,7 @@ final class CensorServiceProvider extends ServiceProvider
             /** @var ServiceAdapter $adapter */
             $adapter = app(ServiceAdapter::class);
 
-            return new Checkers\Censor(
+            return new Checkers\Local(
                 processor: $processor,
                 adapter: $adapter,
                 pipeline: app(TransformationPipeline::class),

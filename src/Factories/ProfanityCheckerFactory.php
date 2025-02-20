@@ -1,21 +1,21 @@
 <?php
 
-namespace Ninja\Censor\Factories;
+namespace Ninja\Sentinel\Factories;
 
 use EchoLabs\Prism\Prism;
 use Illuminate\Contracts\Container\BindingResolutionException;
-use Ninja\Censor\Checkers\AzureAI;
-use Ninja\Censor\Checkers\Censor;
-use Ninja\Censor\Checkers\Contracts\ProfanityChecker;
-use Ninja\Censor\Checkers\PerspectiveAI;
-use Ninja\Censor\Checkers\PrismAI;
-use Ninja\Censor\Checkers\PurgoMalum;
-use Ninja\Censor\Checkers\TisaneAI;
-use Ninja\Censor\Decorators\CachedProfanityChecker;
-use Ninja\Censor\Enums\Provider;
-use Ninja\Censor\Processors\Contracts\Processor;
-use Ninja\Censor\Services\Contracts\ServiceAdapter;
-use Ninja\Censor\Services\Pipeline\TransformationPipeline;
+use Ninja\Sentinel\Checkers\AzureAI;
+use Ninja\Sentinel\Checkers\Local;
+use Ninja\Sentinel\Checkers\Contracts\ProfanityChecker;
+use Ninja\Sentinel\Checkers\PerspectiveAI;
+use Ninja\Sentinel\Checkers\PrismAI;
+use Ninja\Sentinel\Checkers\PurgoMalum;
+use Ninja\Sentinel\Checkers\TisaneAI;
+use Ninja\Sentinel\Decorators\CachedProfanityChecker;
+use Ninja\Sentinel\Enums\Provider;
+use Ninja\Sentinel\Processors\Contracts\Processor;
+use Ninja\Sentinel\Services\Contracts\ServiceAdapter;
+use Ninja\Sentinel\Services\Pipeline\TransformationPipeline;
 use RuntimeException;
 
 final readonly class ProfanityCheckerFactory
@@ -30,7 +30,7 @@ final readonly class ProfanityCheckerFactory
 
         /** @var class-string<ProfanityChecker> $class */
         $class = match ($service) {
-            Provider::Local => Censor::class,
+            Provider::Local => Local::class,
             Provider::Perspective => PerspectiveAI::class,
             Provider::PurgoMalum => PurgoMalum::class,
             Provider::Tisane => TisaneAI::class,
@@ -71,9 +71,9 @@ final readonly class ProfanityCheckerFactory
             ),
         };
 
-        if (true === config('censor.cache.enabled', false)) {
+        if (true === config('sentinel.cache.enabled', false)) {
             /** @var int $ttl */
-            $ttl = config('censor.cache.ttl', 3600);
+            $ttl = config('sentinel.cache.ttl', 3600);
 
             return new CachedProfanityChecker($checker, $ttl);
         }

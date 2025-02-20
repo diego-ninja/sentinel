@@ -2,11 +2,11 @@
 
 namespace Tests\Unit\Detection;
 
-use Ninja\Censor\Cache\MemoryPatternCache;
-use Ninja\Censor\Detection\Strategy\PatternStrategy;
-use Ninja\Censor\Dictionary\LazyDictionary;
-use Ninja\Censor\Enums\MatchType;
-use Ninja\Censor\Support\PatternGenerator;
+use Ninja\Sentinel\Cache\MemoryPatternCache;
+use Ninja\Sentinel\Detection\Strategy\PatternStrategy;
+use Ninja\Sentinel\Dictionary\LazyDictionary;
+use Ninja\Sentinel\Enums\MatchType;
+use Ninja\Sentinel\Support\PatternGenerator;
 
 test('pattern strategy detects exact matches', function (): void {
     $strategy = app()->build(PatternStrategy::class);
@@ -27,7 +27,7 @@ test('pattern strategy detects exact matches', function (): void {
 
 test('pattern strategy handles character substitutions', function (): void {
     $dic = app(LazyDictionary::class);
-    $generator = new PatternGenerator(config('censor.replacements'), false);
+    $generator = new PatternGenerator(config('sentinel.replacements'), false);
     $generator->forWords(iterator_to_array($dic->getWords()));
 
     $strategy = new PatternStrategy(

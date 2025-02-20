@@ -1,12 +1,12 @@
 <?php
 
-namespace Ninja\Censor;
+namespace Ninja\Sentinel;
 
 final class Whitelist
 {
-    private const PLACEHOLDER_PREFIX = '__WHITELIST_TERM_';
+    private const string PLACEHOLDER_PREFIX = '__WHITELIST_TERM_';
 
-    private const PLACEHOLDER_SUFFIX = '__';
+    private const string PLACEHOLDER_SUFFIX = '__';
 
     /**
      * @var array<string, string>

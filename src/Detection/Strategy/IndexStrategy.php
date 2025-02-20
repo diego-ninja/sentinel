@@ -1,14 +1,14 @@
 <?php
 
-namespace Ninja\Censor\Detection\Strategy;
+namespace Ninja\Sentinel\Detection\Strategy;
 
-use Ninja\Censor\Collections\MatchCollection;
-use Ninja\Censor\Collections\OccurrenceCollection;
-use Ninja\Censor\Enums\MatchType;
-use Ninja\Censor\Index\TrieIndex;
-use Ninja\Censor\Support\Calculator;
-use Ninja\Censor\ValueObject\Coincidence;
-use Ninja\Censor\ValueObject\Position;
+use Ninja\Sentinel\Collections\MatchCollection;
+use Ninja\Sentinel\Collections\OccurrenceCollection;
+use Ninja\Sentinel\Enums\MatchType;
+use Ninja\Sentinel\Index\TrieIndex;
+use Ninja\Sentinel\Support\Calculator;
+use Ninja\Sentinel\ValueObject\Coincidence;
+use Ninja\Sentinel\ValueObject\Position;
 
 final class IndexStrategy extends AbstractStrategy
 {

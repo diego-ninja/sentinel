@@ -2,26 +2,26 @@
 
 namespace Tests\Feature;
 
-use Ninja\Censor\Checkers\PurgoMalum;
-use Ninja\Censor\Enums\Provider;
-use Ninja\Censor\Facades\Censor;
-use Ninja\Censor\Result\Contracts\Result;
-use Ninja\Censor\Services\Adapters\PurgoMalumAdapter;
-use Ninja\Censor\Services\Pipeline\TransformationPipeline;
+use Ninja\Sentinel\Checkers\PurgoMalum;
+use Ninja\Sentinel\Enums\Provider;
+use Ninja\Sentinel\Facades\Sentinel;
+use Ninja\Sentinel\Result\Contracts\Result;
+use Ninja\Sentinel\Services\Adapters\PurgoMalumAdapter;
+use Ninja\Sentinel\Services\Pipeline\TransformationPipeline;
 
 test('facade check method returns result instance', function (): void {
-    $result = Censor::check('test text');
+    $result = Sentinel::check('test text');
     expect($result)->toBeInstanceOf(Result::class);
 });
 
 test('facade offensive method returns boolean', function (): void {
-    $result = Censor::offensive('fuck this shit');
+    $result = Sentinel::offensive('fuck this shit');
     expect($result)->toBeTrue();
 });
 
 test('facade clean method returns cleaned string', function (): void {
     $text = 'fuck this shit';
-    $result = Censor::clean($text);
+    $result = Sentinel::clean($text);
 
     expect($result)->toBe('**** this ****');
 });
@@ -36,7 +36,7 @@ test('facade with method returns correct service result', function (): void {
         ]),
     ));
 
-    $result = Censor::with(Provider::PurgoMalum, 'bad text');
+    $result = Sentinel::with(Provider::PurgoMalum, 'bad text');
     expect($result)
         ->toBeInstanceOf(Result::class)
         ->and($result->replaced())->toBe('**** text');
@@ -44,7 +44,7 @@ test('facade with method returns correct service result', function (): void {
 
 test('facade can switch between services while maintaining state', function (): void {
     // Test default service
-    $result1 = Censor::check('fuck this shit');
+    $result1 = Sentinel::check('fuck this shit');
     expect($result1->replaced())->toBe('**** this ****');
 
     // Test PurgoMalum
@@ -56,16 +56,16 @@ test('facade can switch between services while maintaining state', function (): 
         ]),
     ));
 
-    $result2 = Censor::with(Provider::PurgoMalum, 'bad text');
+    $result2 = Sentinel::with(Provider::PurgoMalum, 'bad text');
     expect($result2->replaced())->toBe('**** text');
 
     // Test we can still use default service
-    $result3 = Censor::check('fuck this shit');
+    $result3 = Sentinel::check('fuck this shit');
     expect($result3->replaced())->toBe('**** this ****');
 });
 
 test('facade handles invalid input gracefully', function (): void {
-    $result = Censor::check('');
+    $result = Sentinel::check('');
     expect($result)
         ->toBeInstanceOf(Result::class)
         ->and($result->offensive())->toBeFalse()
@@ -74,14 +74,14 @@ test('facade handles invalid input gracefully', function (): void {
 
 test('facade respects configuration changes', function (): void {
     // Change mask character
-    config(['censor.mask_char' => '#']);
-    $result = Censor::check('fuck this shit');
+    config(['sentinel.mask_char' => '#']);
+    $result = Sentinel::check('fuck this shit');
     expect($result->replaced())->toBe('#### this ####');
 
     // Reset for other tests
-    config(['censor.mask_char' => '*']);
+    config(['sentinel.mask_char' => '*']);
 });
 
 test('facade is bound in container correctly', function (): void {
-    expect(app('censor'))->toBeInstanceOf(\Ninja\Censor\Censor::class);
+    expect(app('sentinel'))->toBeInstanceOf(\Ninja\Sentinel\Sentinel::class);
 });

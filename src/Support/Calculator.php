@@ -1,11 +1,11 @@
 <?php
 
-namespace Ninja\Censor\Support;
+namespace Ninja\Sentinel\Support;
 
-use Ninja\Censor\Collections\OccurrenceCollection;
-use Ninja\Censor\Enums\MatchType;
-use Ninja\Censor\ValueObject\Confidence;
-use Ninja\Censor\ValueObject\Score;
+use Ninja\Sentinel\Collections\OccurrenceCollection;
+use Ninja\Sentinel\Enums\MatchType;
+use Ninja\Sentinel\ValueObject\Confidence;
+use Ninja\Sentinel\ValueObject\Score;
 
 final readonly class Calculator
 {

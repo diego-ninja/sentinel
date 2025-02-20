@@ -1,12 +1,12 @@
 <?php
 
-namespace Ninja\Censor;
+namespace Ninja\Sentinel;
 
-use Ninja\Censor\Checkers\Contracts\ProfanityChecker;
-use Ninja\Censor\Enums\Provider;
-use Ninja\Censor\Result\Contracts\Result;
+use Ninja\Sentinel\Checkers\Contracts\ProfanityChecker;
+use Ninja\Sentinel\Enums\Provider;
+use Ninja\Sentinel\Result\Contracts\Result;
 
-class Censor
+class Sentinel
 {
     public function check(string $text): Result
     {

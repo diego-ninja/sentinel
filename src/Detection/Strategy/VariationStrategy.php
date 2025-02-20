@@ -1,14 +1,14 @@
 <?php
 
-namespace Ninja\Censor\Detection\Strategy;
+namespace Ninja\Sentinel\Detection\Strategy;
 
-use Ninja\Censor\Collections\MatchCollection;
-use Ninja\Censor\Collections\OccurrenceCollection;
-use Ninja\Censor\Enums\MatchType;
-use Ninja\Censor\Support\Calculator;
-use Ninja\Censor\Support\TextAnalyzer;
-use Ninja\Censor\ValueObject\Coincidence;
-use Ninja\Censor\ValueObject\Position;
+use Ninja\Sentinel\Collections\MatchCollection;
+use Ninja\Sentinel\Collections\OccurrenceCollection;
+use Ninja\Sentinel\Enums\MatchType;
+use Ninja\Sentinel\Support\Calculator;
+use Ninja\Sentinel\Support\TextAnalyzer;
+use Ninja\Sentinel\ValueObject\Coincidence;
+use Ninja\Sentinel\ValueObject\Position;
 
 final class VariationStrategy extends AbstractStrategy
 {

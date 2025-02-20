@@ -1,8 +1,8 @@
 <?php
 
-namespace Ninja\Censor\Cache;
+namespace Ninja\Sentinel\Cache;
 
-use Ninja\Censor\Cache\Contracts\PatternCache;
+use Ninja\Sentinel\Cache\Contracts\PatternCache;
 
 final class MemoryPatternCache implements PatternCache
 {

@@ -2,8 +2,8 @@
 
 namespace Tests\Unit\Dictionary;
 
-use Ninja\Censor\Dictionary\LazyDictionary;
-use Ninja\Censor\Exceptions\DictionaryFileNotFound;
+use Ninja\Sentinel\Dictionary\LazyDictionary;
+use Ninja\Sentinel\Exceptions\DictionaryFileNotFound;
 
 /**
  * @param  array<string>  $words
@@ -101,7 +101,7 @@ test('dictionary works with pattern generator', function (): void {
     $words = ['fuck', 'shit', 'damn'];
     $dictionary = LazyDictionary::withWords($words);
 
-    $patterns = \Ninja\Censor\Support\PatternGenerator::withDictionary($dictionary);
+    $patterns = \Ninja\Sentinel\Support\PatternGenerator::withDictionary($dictionary);
 
     expect($patterns->getPatterns())
         ->toBeArray()

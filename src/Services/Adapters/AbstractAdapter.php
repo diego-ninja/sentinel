@@ -1,12 +1,12 @@
 <?php
 
-namespace Ninja\Censor\Services\Adapters;
+namespace Ninja\Sentinel\Services\Adapters;
 
-use Ninja\Censor\Collections\OccurrenceCollection;
-use Ninja\Censor\Enums\Category;
-use Ninja\Censor\Services\Contracts\ServiceAdapter;
-use Ninja\Censor\ValueObject\Score;
-use Ninja\Censor\ValueObject\Sentiment;
+use Ninja\Sentinel\Collections\OccurrenceCollection;
+use Ninja\Sentinel\Enums\Category;
+use Ninja\Sentinel\Services\Contracts\ServiceAdapter;
+use Ninja\Sentinel\ValueObject\Score;
+use Ninja\Sentinel\ValueObject\Sentiment;
 
 abstract readonly class AbstractAdapter implements ServiceAdapter
 {

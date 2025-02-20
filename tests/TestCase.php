@@ -6,8 +6,8 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
-use Ninja\Censor\CensorServiceProvider;
-use Ninja\Censor\Processors\DefaultProcessor;
+use Ninja\Sentinel\SentinelServiceProvider;
+use Ninja\Sentinel\Processors\DefaultProcessor;
 use Orchestra\Testbench\TestCase as BaseTestCase;
 
 abstract class TestCase extends BaseTestCase
@@ -15,20 +15,20 @@ abstract class TestCase extends BaseTestCase
     protected function getPackageProviders($app): array
     {
         return [
-            CensorServiceProvider::class,
+            SentinelServiceProvider::class,
         ];
     }
 
     protected function defineEnvironment($app): void
     {
         // Base configuration
-        $app['config']->set('censor.mask_char', '*');
-        $app['config']->set('censor.whitelist', []);
-        $app['config']->set('censor.languages', ['en']);
-        $app['config']->set('censor.dictionary_path', __DIR__ . '/../resources/dict');
-        $app['config']->set('censor.default_service', 'local');
-        $app['config']->set('censor.cache.enabled', false);
-        $app['config']->set('censor.replacements', [
+        $app['config']->set('sentinel.mask_char', '*');
+        $app['config']->set('sentinel.whitelist', []);
+        $app['config']->set('sentinel.languages', ['en']);
+        $app['config']->set('sentinel.dictionary_path', __DIR__ . '/../resources/dict');
+        $app['config']->set('sentinel.default_service', 'local');
+        $app['config']->set('sentinel.cache.enabled', false);
+        $app['config']->set('sentinel.replacements', [
             'a' => '(a|a\.|a\-|4|@|Á|á|À|Â|à|Â|â|Ä|ä|Ã|ã|Å|å|α|Δ|Λ|λ)',
             'b' => '(b|b\.|b\-|8|\|3|ß|Β|β)',
             'c' => '(c|c\.|c\-|Ç|ç|¢|€|<|\(|{|©)',
@@ -58,7 +58,7 @@ abstract class TestCase extends BaseTestCase
         ]);
 
         // Services configuration
-        $app['config']->set('censor.services', [
+        $app['config']->set('sentinel.services', [
             'perspective_ai' => ['key' => 'test-key'],
             'tisane_ai' => ['key' => 'test-key'],
             'azure_ai' => [
@@ -71,13 +71,13 @@ abstract class TestCase extends BaseTestCase
                 'levenshtein_threshold' => 1,
                 'processor' => DefaultProcessor::class,
                 'strategies' => [
-                    \Ninja\Censor\Detection\Strategy\IndexStrategy::class,
-                    \Ninja\Censor\Detection\Strategy\PatternStrategy::class,
-                    \Ninja\Censor\Detection\Strategy\NGramStrategy::class,
-                    \Ninja\Censor\Detection\Strategy\AffixStrategy::class,
-                    \Ninja\Censor\Detection\Strategy\VariationStrategy::class,
-                    \Ninja\Censor\Detection\Strategy\RepeatedCharStrategy::class,
-                    \Ninja\Censor\Detection\Strategy\LevenshteinStrategy::class,
+                    \Ninja\Sentinel\Detection\Strategy\IndexStrategy::class,
+                    \Ninja\Sentinel\Detection\Strategy\PatternStrategy::class,
+                    \Ninja\Sentinel\Detection\Strategy\NGramStrategy::class,
+                    \Ninja\Sentinel\Detection\Strategy\AffixStrategy::class,
+                    \Ninja\Sentinel\Detection\Strategy\VariationStrategy::class,
+                    \Ninja\Sentinel\Detection\Strategy\RepeatedCharStrategy::class,
+                    \Ninja\Sentinel\Detection\Strategy\LevenshteinStrategy::class,
                 ],
             ],
         ]);

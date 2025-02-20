@@ -1,8 +1,8 @@
 <?php
 
-use Ninja\Censor\Actions\CheckAction;
-use Ninja\Censor\Actions\CleanAction;
-use Ninja\Censor\Result\Contracts\Result;
+use Ninja\Sentinel\Actions\CheckAction;
+use Ninja\Sentinel\Actions\CleanAction;
+use Ninja\Sentinel\Result\Contracts\Result;
 
 if ( ! function_exists('is_offensive')) {
     function is_offensive(string $text): bool
