@@ -218,6 +218,10 @@ return [
     |
     */
     'services' => [
+        'prism_ai' => [
+            'provider' => EchoLabs\Prism\Enums\Provider::from(env('PRISM_PROVIDER', EchoLabs\Prism\Enums\Provider::Anthropic->value)),
+            'model' => env('PRISM_MODEL', 'claude-3-5-sonnet-20241022'),
+        ],
         'perspective_ai' => [
             'key' => env('PERSPECTIVE_AI_API_KEY'),
         ],
@@ -230,10 +234,6 @@ return [
             'version' => env('AZURE_AI_VERSION', Ninja\Censor\Checkers\AzureAI::DEFAULT_API_VERSION),
         ],
         'purgomalum' => [],
-        'prism' => [
-            'provider' => EchoLabs\Prism\Enums\Provider::from(env('PRISM_PROVIDER', EchoLabs\Prism\Enums\Provider::Anthropic->value)),
-            'model' => env('PRISM_MODEL', 'claude-3-5-sonnet-20241022'),
-        ],
         'local' => [
             'levenshtein_threshold' => env('CENSOR_LEVENSHTEIN_THRESHOLD', 1),
             'processor' => Ninja\Censor\Processors\DefaultProcessor::class,

@@ -2,7 +2,6 @@
 
 namespace Ninja\Censor;
 
-use EchoLabs\Prism\Prism;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Validator;
@@ -182,19 +181,6 @@ final class CensorServiceProvider extends ServiceProvider
             }
         }
 
-        $this->app->singleton(Provider::Prism->value, function () {
-            /** @var Prism $prism */
-            $prism = app(Prism::class);
-
-            /** @var ServiceAdapter $adapter */
-            $adapter = app(ServiceAdapter::class);
-
-            return new PrismAI(
-                prism: $prism,
-                adapter: $adapter,
-                pipeline: app(TransformationPipeline::class),
-            );
-        });
 
         $this->app->singleton(Provider::Local->value, function () {
             /** @var Processor $processor */

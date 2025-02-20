@@ -31,10 +31,10 @@ final readonly class PrismAI implements ProfanityChecker
     public function check(string $text): Result
     {
         /** @var Provider $provider */
-        $provider = config('censor.services.prism.provider');
+        $provider = config('censor.services.prism_ai.provider');
 
         /** @var string $model */
-        $model = config('censor.services.prism.model');
+        $model = config('censor.services.prism_ai.model');
 
         if ($this->supports_structured($provider)) {
             $response = $this->buildStructuredPrismRequest($provider, $model, $text)->generate();

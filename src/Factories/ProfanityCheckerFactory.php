@@ -2,6 +2,7 @@
 
 namespace Ninja\Censor\Factories;
 
+use EchoLabs\Prism\Prism;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Ninja\Censor\Checkers\AzureAI;
 use Ninja\Censor\Checkers\Censor;
@@ -64,7 +65,9 @@ final readonly class ProfanityCheckerFactory
                 pipeline: $pipeline,
             ),
             Provider::Prism => new $class(
-                prism: app()->make('prism'),
+                prism: app()->make(Prism::class),
+                adapter: app()->make(ServiceAdapter::class),
+                pipeline: $pipeline,
             ),
         };
 

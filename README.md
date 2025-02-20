@@ -75,7 +75,7 @@ The package configuration file will be published at `config/censor.php`. Here yo
 - Default profanity service
 - Mask character for censored words
 - Character replacements for evasion detection
-- Whitelist words
+- Whitelisted words
 - Dictionary path
 - Service-specific configurations
 - Cache settings
@@ -99,7 +99,6 @@ AZURE_AI_ENDPOINT=your-azure-endpoint
 # Prism Configuration
 PRISM_PROVIDER=anthropic
 PRISM_MODEL=claude-3-sonnet-latest
-PRISM_API_KEY=your-anthropic-api-key
 ```
 
 ## ⚙️ Basic Usage
