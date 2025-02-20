@@ -7,7 +7,7 @@
 [![Laravel Package](https://img.shields.io/badge/Laravel%2010+%20Package-red?logo=laravel&logoColor=white)](https://www.laravel.com)
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/diego-ninja/sentinel.svg?style=flat&color=blue)](https://packagist.org/packages/diego-ninja/sentinel)
 [![Total Downloads](https://img.shields.io/packagist/dt/diego-ninja/sentinel.svg?style=flat&color=blue)](https://packagist.org/packages/diego-ninja/sentinel)
-![PHP Version](https://img.shields.io/packagist/php-v/diego-ninja/laravel-sentinel.svg?style=flat&color=blue)
+![PHP Version](https://img.shields.io/packagist/php-v/diego-ninja/sentinel.svg?style=flat&color=blue)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 ![GitHub last commit](https://img.shields.io/github/last-commit/diego-ninja/sentinel?color=blue)
 [![PHPStan Level](https://img.shields.io/badge/phpstan-level%2010-blue?logo=php)]()
