@@ -21,6 +21,8 @@ enum Provider: string
             self::PurgoMalum,
             self::Tisane,
             self::Azure,
+            self::Prism,
+            self::Local,
         ];
     }
 }
