@@ -136,7 +136,7 @@ test('calculates appropriate scores', function (): void {
     // Test different scenarios
     $scenarios = [
         // [text, expected score range]
-        ['This is a clean text', [0.0, 0.0]],
+        ['This is a non-offensive sweet text', [0.0, 0.0]],
         ['fuck shit damn', [0.8, 1.0]],
         ['This text has one fuck word', [0.1, 0.6]],
         ['f u c k this sh!t', [0.6, 1.0]],
@@ -194,11 +194,110 @@ test('combines multiple detection strategies correctly', function (): void {
     /** @var Local $local */
     $local = app(Local::class);
 
-    $text = 'This f.u.c.k contains sh!t and fuuuck';
+    $text = 'This f.u.c.k contains sh!t and fuuuck and of corpse fuck88';
     $result = $local->check($text);
 
     expect($result)
         ->toBeOffensive()
-        ->and($result->words())->toHaveCount(3)
-        ->and($result->score()->value())->toBeGreaterThanOrEqual(0.49);
+        ->and($result->words())->toHaveCount(4)
+        ->and($result->score()->value())->toBeGreaterThanOrEqual(0.54);
+});
+
+test('local service detects alphanumeric variations', function (): void {
+    $local = app(Local::class);
+
+    $variations = [
+        'fuck88',
+        '123fuck',
+        'fuck_88',
+        '88_fuck',
+        'sh1t',
+    ];
+
+    foreach ($variations as $text) {
+        $result = $local->check($text);
+        expect($result)
+            ->toBeOffensive()
+            ->and($result->replaced())->not->toBe($text)
+            ->and(mb_strlen($result->replaced()))->toBe(mb_strlen($text))
+            ->and(preg_match('/^[\*\s]+$/', $result->replaced()))->toBeGreaterThanOrEqual(0);
+    }
+});
+
+test('detects phonetic variations', function (): void {
+    /** @var Local $local */
+    $local = app(Local::class);
+
+    $variations = [
+        'phuck',
+        'fak',
+        'shiit',
+        'biatch',
+        'phak you',
+    ];
+
+    foreach ($variations as $text) {
+        $result = $local->check($text);
+        expect($result)
+            ->toBeOffensive()
+            ->and($result->replaced())->not->toBe($text)
+            ->and(mb_strlen($result->replaced()))->toBe(mb_strlen($text));
+    }
+});
+
+test('detects zero-width character variations', function (): void {
+    /** @var Local $local */
+    $local = app(Local::class);
+
+    // Zero-width space y zero-width joiner
+    $zws = "\u{200B}";
+    $zwj = "\u{200D}";
+
+    $variations = [
+        "f{$zws}u{$zws}c{$zws}k",
+        "s{$zwj}h{$zwj}i{$zwj}t",
+        "b{$zws}i{$zwj}t{$zws}c{$zwj}h",
+        "a{$zws}s{$zws}s{$zwj}h{$zws}o{$zwj}l{$zws}e",
+    ];
+
+    foreach ($variations as $text) {
+        $result = $local->check($text);
+        expect($result)
+            ->toBeOffensive()
+            ->and($result->replaced())->not->toBe($text);
+    }
+
+    $textWithHidden = "This text contains hidden f{$zws}u{$zws}c{$zws}k word";
+    $result = $local->check($textWithHidden);
+
+    expect($result)
+        ->toBeOffensive()
+        ->and($result->words())->toHaveCount(1);
+});
+
+test('detects reversed offensive words', function (): void {
+    /** @var Local $local */
+    $local = app(Local::class);
+
+    $variations = [
+        'kcuf',        // "fuck" al revés
+        'tihs',        // "shit" al revés
+        'hctib',       // "bitch" al revés
+        'elohssa',     // "asshole" al revés
+    ];
+
+    foreach ($variations as $text) {
+        $result = $local->check($text);
+        expect($result)
+            ->toBeOffensive()
+            ->and($result->replaced())->not->toBe($text)
+            ->and(mb_strlen($result->replaced()))->toBe(mb_strlen($text));
+    }
+
+    $text = "She said kcuf this tihs";
+    $result = $local->check($text);
+
+    expect($result)
+        ->toBeOffensive()
+        ->and($result->words())->toHaveCount(2);
 });

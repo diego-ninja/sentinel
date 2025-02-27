@@ -25,6 +25,7 @@ test('variation strategy handles multiple separators', function (): void {
         'f.u.c.k',
         'f-u-c-k',
         'f_u_c_k',
+        'fuck88',
     ];
 
     foreach ($variations as $text) {
@@ -45,8 +46,8 @@ test('variation strategy handles multiple spaces between characters', function (
 
 test('variation strategy preserves other words', function (): void {
     $strategy = new VariationStrategy(false);
-    $result = $strategy->detect('this f.u.c.k test', ['fuck']);
+    $result = $strategy->detect('this f.u.c.k test and fuck88 as well', ['fuck']);
 
     expect($result)
-        ->toHaveCount(1);
+        ->toHaveCount(2);
 });

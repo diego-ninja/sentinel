@@ -44,11 +44,12 @@ final class PatternGenerator
         $patterns = [];
 
         if ($this->fullWords) {
-            $patterns[] = '/\b' . $basePattern . '\b/iu';
+            $patterns[] = '/\b' . $basePattern . '\b/iu'; // Con límites de palabra
         } else {
-            $patterns[] = '/' . $basePattern . '/iu';
+            $patterns[] = '/' . $basePattern . '/iu'; // Sin límites de palabra
             $patterns[] = '/' . implode('\s+', mb_str_split($basePattern)) . '/iu';
             $patterns[] = '/' . implode('[.\-_]+', mb_str_split($basePattern)) . '/iu';
+            $patterns[] = '/' . implode('[.\-_\d]*', mb_str_split($basePattern)) . '/iu';
         }
 
         return array_filter($patterns, fn($pattern) => $this->isValidPattern($pattern));
