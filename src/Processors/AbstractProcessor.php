@@ -92,6 +92,10 @@ abstract class AbstractProcessor implements Processor
         $replaced = '';
         $original = implode('', array_map(fn($r) => $r->original(), $results));
 
+        if (1 === count($results)) {
+            return $results[0];
+        }
+
         foreach ($results as $result) {
             foreach ($result->matches() ?? new MatchCollection() as $match) {
                 $positions = [];

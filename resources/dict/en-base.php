@@ -8,6 +8,7 @@ return [
     'anal',
     'anus',
     'ass',
+    'asshole',
     'bastard',
     'bitch',
     'boob',
