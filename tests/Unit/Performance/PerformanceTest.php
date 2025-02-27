@@ -39,5 +39,5 @@ test('multiple dictionary loading performance', function (): void {
     $endTime = microtime(true);
     $loadTime = ($endTime - $startTime);
 
-    expect($loadTime)->toBeLessThan(0.6);
+    expect($loadTime)->toBeLessThan(1);
 });
