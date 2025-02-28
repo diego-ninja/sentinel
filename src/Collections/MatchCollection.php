@@ -3,6 +3,10 @@
 namespace Ninja\Sentinel\Collections;
 
 use Illuminate\Support\Collection;
+use Ninja\Sentinel\Enums\Audience;
+use Ninja\Sentinel\Enums\Category;
+use Ninja\Sentinel\Enums\ContentType;
+use Ninja\Sentinel\Support\ThresholdManager;
 use Ninja\Sentinel\ValueObject\Coincidence;
 use Ninja\Sentinel\ValueObject\Confidence;
 use Ninja\Sentinel\ValueObject\Score;
@@ -12,6 +16,12 @@ use Ninja\Sentinel\ValueObject\Score;
  */
 class MatchCollection extends Collection
 {
+    /**
+     * Add a coincidence to the collection if it doesn't already exist
+     *
+     * @param Coincidence $coincidence The coincidence to add
+     * @return void
+     */
     public function addCoincidence(Coincidence $coincidence): void
     {
         if ( ! $this->contains(fn(Coincidence $existingItem) => $existingItem->word() === $coincidence->word())) {
@@ -19,6 +29,11 @@ class MatchCollection extends Collection
         }
     }
 
+    /**
+     * Calculate the overall score for this collection of matches
+     *
+     * @return Score The calculated score
+     */
     public function score(): Score
     {
         if ($this->isEmpty()) {
@@ -31,6 +46,11 @@ class MatchCollection extends Collection
         return new Score(min(1.0, $score));
     }
 
+    /**
+     * Calculate the confidence level for this collection of matches
+     *
+     * @return Confidence The calculated confidence
+     */
     public function confidence(): Confidence
     {
         if ($this->isEmpty()) {
@@ -42,16 +62,35 @@ class MatchCollection extends Collection
         );
     }
 
-    public function offensive(): bool
-    {
-        /** @var float $threshold */
-        $threshold = config('sentinel.threshold_score', 0.5);
+    /**
+     * Determine if the text is offensive based on matches and context
+     *
+     * @param string|null $text Original text being analyzed
+     * @param array<Category>|null $categories Categories detected in the content
+     * @param ContentType|null $contentType Type of content being analyzed
+     * @param Audience|null $audience Target audience for the content
+     * @return bool True if the content is considered offensive
+     */
+    public function offensive(
+        ?string      $text = null,
+        ?array       $categories = null,
+        ?ContentType $contentType = null,
+        ?Audience    $audience = null,
+    ): bool {
+        // Get the appropriate threshold based on context
+        $threshold = ThresholdManager::getThreshold(
+            $categories ?? [],
+            $contentType,
+            $audience,
+        );
 
         return $this->isNotEmpty() && ($this->score()->value() >= $threshold);
     }
 
     /**
-     * @return array<string>
+     * Get a list of detected offensive words
+     *
+     * @return array<string> List of offensive words
      */
     public function words(): array
     {
@@ -60,7 +99,10 @@ class MatchCollection extends Collection
     }
 
     /**
-     * @param  MatchCollection  $items
+     * Merge another collection of matches
+     *
+     * @param  MatchCollection  $items Collection to merge
+     * @return self New collection with merged items
      */
     public function merge($items): self
     {
@@ -73,6 +115,12 @@ class MatchCollection extends Collection
         return $this;
     }
 
+    /**
+     * Clean text by masking offensive words
+     *
+     * @param string $text Text to clean
+     * @return string Cleaned text
+     */
     public function clean(string $text): string
     {
         if ($this->isEmpty()) {

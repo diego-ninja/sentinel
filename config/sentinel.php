@@ -15,6 +15,54 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Threshold settings
+    |--------------------------------------------------------------------------
+    |
+    | Define dynamic thresholds for different contexts and categories
+    |
+    */
+    'thresholds' => [
+        // Category-specific thresholds (lower values = more strict)
+        'categories' => [
+            'hate_speech' => 0.3,      // Threshold for hate speech detection
+            'harassment' => 0.3,        // Threshold for harassment detection
+            'violence' => 0.4,          // Threshold for violence detection
+            'sexual' => 0.4,            // Threshold for sexual content
+            'threat' => 0.3,            // Threshold for threats
+            'self_harm' => 0.3,         // Threshold for self-harm content
+            'profanity' => 0.6,         // Threshold for general profanity
+            'toxicity' => 0.5,          // Threshold for toxic content
+            'insult' => 0.4,            // Threshold for insults
+            'obscenity' => 0.5,         // Threshold for obscene content
+            'adult_content' => 0.4,     // Threshold for adult content
+            'crime' => 0.4,             // Threshold for crime references
+            'personal_attack' => 0.3,   // Threshold for personal attacks
+            'mental_health' => 0.5,     // Threshold for mental health content
+        ],
+
+        // Content type thresholds (higher values = more lenient)
+        'content_types' => [
+            'social_media' => 0.5,      // Social media posts
+            'news' => 0.6,              // News articles
+            'blog' => 0.5,              // Blog posts
+            'forum' => 0.5,             // Forum discussions
+            'educational' => 0.7,       // Educational materials
+            'research' => 0.8,          // Research papers/discussions
+            'medical' => 0.8,           // Medical content
+            'legal' => 0.7,             // Legal content
+            'gaming' => 0.6,            // Gaming content
+            'chat' => 0.4,              // Chat/messaging content
+        ],
+        'audiences' => [
+            'children' => 0.3,      // Content for children (more strict)
+            'teen' => 0.4,          // Content for teenagers
+            'adult' => 0.6,         // Content for adults
+            'professional' => 0.7,  // Professional communications
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Default language
     |--------------------------------------------------------------------------
     |

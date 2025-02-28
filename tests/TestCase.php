@@ -115,6 +115,8 @@ abstract class TestCase extends BaseTestCase
                 ],
             ],
         ]);
+
+        createContextFiles();
     }
 
     protected function getMockedHttpClient(array $responses = []): Client

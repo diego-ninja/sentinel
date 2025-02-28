@@ -20,7 +20,6 @@ enum Category: string
     case HateSpeech = 'hate_speech';
     case Harassment = 'harassment';
     case Violence = 'violence';
-
     public static function fromTisane(string $type): self
     {
         return match ($type) {
@@ -60,5 +59,12 @@ enum Category: string
             'Violence' => self::Violence,
             default => throw new InvalidArgumentException("Unknown category: {$type}"),
         };
+    }
+
+    public function threshold(): float
+    {
+        /** @var float $threshold  */
+        $threshold = config(sprintf('sentinel.thresholds.categories.%s', $this->value));
+        return $threshold;
     }
 }
