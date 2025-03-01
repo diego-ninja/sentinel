@@ -7,6 +7,7 @@ use Ninja\Sentinel\Context\ContextLoader;
 use Ninja\Sentinel\Context\ContextModifier;
 use Ninja\Sentinel\Enums\MatchType;
 use Ninja\Sentinel\ValueObject\Confidence;
+use Ninja\Sentinel\ValueObject\Position;
 use Ninja\Sentinel\ValueObject\Score;
 
 final readonly class Calculator
@@ -95,10 +96,46 @@ final readonly class Calculator
      */
     public static function confidence(string $text, string $word, MatchType $type, OccurrenceCollection $occurrences): Confidence
     {
-        $occurrenceBoost = min(0.3, ($occurrences->count() - 1) * 0.1);
+        // If no occurrences, return minimum confidence
+        if ($occurrences->isEmpty()) {
+            return new Confidence(0.3); // Minimum baseline confidence
+        }
+
+        // Base confidence from a match type
         $baseConfidence = $type->weight();
 
-        return new Confidence(min(1.0, $baseConfidence + $occurrenceBoost));
+        // Boost based on number of occurrences (diminishing returns)
+        $occurrenceBoost = min(0.3, ($occurrences->count() - 1) * 0.1);
+
+        // Density factor - how much of the text is occupied by this offensive word
+        $textLength = mb_strlen($text);
+        $densityFactor = 0.0;
+
+        if ($textLength > 0) {
+            /** @var int $totalMatchLength */
+            $totalMatchLength = $occurrences->sum(fn(Position $pos) => $pos->length());
+            $densityFactor = $totalMatchLength / $textLength;
+            $densityBoost = min(0.15, $densityFactor * 2.0); // Max 0.15 boost
+        } else {
+            $densityBoost = 0.0;
+        }
+
+        // Lexical similarity factor for approximate matches
+        $similarityBoost = 0.0;
+        if (MatchType::Levenshtein === $type) {
+            // For Levenshtein, lower confidence if more changes were needed
+            $levenshteinDistance = levenshtein(
+                mb_strtolower($word),
+                mb_strtolower(mb_substr($text, $occurrences->first()->start(), $occurrences->first()->length())),
+            );
+            // Negative boost based on distance
+            $similarityBoost = max(-0.2, -0.05 * $levenshteinDistance);
+        }
+
+        // Total confidence score
+        $totalConfidence = $baseConfidence + $occurrenceBoost + $densityBoost + $similarityBoost;
+
+        return new Confidence(min(1.0, max(0.1, $totalConfidence)));
     }
 
     /**

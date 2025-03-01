@@ -112,6 +112,7 @@ abstract class TestCase extends BaseTestCase
                     \Ninja\Sentinel\Detection\Strategy\AlphanumericVariationStrategy::class,
                     \Ninja\Sentinel\Detection\Strategy\ReversedWordsStrategy::class,
                     \Ninja\Sentinel\Detection\Strategy\ZeroWidthStrategy::class,
+                    \Ninja\Sentinel\Detection\Strategy\SafeContextStrategy::class,
                 ],
             ],
         ]);

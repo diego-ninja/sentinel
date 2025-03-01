@@ -40,10 +40,20 @@ class MatchCollection extends Collection
             return new Score(0.0);
         }
 
-        /** @var float $score */
-        $score = $this->sum(fn(Coincidence $match) => $match->score()->value());
+        /** @var float $totalPositive */
+        $totalPositive = $this
+            ->filter(fn(Coincidence $match) => $match->score()->value() > 0)
+            ->sum(fn(Coincidence $match) => $match->score()->value());
 
-        return new Score(min(1.0, $score));
+        /** @var float $totalNegative */
+        $totalNegative = $this
+            ->filter(fn(Coincidence $match) => $match->score()->value() < 0)
+            ->sum(fn(Coincidence $match) => $match->score()->value());
+
+        // Apply negative scores (from safe contexts) to reduce the overall score
+        $finalScore = max(0.0, $totalPositive + $totalNegative);
+
+        return new Score(min(1.0, $finalScore));
     }
 
     /**

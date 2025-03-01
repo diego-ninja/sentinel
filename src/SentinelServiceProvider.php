@@ -12,6 +12,11 @@ use Ninja\Sentinel\Checkers\PerspectiveAI;
 use Ninja\Sentinel\Checkers\PrismAI;
 use Ninja\Sentinel\Checkers\PurgoMalum;
 use Ninja\Sentinel\Checkers\TisaneAI;
+use Ninja\Sentinel\Context\ContextDetectorFactory;
+use Ninja\Sentinel\Context\Detectors\EducationalContextDetector;
+use Ninja\Sentinel\Context\Detectors\QuotedContextDetector;
+use Ninja\Sentinel\Context\Detectors\TechnicalContextDetector;
+use Ninja\Sentinel\Context\Detectors\WordSpecificContextDetector;
 use Ninja\Sentinel\Dictionary\LazyDictionary;
 use Ninja\Sentinel\Enums\Audience;
 use Ninja\Sentinel\Enums\ContentType;
@@ -175,6 +180,13 @@ final class SentinelServiceProvider extends ServiceProvider
             );
 
         });
+
+        $this->app->singleton(ContextDetectorFactory::class);
+
+        $this->app->bind(EducationalContextDetector::class);
+        $this->app->bind(QuotedContextDetector::class);
+        $this->app->bind(TechnicalContextDetector::class);
+        $this->app->bind(WordSpecificContextDetector::class);
 
         $this->app->bind('sentinel', fn() => new Sentinel());
 

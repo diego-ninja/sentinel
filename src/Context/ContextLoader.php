@@ -13,7 +13,7 @@ final class ContextLoader
     /**
      * Cache of loaded context data by language
      *
-     * @var array<string, array<string, array<string>>>
+     * @var array<string, array<string, mixed>>
      */
     private static array $contextCache = [];
 
@@ -21,7 +21,7 @@ final class ContextLoader
      * Get all context data for a specific language
      *
      * @param string $language The language code ('en', 'es', 'fr')
-     * @return array<string, array<string>> The complete context data for the language
+     * @return array<string, mixed> The complete context data for the language
      *
      * @throws ContextFileNotFound If the context file for the language doesn't exist
      */
@@ -43,7 +43,7 @@ final class ContextLoader
             throw ContextFileNotFound::forLanguage($language);
         }
 
-        /** @var array<string, array<string>> $context */
+        /** @var array<string, mixed> $context */
         $context = include $contextPath;
 
         // Cache the results
@@ -57,11 +57,11 @@ final class ContextLoader
      *
      * @param string $language The language code ('en', 'es', 'fr')
      * @param string $category The context category name
-     * @return array<string> The words in the requested category
+     * @return mixed The data in the requested category
      *
      * @throws InvalidArgumentException If the category doesn't exist
      */
-    public static function getCategory(string $language, string $category): array
+    public static function getCategory(string $language, string $category): mixed
     {
         $context = self::getContextForLanguage($language);
 
