@@ -7,7 +7,10 @@ use GuzzleHttp\ClientInterface;
 use GuzzleHttp\ClientTrait;
 use GuzzleHttp\Exception\GuzzleException;
 use Ninja\Sentinel\Checkers\Contracts\ProfanityChecker;
+use Ninja\Sentinel\Enums\Audience;
+use Ninja\Sentinel\Enums\ContentType;
 use Ninja\Sentinel\Exceptions\ClientException;
+use Ninja\Sentinel\Result\Contracts\Result;
 use Psr\Http\Message\ResponseInterface;
 
 abstract class AbstractProfanityChecker implements ProfanityChecker
@@ -23,6 +26,16 @@ abstract class AbstractProfanityChecker implements ProfanityChecker
     }
 
     abstract protected function baseUri(): string;
+
+    /**
+     * Check text for offensive content
+     *
+     * @param string $text The text to analyze
+     * @param ContentType|null $contentType Optional content type for threshold adjustment
+     * @param Audience|null $audience Optional audience type for threshold adjustment
+     * @return Result The analysis result
+     */
+    abstract public function check(string $text, ?ContentType $contentType = null, ?Audience $audience = null): Result;
 
     /**
      * @param  array<string, mixed>  $query

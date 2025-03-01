@@ -35,7 +35,7 @@ interface ResultBuilder
      */
     public function withCategories(?array $categories): self;
 
-    public function withMatches(MatchCollection $matches): self;
+    public function withMatches(?MatchCollection $matches): self;
 
     public function withAudience(?Audience $audience): self;
 

@@ -12,7 +12,10 @@ use EchoLabs\Prism\ValueObjects\Messages\UserMessage;
 use InvalidArgumentException;
 use JsonException;
 use Ninja\Sentinel\Checkers\Contracts\ProfanityChecker;
-use Ninja\Sentinel\Result\Result;
+use Ninja\Sentinel\Enums\Audience;
+use Ninja\Sentinel\Enums\ContentType;
+use Ninja\Sentinel\Result\Builder\ResultBuilder;
+use Ninja\Sentinel\Result\Contracts\Result;
 use Ninja\Sentinel\Schemas\SentinelPrismSchema;
 use Ninja\Sentinel\Services\Contracts\ServiceAdapter;
 use Ninja\Sentinel\Services\Pipeline\TransformationPipeline;
@@ -28,7 +31,15 @@ final readonly class PrismAI implements ProfanityChecker
         private TransformationPipeline $pipeline,
     ) {}
 
-    public function check(string $text): Result
+    /**
+     * Check text for offensive content using LLM analysis
+     *
+     * @param string $text Text to analyze
+     * @param ContentType|null $contentType Optional content type for context-aware analysis
+     * @param Audience|null $audience Optional audience type for appropriate thresholds
+     * @return Result Analysis result
+     */
+    public function check(string $text, ?ContentType $contentType = null, ?Audience $audience = null): Result
     {
         /** @var Provider $provider */
         $provider = config('sentinel.services.prism_ai.provider');
@@ -36,8 +47,9 @@ final readonly class PrismAI implements ProfanityChecker
         /** @var string $model */
         $model = config('sentinel.services.prism_ai.model');
 
+        // Generate response from the LLM
         if ($this->supports_structured($provider)) {
-            $response = $this->buildStructuredPrismRequest($provider, $model, $text)->generate();
+            $response = $this->buildStructuredPrismRequest($provider, $model, $text, $contentType, $audience)->generate();
             /** @var array{
              *     is_offensive: bool,
              *     offensive_words: array<string>,
@@ -57,7 +69,7 @@ final readonly class PrismAI implements ProfanityChecker
              */
             $data = $response->structured;
         } else {
-            $response = $this->buildUnstructuredPrismRequest($provider, $model, $text)->generate();
+            $response = $this->buildUnstructuredPrismRequest($provider, $model, $text, $contentType, $audience)->generate();
             /** @var array{
              *     is_offensive: bool,
              *     offensive_words: array<string>,
@@ -78,17 +90,52 @@ final readonly class PrismAI implements ProfanityChecker
             $data = $this->processUnstructuredResponse($response->text);
         }
 
+        // Process response through adapter and pipeline
         $serviceResponse = $this->adapter->adapt($text, $data);
-        return $this->pipeline->process($serviceResponse);
+        $result = $this->pipeline->process($serviceResponse);
 
+        // If audience or content type were provided, include them in the result
+        if (null !== $contentType || null !== $audience) {
+            // Create builder and add the context parameters
+            $builder = ResultBuilder::withResult($result);
+
+            if (null !== $contentType) {
+                $builder = $builder->withContentType($contentType);
+            }
+
+            if (null !== $audience) {
+                $builder = $builder->withAudience($audience);
+            }
+
+            return $builder->build();
+        }
+
+        return $result;
     }
 
-    private function buildStructuredPrismRequest(Provider $provider, string $model, string $message): StructuredPendingRequest
-    {
+    /**
+     * Build a structured request to Prism with context-aware instructions
+     *
+     * @param Provider $provider The LLM provider
+     * @param string $model The model to use
+     * @param string $message The text to analyze
+     * @param ContentType|null $contentType Optional content type for context
+     * @param Audience|null $audience Optional audience type for context
+     * @return StructuredPendingRequest The pending request
+     */
+    private function buildStructuredPrismRequest(
+        Provider $provider,
+        string $model,
+        string $message,
+        ?ContentType $contentType = null,
+        ?Audience $audience = null,
+    ): StructuredPendingRequest {
         $instructions = file_get_contents(__DIR__ . '/../../resources/prompts/structured.txt');
         if (false === $instructions) {
             throw new InvalidArgumentException('Failed to read structured prompt file');
         }
+
+        $instructions = $this->addContextInstructions($instructions, $audience, $contentType);
 
         if (Provider::Anthropic === $provider) {
             return $this->prism->structured()
@@ -119,12 +166,29 @@ final readonly class PrismAI implements ProfanityChecker
             ->withSchema(new SentinelPrismSchema());
     }
 
-    private function buildUnstructuredPrismRequest(Provider $provider, string $model, string $message): UnstructuredPendingRequest
-    {
+    /**
+     * Build an unstructured request to Prism with context-aware instructions
+     *
+     * @param Provider $provider The LLM provider
+     * @param string $model The model to use
+     * @param string $message The text to analyze
+     * @param ContentType|null $contentType Optional content type for context
+     * @param Audience|null $audience Optional audience type for context
+     * @return UnstructuredPendingRequest The pending request
+     */
+    private function buildUnstructuredPrismRequest(
+        Provider $provider,
+        string $model,
+        string $message,
+        ?ContentType $contentType = null,
+        ?Audience $audience = null,
+    ): UnstructuredPendingRequest {
         $instructions = file_get_contents(__DIR__ . '/../../resources/prompts/unstructured.txt');
         if (false === $instructions) {
             throw new InvalidArgumentException('Failed to read unstructured prompt file');
         }
+
+        $instructions = $this->addContextInstructions($instructions, $audience, $contentType);
 
         return $this->prism->text()
             ->using(provider: $provider, model: $model)
@@ -136,9 +200,46 @@ final readonly class PrismAI implements ProfanityChecker
     }
 
     /**
-     * @param  array<string,mixed>  $data
+     * Check if the provider supports structured responses
      *
-     * @throws InvalidArgumentException
+     * @param Provider $provider The provider to check
+     * @return bool True if structured responses are supported
+     */
+    private function supports_structured(Provider $provider): bool
+    {
+        return in_array($provider, [
+            Provider::Anthropic,
+            Provider::DeepSeek,
+            Provider::OpenAI,
+            Provider::Groq,
+            Provider::Ollama,
+        ]);
+    }
+
+    /**
+     * Process unstructured response text into structured data
+     *
+     * @param string $responseText The response text
+     * @return array{is_offensive: bool, offensive_words: array<string>, categories: array<string>, confidence: float, severity: float, sentiment: array{type: string, score: float}, matches: array<int, array{text: string, match_type: string, score: float, confidence: float, occurrences: array<int, array{start: int, length: int}>, context?: array{original?: string, surrounding?: string}}>}
+     */
+    private function processUnstructuredResponse(string $responseText): array
+    {
+        try {
+            /** @var array{is_offensive: bool, offensive_words: array<string>, categories: array<string>, confidence: float, severity: float, sentiment: array{type: string, score: float}, matches: array<int, array{text: string, match_type: string, score: float, confidence: float, occurrences: array<int, array{start: int, length: int}>, context?: array{original?: string, surrounding?: string}}>} $data */
+            $data = json_decode($this->cleanResponseText($responseText), true, 512, JSON_THROW_ON_ERROR);
+            $this->validateResponseStructure($data);
+
+            return $data;
+        } catch (JsonException|InvalidArgumentException $e) {
+            throw new InvalidArgumentException('Invalid response format. Must be a valid JSON object.', 0, $e);
+        }
+    }
+
+    /**
+     * Validate the response structure
+     *
+     * @param array<string,mixed> $data The data to validate
+     * @throws InvalidArgumentException If the data structure is invalid
      */
     private function validateResponseStructure(array $data): void
     {
@@ -172,32 +273,11 @@ final readonly class PrismAI implements ProfanityChecker
     }
 
     /**
-     * @return array{is_offensive: bool, offensive_words: array<string>, categories: array<string>, confidence: float, severity: float}
+     * Clean the response text to extract JSON
+     *
+     * @param string $responseText The raw response text
+     * @return string Clean JSON string
      */
-    private function processUnstructuredResponse(string $responseText): array
-    {
-        try {
-            /** @var array{is_offensive: bool, offensive_words: array<string>, categories: array<string>, confidence: float, severity: float} $data */
-            $data = json_decode($this->cleanResponseText($responseText), true, 512, JSON_THROW_ON_ERROR);
-            $this->validateResponseStructure($data);
-
-            return $data;
-        } catch (JsonException|InvalidArgumentException $e) {
-            throw new InvalidArgumentException('Invalid response format. Must be a valid JSON object.', 0, $e);
-        }
-    }
-
-    private function supports_structured(Provider $provider): bool
-    {
-        return in_array($provider, [
-            Provider::Anthropic,
-            Provider::DeepSeek,
-            Provider::OpenAI,
-            Provider::Groq,
-            Provider::Ollama,
-        ]);
-    }
-
     private function cleanResponseText(string $responseText): string
     {
         $start = mb_strpos($responseText, '{');
@@ -213,4 +293,24 @@ final readonly class PrismAI implements ProfanityChecker
         return mb_trim($jsonPart ?? $responseText);
     }
 
+    private function addContextInstructions(string $instructions, ?Audience $audience, ?ContentType $contentType): string
+    {
+        if (null !== $contentType || null !== $audience) {
+            $contextInfo = "\n\nAdditional Context:\n";
+
+            if (null !== $contentType) {
+                $contextInfo .= "- Content Type: " . $contentType->value . "\n";
+                $contextInfo .= $contentType->prompt();
+            }
+
+            if (null !== $audience) {
+                $contextInfo .= "- Target Audience: " . $audience->value . "\n";
+                $contextInfo .= $audience->prompt();
+            }
+
+            $instructions .= $contextInfo;
+        }
+
+        return $instructions;
+    }
 }

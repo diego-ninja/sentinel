@@ -13,6 +13,8 @@ use Ninja\Sentinel\Checkers\PrismAI;
 use Ninja\Sentinel\Checkers\PurgoMalum;
 use Ninja\Sentinel\Checkers\TisaneAI;
 use Ninja\Sentinel\Dictionary\LazyDictionary;
+use Ninja\Sentinel\Enums\Audience;
+use Ninja\Sentinel\Enums\ContentType;
 use Ninja\Sentinel\Enums\Provider;
 use Ninja\Sentinel\Factories\ProfanityCheckerFactory;
 use Ninja\Sentinel\Index\TrieIndex;
@@ -61,7 +63,17 @@ final class SentinelServiceProvider extends ServiceProvider
                     return false;
                 }
 
-                return ! Facades\Sentinel::check($value)->offensive();
+                /** @var string $contentType */
+                $contentType = config('sentinel.default_content_type', 'social_media');
+
+                /** @var string $audience */
+                $audience = config('sentinel.default_audience', 'adult');
+
+                return ! Facades\Sentinel::check(
+                    text: $value,
+                    contentType: ContentType::from($contentType),
+                    audience: Audience::from($audience),
+                )->offensive();
             },
             message: 'The :attribute contains offensive language.',
         );

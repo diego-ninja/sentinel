@@ -4,6 +4,8 @@ namespace Ninja\Sentinel\Decorators;
 
 use Illuminate\Support\Facades\Cache;
 use Ninja\Sentinel\Checkers\Contracts\ProfanityChecker;
+use Ninja\Sentinel\Enums\Audience;
+use Ninja\Sentinel\Enums\ContentType;
 use Ninja\Sentinel\Result\Contracts\Result;
 
 final readonly class CachedProfanityChecker implements ProfanityChecker
@@ -13,12 +15,14 @@ final readonly class CachedProfanityChecker implements ProfanityChecker
         private int $ttl = 3600, // 1 hour by default
     ) {}
 
-    public function check(string $text): Result
+    public function check(string $text, ?ContentType $contentType = null, ?Audience $audience = null): Result
     {
         $cacheKey = sprintf(
-            'sentinel:%s:%s',
+            'sentinel:%s:%s:%s:%s',
             class_basename($this->checker),
             md5($text),
+            $contentType->value ?? 'null',
+            $audience->value ?? 'null',
         );
 
         /** @var string $store */

@@ -73,6 +73,23 @@ final class ResultBuilder implements ResultBuilderContract
      */
     private ?Audience $audience = null;
 
+    public static function withResult(Result $result): ResultBuilderContract
+    {
+        $builder = new ResultBuilder();
+        return $builder
+            ->withOriginalText($result->original())
+            ->withReplaced($result->replaced())
+            ->withWords($result->words())
+            ->withScore($result->score())
+            ->withConfidence($result->confidence())
+            ->withSentiment($result->sentiment())
+            ->withCategories($result->categories())
+            ->withMatches($result->matches())
+            ->withContentType($result->contentType())
+            ->withAudience($result->audience())
+            ->withOffensive($result->offensive());
+    }
+
     /**
      * Set the original text
      *
@@ -211,10 +228,10 @@ final class ResultBuilder implements ResultBuilderContract
     /**
      * Set match collection
      *
-     * @param MatchCollection $matches Match collection
+     * @param MatchCollection|null $matches Match collection
      * @return ResultBuilderContract Builder instance
      */
-    public function withMatches(MatchCollection $matches): ResultBuilderContract
+    public function withMatches(?MatchCollection $matches): ResultBuilderContract
     {
         $clone = clone $this;
         $clone->matches = $matches;
