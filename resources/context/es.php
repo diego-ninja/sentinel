@@ -390,63 +390,115 @@ return [
     // Word-specific safe context patterns (regex patterns)
     'word_specific_patterns' => [
         'culo' => [
-            '/\b(dolor|examen|exploración|médico) (de|del) culo\b/i',  // Contexto médico
+            '/\b(dolor|examen|exploración|médico|medicina) (de|del|en el|al) culo\b/i',  // Contexto médico
             '/\b(burro|asno|mula).*\bculo\b/i',           // Referencia a animales
-            '/\b(cálculo|vinculo|músculo|hidrocarburo|curáculo|currículo|vehículo|testiculo)\b/i',  // Palabras que terminan en "culo"
+            '/\b(cálculo|vínculo|músculo|hidrocarburo|curáculo|currículo|vehículo|testículo|espectáculo|vernáculo|cenáculo|habitáculo|tentáculo)\b/i',  // Palabras que terminan en "culo"
             '/\b(ridículo|minúsculo|mayúsculo|opúsculo|corpúsculo|crepúsculo)\b/i',  // Palabras que contienen "culo"
+            '/\b(culo) (de botella|vaso|malva|de mundo)\b/i',  // Expresiones idiomáticas
         ],
         'polla' => [
             '/\b(gallina|ave|pájaro|pato|gallo).*\bpolla\b/i',  // Referencia a aves
-            '/\b(apuestas|lotería|sorteo).*\bpolla\b/i',        // Referencia a apuestas o sorteos
-            '/\b(polla) (chilena|peruana|boliviana|ecuatoriana|española)\b/i',  // Referencia a comidas o costumbres nacionales
+            '/\b(apuestas|lotería|sorteo|quiniela|primitiva).*\bpolla\b/i',  // Referencia a apuestas o sorteos
+            '/\b(polla) (chilena|peruana|boliviana|ecuatoriana|española|goleadora|futbolera)\b/i',  // Referencia a comidas, deportes o costumbres
+            '/\b(jugar|echar|hacer) (una polla|la polla)\b/i',  // Contexto de juegos o apuestas
         ],
         'puta' => [
-            '/\b(de la puta madre)\b/i',  // Expresión de admiración o satisfacción
+            '/\b(de la puta madre|de puta madre)\b/i',  // Expresión de admiración o satisfacción
             '/\b(histórico|antiguo|bíblico|literario|medieval|renacentista).*\bputa\b/i',  // Contexto histórico
             '/\b(magdalena|jezabel|dalila|figura bíblica).*\bputa\b/i',  // Contexto bíblico
             '/\b(estudio|investigación|papel|análisis|libro|artículo).*\bprostitución\b.*\bputa\b/i',  // Contexto académico
             '/\b(computación|informática|ordenador).*\binput\b/i',  // Contexto informático (confusión con "input")
+            '/\b(ni|como|que|la|una|esta) puta (idea|vida|vez|cosa|hora)\b/i',  // Expresiones coloquiales
+            '/\bputa (calle|ciudad|guerra|miseria|pobreza|suerte|realidad)\b/i',  // Uso como intensificador
         ],
         'teta' => [
-            '/\b(leche|amamantar|lactancia|bebé|materna|lactante).*\bteta\b/i',  // Contexto de lactancia
-            '/\b(anatomía|biología|desarrollo|cambios|pubertad).*\bteta\b/i',  // Contexto biológico/médico
-            '/\b(cáncer|tumor|quiste|mamografía|mastectomía).*\bteta\b/i',  // Contexto médico
-            '/\b(teta) (de vaca|de cabra|de oveja)\b/i',  // Animales
+            '/\b(leche|amamantar|lactancia|bebé|materna|lactante|pechos|senos).*\bteta\b/i',  // Contexto de lactancia
+            '/\b(anatomía|biología|desarrollo|cambios|pubertad|adolescencia).*\bteta\b/i',  // Contexto biológico/médico
+            '/\b(cáncer|tumor|quiste|mamografía|mastectomía|biopsia|cirugía).*\bteta\b/i',  // Contexto médico
+            '/\b(teta) (de vaca|de cabra|de oveja|materna|artificial)\b/i',  // Animales y lactancia
+            '/\b(dar la|dar|tomando|tomar|beber de la) teta\b/i',  // Expresiones sobre lactancia
         ],
         'cojones' => [
-            '/\b(testículos|gónadas|escrotos|testiculares).*\bcojones\b/i',  // Contexto médico
-            '/\b(tener).*\bcojones\b/i',  // Expresión de valentía
-            '/\b(tocar|romper).*\bcojones\b/i',  // Expresión de molestia
-            '/\b(de).*\bcojones\b/i',  // Expresión de intensidad
+            '/\b(testículos|gónadas|escrotos|testiculares|reproducción).*\bcojones\b/i',  // Contexto médico
+            '/\b(tener|echarle).*\bcojones\b/i',  // Expresión de valentía
+            '/\b(tocar|romper|hinchar|pelar).*\bcojones\b/i',  // Expresión de molestia
+            '/\b(de|tres|par de|dos).*\bcojones\b/i',  // Expresión de intensidad
+            '/\b(estudio|lingüística|etimología).*\bcojones\b/i',  // Contexto académico
         ],
         'joder' => [
             '/\b(estudio|investigación|lingüístico|etimología|expletivo|palabrota).*\bjoder\b/i',  // Contexto lingüístico
             '/\b(sociolingüística|tabúes del lenguaje|vocabulario prohibido).*\bjoder\b/i',  // Contexto académico
+            '/\b(sin querer|pretender|intentar|tratar de) joder\b/i',  // Expresiones de intención
+            '/\b(no|ni|que|qué|sin|para|cómo) (me|te|nos|os|lo|la|los|las|se) (jodas|joda|jodan)\b/i',  // Expresiones comunes
+            '/\b(no jodas|no me jodas|no te jodas)\b/i',  // Expresiones de sorpresa o incredulidad
+            '/\bjoer\b/i',  // Eufemismo común
         ],
         'mierda' => [
             '/\b(excremento|fecal|heces|estiércol|abono|fertilizante).*\bmierda\b/i',  // Contexto agrícola/médico
             '/\b(toro|vaca|caballo|perro|gato|pájaro|animal).*\bmierda\b/i',  // Excrementos animales
-            '/\b(arqueología|fósil|coprolito).*\bmierda\b/i',  // Contexto científico
+            '/\b(arqueología|fósil|coprolito|análisis).*\bmierda\b/i',  // Contexto científico
+            '/\b(pura|vaya|menuda|valga la) mierda\b/i',  // Expresiones de desagrado o desprecio
+            '/\b(comer|tragar|estar en la) mierda\b/i',  // Expresiones coloquiales
+            '/\bmiércoles\b/i',  // Eufemismo común
         ],
         'coño' => [
             '/\b(anatomía|ginecología|médico|médica|vulva|vagina|examen).*\bcoño\b/i',  // Contexto médico
-            '/\b(del coño de la madre|del coño de su madre)\b/i',  // Expresión venezolana/caribeña sin intención ofensiva directa
-            '/\b(¡coño!)\b/i',  // Interjección española/venezolana no necesariamente vulgar según contexto
+            '/\b(del coño de la madre|del coño de su madre)\b/i',  // Expresión venezolana/caribeña
+            '/\b(¡coño!)\b/i',  // Interjección española/venezolana según contexto
+            '/\b(qué|este|ese|el|un|del) coño\b/i',  // Expresiones interrogativas o exclamativas
+            '/\b(ir al|venir del|salir del) coño\b/i',  // Expresiones de origen o procedencia
         ],
         'marica' => [
-            '/\b(histórico|antiguo|LGBTQ|movimiento|derechos|comunidad).*\bmarica\b/i',  // Contexto histórico/de derechos
-            '/\b(reclamar|apropiarse|resignificar).*\btérmino.*\bmarica\b/i',  // Contexto de resignificación
+            '/\b(histórico|antiguo|LGBTQ|movimiento|derechos|comunidad|orgullo).*\bmarica\b/i',  // Contexto histórico/de derechos
+            '/\b(reclamar|apropiarse|resignificar|reivindicar).*\btérmino.*\bmarica\b/i',  // Contexto de resignificación
             '/\b(marica) (el|la|los|las|del|de la)\b/i',  // Nombre propio o apodo en algunos países
+            '/\b(marica) (¿cómo estás?|¿qué tal?|¿qué pasa?|¿qué más?)\b/i',  // Uso amistoso en Colombia y otros países
+            '/\b(amigo|pana|parcero|hermano) marica\b/i',  // Uso coloquial no ofensivo en algunos países
         ],
         'pendejo' => [
             '/\b(pubertad|cabello púbico|vello).*\bpendejo\b/i',  // Significado original biológico
             '/\b(inmaduro|joven|adolescente|niño).*\bpendejo\b/i',  // Uso en algunos países
-            '/\b(pendejo) (de|del|con|por|para|en)\b/i',  // Uso coloquial no necesariamente ofensivo según región
+            '/\b(pendejo) (de|del|con|por|para|en)\b/i',  // Uso coloquial según región
+            '/\b(hacerse el|no seas|ser un) pendejo\b/i',  // Expresiones comunes
+            '/\b(este|ese|aquel|un|mi|tu|su) pendejo\b/i',  // Uso con determinantes
         ],
         'verga' => [
-            '/\b(barco|embarcación|vela|marina|náutico|navegación).*\bverga\b/i',  // Contexto náutico
+            '/\b(barco|embarcación|vela|marina|náutico|navegación|mástil).*\bverga\b/i',  // Contexto náutico
             '/\b(anatomía|pene|miembro|masculino|reproducción).*\bverga\b/i',  // Contexto médico
-            '/\b(de la verga|a toda verga)\b/i',  // Expresiones regionales no siempre ofensivas
+            '/\b(de la verga|a toda verga|valer verga|ni verga)\b/i',  // Expresiones regionales
+            '/\b(qué|hasta la|tu|su|mi|la) verga\b/i',  // Usos coloquiales
+            '/\bbergante\b/i',  // Término náutico relacionado
+        ],
+        'cabrón' => [
+            '/\b(cabra|macho cabrío|cabrito|caprino).*\bcabrón\b/i',  // Referencia al animal
+            '/\b(eres|ser|estar) (muy|un) cabrón\b/i',  // Puede ser amistoso en ciertos contextos
+            '/\b(estudio|lingüística|antropología).*\bcabrón\b/i',  // Contexto académico
+            '/\b(mi|qué|ese|este|el) cabrón\b/i',  // Expresiones con determinantes que pueden ser amistosas
+        ],
+        'concha' => [
+            '/\b(mar|playa|arena|océano|caracola).*\bconcha\b/i',  // Referencia a moluscos
+            '/\b(concha) (de mar|marina|nácar|perla|abanico|almeja)\b/i',  // Tipos de conchas marinas
+            '/\b(colección|recoger|buscar) conchas\b/i',  // Actividad de recolección
+            '/\b(La Concha) (playa|bahía)\b/i',  // Nombre propio de lugares
+            '/\b(concha) (acústica|sonora)\b/i',  // Término arquitectónico
+        ],
+        'hostia' => [
+            '/\b(misa|iglesia|eucaristía|sacramento|católico|católica|cristiano|cristiana|religión|religiosa).*\bhostia\b/i',  // Contexto religioso
+            '/\b(dar|recibir|meter|pegar) (una|la) hostia\b/i',  // Expresión de golpe
+            '/\b(de la hostia|hostia puta|ni hostia)\b/i',  // Expresiones intensificadoras
+            '/\b(¡hostia!)\b/i',  // Interjección
+            '/\bostia\b/i',  // Variante suavizada
+        ],
+        'gilipollas' => [
+            '/\b(estudio|lingüística|etimología|sociolingüística).*\bgilipollas\b/i',  // Contexto académico
+            '/\b(ser|estar|parecer|hacerse el) gilipollas\b/i',  // Expresiones comunes
+            '/\b(menudo|vaya|un|el|qué|este|ese) gilipollas\b/i',  // Con determinantes
+        ],
+        'capullo' => [
+            '/\b(flor|planta|botánica|jardín|rosa).*\bcapullo\b/i',  // Contexto botánico
+            '/\b(capullo) (de rosa|de flor|floral|cerrado|abierto)\b/i',  // Términos botánicos
+            '/\b(abrir|cerrar|brotar|florecer) (el|un|los) capullo\b/i',  // Procesos botánicos
+            '/\b(seda|gusano) (de|del) capullo\b/i',  // Referencia a sericicultura
         ],
     ],
 ];

@@ -53,6 +53,11 @@ final class SentinelServiceProvider extends ServiceProvider
             $this->publishes([
                 __DIR__ . '/../resources/dict' => resource_path('dict'),
             ], 'sentinel-dictionaries');
+
+            $this->publishes([
+                __DIR__ . '/../resources/context' => resource_path('context'),
+            ], 'sentinel-contexts');
+
         }
 
         app('validator')->extend(

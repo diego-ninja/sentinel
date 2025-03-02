@@ -12,11 +12,11 @@
 ![GitHub last commit](https://img.shields.io/github/last-commit/diego-ninja/sentinel?color=blue)
 [![PHPStan Level](https://img.shields.io/badge/phpstan-level%2010-blue?logo=php)]()
 
-# Introduction
+## 🚀 Introduction
 
-A powerful and flexible content analysis package for Laravel 10+ applications. Analyze and filter offensive content using multiple services, local dictionaries, and advanced detection strategies.
+Sentinel is an advanced, flexible, and powerful content analysis package for Laravel applications. It provides comprehensive protection against offensive content through multiple detection strategies, context-aware analysis, and multilingual support.
 
-This documentation has been generated almost in its entirety using 🦠 [Claude 3.5 Sonnet](https://claude.ai/) based on source code analysis. Some sections may be incomplete, outdated or may contain documentation for planned or not-released features. For the most accurate information, please refer to the source code or open an issue on the package repository.
+This documentation has been generated almost in its entirety using 🦠 [Claude 3.5 Haiku](https://claude.ai/) based on source code analysis. Some sections may be incomplete, outdated or may contain documentation for planned or not-released features. For the most accurate information, please refer to the source code or open an issue on the package repository.
 
 ## ❤️ Features
 
@@ -34,6 +34,11 @@ This documentation has been generated almost in its entirety using 🦠 [Claude 
     - Variation detection for obfuscated content
     - Repeated character detection
     - Levenshtein distance matching
+    - Alphanumeric variation detection
+    - Phonetic matching
+    - Zero-width character detection
+    - Reversed word detection
+  
 - Rich analysis results:
     - Sentiment analysis
     - Content categorization

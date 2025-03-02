@@ -53,6 +53,8 @@ return [
             'gaming' => 0.6,            // Gaming content
             'chat' => 0.4,              // Chat/messaging content
         ],
+
+        // Audience thresholds (higher values = more lenient)
         'audiences' => [
             'children' => 0.3,      // Content for children (more strict)
             'teen' => 0.4,          // Content for teenagers
