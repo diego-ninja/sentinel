@@ -6,6 +6,23 @@
  * of potentially offensive content.
  */
 return [
+    // Words that are considered offensive or profane
+    'offensive_words' => [
+        'babaca', 'baitola', 'bicha', 'bixa', 'boceta', 'bosta', 'buceta', 'bunda', 'caralho',
+        'cu', 'cusão', 'cuzão', 'cadela', 'cagar', 'cassete', 'chochota', 'chota', 'chupeta',
+        'corno', 'cornudo', 'cretino', 'debiloide', 'estúpido', 'escroto', 'fdp', 'filho da puta',
+        'filha da puta', 'foda', 'foder', 'fodido', 'fudendo', 'fudido', 'idiota', 'imbecil',
+        'machona', 'merda', 'mijada', 'otário', 'panaca', 'pica', 'pau', 'pinto', 'piroca',
+        'piranha', 'punheta', 'puta', 'putaria', 'puto', 'punhetão', 'quenga', 'rapariga',
+        'rabo', 'retardado', 'sapatão', 'siririca', 'tezão', 'tesão', 'tezudo', 'vagabunda',
+        'veado', 'viadagem', 'viado', 'vadia', 'vai tomar no cu', 'vai se foder', 'xana',
+        'xaninha', 'xochota', 'xexeca', 'xoxota', 'xota', 'xavasca', 'xereca', 'arrombado',
+        'arregaçada', 'boquete', 'brocha', 'bichona', 'cacete', 'cagar', 'cambada', 'canalha',
+        'caray', 'chavasca', 'cona', 'cuzinho', 'dadeira', 'enrabar', 'enrabada', 'esporrada',
+        'estupor', 'foda-se', 'fudecao', 'gozar', 'laricar', 'masturbar', 'porra', 'rabao',
+        'toba', 'virilha', 'vulva', 'vaca', 'pica mole', 'pica dura', 'suruba', 'putinha',
+        'rabudas', 'racista', 'rola', 'sacana', 'safada', 'safado', 'sapatona',
+    ],
     // Words that intensify offensive content when combined with profanity
     'intensifiers' => [
         'muito', 'realmente', 'absolutamente', 'totalmente', 'completamente',

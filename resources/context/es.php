@@ -6,6 +6,16 @@
  * of potentially offensive content.
  */
 return [
+    // Words that are considered offensive in Spanish
+    'offensive_words' => [
+        'bollera', 'cabron', 'cabrón', 'cabrona', 'cabronazo', 'capulla', 'capullo', 'chichi',
+        'chocho', 'cojon', 'cojón', 'cojones', 'comepollas', 'cono', 'coño', 'culo', 'follar',
+        'follen', 'furcia', 'gilipollas', 'hijaputa', 'hijo puta', 'hijoputa', 'hostia', 'joder',
+        'jodete', 'jódete', 'joputa', 'mamada', 'mamon', 'mamón', 'mamona', 'marica', 'maricon',
+        'maricón', 'maricona', 'mariconazo', 'nazi', 'ojete', 'ostia', 'pajillero', 'pendon',
+        'pendón', 'picha', 'polla', 'pollon', 'pollón', 'polvo', 'potorro', 'puta', 'puto',
+        'puton', 'putón', 'tortillera', 'zorron', 'zorrón',
+    ],
     // Words that intensify offensive content when combined with profanity
     'intensifiers' => [
         'muy', 'realmente', 'jodidamente', 'absolutamente', 'totalmente', 'completamente',

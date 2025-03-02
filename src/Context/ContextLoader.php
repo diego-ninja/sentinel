@@ -71,7 +71,7 @@ final class ContextLoader
                 return self::getCategory('en', $category);
             }
 
-            throw new InvalidArgumentException("Context category '{$category}' not found for language '{$language}'");
+            throw new InvalidArgumentException(sprintf("Context category '%s' not found for language '%s'", $category, $language));
         }
 
         return $context[$category];

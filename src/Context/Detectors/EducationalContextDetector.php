@@ -18,7 +18,6 @@ final readonly class EducationalContextDetector extends AbstractContextDetector
         /** @var array<string> $educationalMarkers */
         $educationalMarkers = $this->getContextCategory($language, 'educational_context');
 
-
         // Check for educational markers in nearby words
         $contextWindow = 10; // Look 10 words before and after
         $start = max(0, $position - $contextWindow);

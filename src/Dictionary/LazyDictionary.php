@@ -2,8 +2,10 @@
 
 namespace Ninja\Sentinel\Dictionary;
 
+use Exception;
 use Generator;
 use IteratorAggregate;
+use Ninja\Sentinel\Context\ContextLoader;
 use Ninja\Sentinel\Exceptions\DictionaryFileNotFound;
 use SplFixedArray;
 
@@ -12,7 +14,7 @@ use SplFixedArray;
  */
 final class LazyDictionary implements IteratorAggregate
 {
-    private const CHUNK_SIZE = 1000;
+    private const int CHUNK_SIZE = 1000;
 
     /** @var array<string,SplFixedArray<string>> */
     private array $chunks = [];
@@ -86,36 +88,63 @@ final class LazyDictionary implements IteratorAggregate
         $seenWords = [];
 
         foreach ($this->languages as $language) {
-            $dictionaryFile = sprintf('%s/%s.php', $this->dictionaryPath, $language);
+            try {
+                // Intenta obtener palabras ofensivas del archivo de contexto
+                $words = ContextLoader::getCategory($language, 'offensive_words');
+                $totalChunks = ceil(count($words) / self::CHUNK_SIZE);
 
-            if ( ! file_exists($dictionaryFile)) {
-                throw DictionaryFileNotFound::withFile($dictionaryFile);
-            }
+                for ($i = 0; $i < $totalChunks; $i++) {
+                    /** @var array<int,string> $chunk */
+                    $chunk = array_values(array_slice($words, $i * self::CHUNK_SIZE, self::CHUNK_SIZE));
 
-            /** @var array<string> $words */
-            $words = include $dictionaryFile;
-            $totalChunks = ceil(count($words) / self::CHUNK_SIZE);
+                    $chunkKey = "{$language}_{$i}";
+                    $fixedArray = SplFixedArray::fromArray($chunk);
+                    $this->chunks[$chunkKey] = $fixedArray;
 
-            for ($i = 0; $i < $totalChunks; $i++) {
-                /** @var array<int,string> $chunk */
-                $chunk = array_values(array_slice($words, $i * self::CHUNK_SIZE, self::CHUNK_SIZE));
-
-                $chunkKey = "{$language}_{$i}";
-                $fixedArray = SplFixedArray::fromArray($chunk);
-                $this->chunks[$chunkKey] = $fixedArray;
-
-                foreach ($this->chunks[$chunkKey] as $word) {
-                    if (is_string($word) && ! isset($seenWords[$word])) {
-                        $seenWords[$word] = true;
-                        yield $word;
+                    foreach ($this->chunks[$chunkKey] as $word) {
+                        if (is_string($word) && ! isset($seenWords[$word])) {
+                            $seenWords[$word] = true;
+                            yield $word;
+                        }
                     }
+
+                    unset($this->chunks[$chunkKey]);
                 }
 
-                unset($this->chunks[$chunkKey]);
-            }
+                unset($words);
+                gc_collect_cycles();
+            } catch (Exception $e) {
+                $dictionaryFile = sprintf('%s/%s.php', $this->dictionaryPath, $language);
 
-            unset($words);
-            gc_collect_cycles();
+                if ( ! file_exists($dictionaryFile)) {
+                    throw DictionaryFileNotFound::withFile($dictionaryFile);
+                }
+
+                /** @var array<string> $words */
+                $words = include $dictionaryFile;
+                $totalChunks = ceil(count($words) / self::CHUNK_SIZE);
+
+                for ($i = 0; $i < $totalChunks; $i++) {
+                    /** @var array<int,string> $chunk */
+                    $chunk = array_values(array_slice($words, $i * self::CHUNK_SIZE, self::CHUNK_SIZE));
+
+                    $chunkKey = "{$language}_{$i}";
+                    $fixedArray = SplFixedArray::fromArray($chunk);
+                    $this->chunks[$chunkKey] = $fixedArray;
+
+                    foreach ($this->chunks[$chunkKey] as $word) {
+                        if (is_string($word) && ! isset($seenWords[$word])) {
+                            $seenWords[$word] = true;
+                            yield $word;
+                        }
+                    }
+
+                    unset($this->chunks[$chunkKey]);
+                }
+
+                unset($words);
+                gc_collect_cycles();
+            }
         }
     }
 }

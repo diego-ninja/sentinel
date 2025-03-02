@@ -6,6 +6,15 @@
  * of potentially offensive content.
  */
 return [
+    'offensive_words' => [
+        'abruti', 'abrutie', 'baise', 'baisé', 'baiser', 'batard', 'bite', 'bougnoul',
+        'branleur', 'burne', 'chier', 'cocu', 'con', 'connard', 'connasse', 'conne', 'couille',
+        'couillon', 'couillonne', 'crevard', 'cul', 'encule', 'enculé', 'enculee', 'enculée',
+        'enculer', 'enfoire', 'enfoiré', 'fion', 'foutre', 'merde', 'negre', 'nègre', 'negresse',
+        'négresse', 'nique', 'niquer', 'partouze', 'pd', 'pede', 'pédé', 'petasse', 'pétasse',
+        'pine', 'pouffe', 'pouffiasse', 'putain', 'pute', 'salaud', 'salop', 'salopard', 'salope',
+        'sodomie', 'sucer', 'tapette', 'tare', 'taré', 'vagin', 'zob',
+    ],
     // Words that intensify offensive content when combined with profanity
     'intensifiers' => [
         'très', 'vraiment', 'putain', 'absolument', 'totalement', 'complètement',
