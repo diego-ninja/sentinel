@@ -20,29 +20,18 @@ test('pattern strategy detects exact matches', function (): void {
         ->toHaveCount(2)
         ->sequence(
             fn($match) => $match
-                ->word()->toBe('shit')
+                ->word()->toBe('fuck')
                 ->type()->toBe(MatchType::Pattern),
             fn($match) => $match
-                ->word()->toBe('fuck')
+                ->word()->toBe('shit')
                 ->type()->toBe(MatchType::Pattern),
         );
 
 });
 
 test('pattern strategy handles character substitutions', function (): void {
-    $dic = app(LazyDictionary::class);
-    $generator = new PatternGenerator(config('sentinel.replacements'), false);
-    $generator->forWords(iterator_to_array($dic->getWords()));
-
-    $languages = app(LanguageCollection::class);
     $language = app(Language::class);
-
-
-    $strategy = new PatternStrategy(
-        $languages,
-        $generator,
-        new MemoryPatternCache(),
-    );
+    $strategy = app()->build(PatternStrategy::class);
 
     $result = $strategy->detect('fvck this sh!t', $language);
 

@@ -331,6 +331,11 @@ return [
                 Ninja\Sentinel\Detection\Strategy\ReversedWordsStrategy::class,
                 Ninja\Sentinel\Detection\Strategy\ZeroWidthStrategy::class,
             ],
+            'early_termination' => [
+                'enabled' => env('SENTINEL_EARLY_TERMINATION', true),
+                'threshold' => env('SENTINEL_EARLY_TERMINATION_THRESHOLD', 0.8),
+                'batch_size' => env('SENTINEL_EARLY_TERMINATION_BATCH', 3),
+            ],
         ],
     ],
 

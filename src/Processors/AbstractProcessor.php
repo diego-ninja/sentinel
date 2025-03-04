@@ -62,6 +62,22 @@ abstract class AbstractProcessor implements Processor
             $class = app()->build($strategy);
             $this->strategies->addStrategy($class);
         }
+
+        /** @var array<string, mixed> $earlyTermination */
+        $earlyTermination = config('sentinel.services.local.early_termination', []);
+
+        /** @var bool $enabled */
+        $enabled = $earlyTermination['enabled'] ?? true;
+
+        /** @var float $threshold */
+        $threshold = $earlyTermination['threshold'] ?? 0.8;
+
+        /** @var int $batchSize */
+        $batchSize = $earlyTermination['batch_size'] ?? 3;
+
+        $this->strategies
+            ->useEarlyTermination($enabled, $threshold)
+            ->setBatchSize($batchSize);
     }
 
     protected function processChunk(string $chunk): Result
