@@ -6,6 +6,8 @@ use Ninja\Sentinel\Collections\MatchCollection;
 use Ninja\Sentinel\Collections\OccurrenceCollection;
 use Ninja\Sentinel\Enums\MatchType;
 use Ninja\Sentinel\Enums\PhoneticAlgorithm;
+use Ninja\Sentinel\Language\Collections\LanguageCollection;
+use Ninja\Sentinel\Language\Language;
 use Ninja\Sentinel\Support\Calculator;
 use Ninja\Sentinel\ValueObject\Coincidence;
 use Ninja\Sentinel\ValueObject\Position;
@@ -18,18 +20,27 @@ final class PhoneticStrategy extends AbstractStrategy
     private array $phoneticIndex = [];
 
     /**
+     * @param LanguageCollection $languages
      * @param PhoneticAlgorithm $algorithm
      */
     public function __construct(
+        protected LanguageCollection $languages,
         private readonly PhoneticAlgorithm $algorithm = PhoneticAlgorithm::Metaphone,
-    ) {}
+    ) {
+        parent::__construct($languages);
+    }
 
-    public function detect(string $text, iterable $words): MatchCollection
+    public function detect(string $text, ?Language $language = null): MatchCollection
     {
+        $language ??= $this->languages->bestFor($text);
         $matches = new MatchCollection();
 
+        if (null === $language) {
+            return $matches;
+        }
+
         if (empty($this->phoneticIndex)) {
-            $this->buildPhoneticIndex($words);
+            $this->buildPhoneticIndex($language->words());
         }
 
         $textWords = preg_split('/\s+/', $text);
@@ -68,9 +79,10 @@ final class PhoneticStrategy extends AbstractStrategy
                         new Coincidence(
                             word: $textWord,
                             type: MatchType::Variation,
-                            score: Calculator::score($text, $textWord, MatchType::Variation, $occurrences),
+                            score: Calculator::score($text, $textWord, MatchType::Variation, $occurrences, $language),
                             confidence: Calculator::confidence($text, $textWord, MatchType::Variation, $occurrences),
                             occurrences: $occurrences,
+                            language: $language->code(),
                             context: [
                                 'original' => $originalWord,
                                 'variation_type' => 'phonetic',

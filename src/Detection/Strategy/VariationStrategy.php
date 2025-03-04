@@ -5,6 +5,8 @@ namespace Ninja\Sentinel\Detection\Strategy;
 use Ninja\Sentinel\Collections\MatchCollection;
 use Ninja\Sentinel\Collections\OccurrenceCollection;
 use Ninja\Sentinel\Enums\MatchType;
+use Ninja\Sentinel\Language\Collections\LanguageCollection;
+use Ninja\Sentinel\Language\Language;
 use Ninja\Sentinel\Support\Calculator;
 use Ninja\Sentinel\Support\TextAnalyzer;
 use Ninja\Sentinel\ValueObject\Coincidence;
@@ -12,17 +14,27 @@ use Ninja\Sentinel\ValueObject\Position;
 
 final class VariationStrategy extends AbstractStrategy
 {
-    public function __construct(private readonly bool $fullWords = true) {}
+    public function __construct(
+        protected LanguageCollection $languages,
+        private readonly bool $fullWords = true,
+    ) {
+        parent::__construct($this->languages);
+    }
 
-    public function detect(string $text, iterable $words): MatchCollection
+    public function detect(string $text, ?Language $language = null): MatchCollection
     {
+        $language ??= $this->languages->bestFor($text);
         $matches = new MatchCollection();
 
-        foreach ($words as $word) {
+        if (null === $language) {
+            return $matches;
+        }
+
+        foreach ($language->words() as $word) {
             if ($this->fullWords) {
-                $this->detectFullWords($text, $word, $matches);
+                $this->detectFullWords($text, $word, $matches, $language);
             } else {
-                $this->detectPartialWords($text, $word, $matches);
+                $this->detectPartialWords($text, $word, $matches, $language);
             }
         }
 
@@ -34,7 +46,7 @@ final class VariationStrategy extends AbstractStrategy
         return MatchType::Variation->weight();
     }
 
-    private function detectFullWords(string $text, string $word, MatchCollection $matches): void
+    private function detectFullWords(string $text, string $word, MatchCollection $matches, Language $language): void
     {
         $chars = preg_split('//u', $word, -1, PREG_SPLIT_NO_EMPTY);
         if (false === $chars) {
@@ -56,9 +68,10 @@ final class VariationStrategy extends AbstractStrategy
                     new Coincidence(
                         word: $match,
                         type: MatchType::Variation,
-                        score: Calculator::score($text, $match, MatchType::Variation, $occurrences),
+                        score: Calculator::score($text, $match, MatchType::Variation, $occurrences, $language),
                         confidence: Calculator::confidence($text, $match, MatchType::Variation, $occurrences),
                         occurrences: $occurrences,
+                        language: $language->code(),
                         context: ['original' => $word, 'full_word' => true],
                     ),
                 );
@@ -66,7 +79,7 @@ final class VariationStrategy extends AbstractStrategy
         }
     }
 
-    private function detectPartialWords(string $text, string $word, MatchCollection $matches): void
+    private function detectPartialWords(string $text, string $word, MatchCollection $matches, Language $language): void
     {
         foreach (TextAnalyzer::getSeparatorVariations($word) as $variation) {
             if (str_contains($variation, ' ')) {
@@ -87,9 +100,10 @@ final class VariationStrategy extends AbstractStrategy
                     new Coincidence(
                         word: $variation,
                         type: MatchType::Variation,
-                        score: Calculator::score($text, $variation, MatchType::Variation, $occurrences),
+                        score: Calculator::score($text, $variation, MatchType::Variation, $occurrences, $language),
                         confidence: Calculator::confidence($text, $variation, MatchType::Variation, $occurrences),
                         occurrences: $occurrences,
+                        language: $language->code(),
                         context: ['original' => $word, 'full_word' => false],
                     ),
                 );

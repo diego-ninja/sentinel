@@ -5,8 +5,8 @@ namespace Ninja\Sentinel\Dictionary;
 use Exception;
 use Generator;
 use IteratorAggregate;
-use Ninja\Sentinel\Context\ContextLoader;
 use Ninja\Sentinel\Exceptions\DictionaryFileNotFound;
+use Ninja\Sentinel\Language\Collections\LanguageCollection;
 use SplFixedArray;
 
 /**
@@ -19,39 +19,31 @@ final class LazyDictionary implements IteratorAggregate
     /** @var array<string,SplFixedArray<string>> */
     private array $chunks = [];
 
-    /** @var array<string>|null */
-    private ?array $customWords = null;
+    /** @var array<string> */
+    private array $customWords = [];
 
-    /**
-     * @param  string[]  $languages
-     */
     public function __construct(
-        private readonly array $languages,
-        private ?string $dictionaryPath = null,
-    ) {
-        /** @var string $path */
-        $path = config('sentinel.dictionary_path');
-        $this->dictionaryPath = $dictionaryPath ?? $path;
-    }
+        private readonly LanguageCollection $languages,
+    ) {}
 
     /**
-     * @param  string[]  $words
+     * @param array<string> $words
      */
     public static function withWords(array $words): self
     {
-        $filteredWords = array_filter($words, fn($word) => '' !== $word);
-        $instance = new self(['custom']);
-        $instance->customWords = array_unique($filteredWords);
+        $dictionary = new self(new LanguageCollection());
+        $dictionary->addWords($words);
 
-        return $instance;
+        return $dictionary;
     }
 
     /**
-     * @param  string[]  $languages
+     * @param array<string> $words
      */
-    public static function withLanguages(array $languages): self
+    public function addWords(array $words): void
     {
-        return new self($languages);
+        $filteredWords = array_filter($words, fn($word) => '' !== $word);
+        $this->customWords = array_unique(array_merge($this->customWords, $filteredWords));
     }
 
     /**
@@ -75,7 +67,7 @@ final class LazyDictionary implements IteratorAggregate
      */
     private function loadWordsLazily(): Generator
     {
-        if (null !== $this->customWords) {
+        if ( ! empty($this->customWords)) {
             foreach ($this->customWords as $word) {
                 if (is_string($word)) {
                     yield $word;
@@ -90,14 +82,14 @@ final class LazyDictionary implements IteratorAggregate
         foreach ($this->languages as $language) {
             try {
                 // Intenta obtener palabras ofensivas del archivo de contexto
-                $words = ContextLoader::getCategory($language, 'offensive_words');
+                $words = iterator_to_array($language->words());
                 $totalChunks = ceil(count($words) / self::CHUNK_SIZE);
 
                 for ($i = 0; $i < $totalChunks; $i++) {
                     /** @var array<int,string> $chunk */
                     $chunk = array_values(array_slice($words, $i * self::CHUNK_SIZE, self::CHUNK_SIZE));
+                    $chunkKey = sprintf('%s_%d', $language->code()->value, $i);
 
-                    $chunkKey = "{$language}_{$i}";
                     $fixedArray = SplFixedArray::fromArray($chunk);
                     $this->chunks[$chunkKey] = $fixedArray;
 
@@ -114,36 +106,7 @@ final class LazyDictionary implements IteratorAggregate
                 unset($words);
                 gc_collect_cycles();
             } catch (Exception $e) {
-                $dictionaryFile = sprintf('%s/%s.php', $this->dictionaryPath, $language);
-
-                if ( ! file_exists($dictionaryFile)) {
-                    throw DictionaryFileNotFound::withFile($dictionaryFile);
-                }
-
-                /** @var array<string> $words */
-                $words = include $dictionaryFile;
-                $totalChunks = ceil(count($words) / self::CHUNK_SIZE);
-
-                for ($i = 0; $i < $totalChunks; $i++) {
-                    /** @var array<int,string> $chunk */
-                    $chunk = array_values(array_slice($words, $i * self::CHUNK_SIZE, self::CHUNK_SIZE));
-
-                    $chunkKey = "{$language}_{$i}";
-                    $fixedArray = SplFixedArray::fromArray($chunk);
-                    $this->chunks[$chunkKey] = $fixedArray;
-
-                    foreach ($this->chunks[$chunkKey] as $word) {
-                        if (is_string($word) && ! isset($seenWords[$word])) {
-                            $seenWords[$word] = true;
-                            yield $word;
-                        }
-                    }
-
-                    unset($this->chunks[$chunkKey]);
-                }
-
-                unset($words);
-                gc_collect_cycles();
+                throw new DictionaryFileNotFound($e->getMessage());
             }
         }
     }

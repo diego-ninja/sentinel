@@ -5,6 +5,7 @@ namespace Ninja\Sentinel\Detection\Strategy;
 use Ninja\Sentinel\Collections\MatchCollection;
 use Ninja\Sentinel\Collections\OccurrenceCollection;
 use Ninja\Sentinel\Enums\MatchType;
+use Ninja\Sentinel\Language\Language;
 use Ninja\Sentinel\Support\Calculator;
 use Ninja\Sentinel\ValueObject\Coincidence;
 use Ninja\Sentinel\ValueObject\Position;
@@ -22,10 +23,14 @@ final class ZeroWidthStrategy extends AbstractStrategy
         "\u{FEFF}", // Zero width no-break space
     ];
 
-    public function detect(string $text, iterable $words): MatchCollection
+    public function detect(string $text, ?Language $language = null): MatchCollection
     {
+        $language ??= $this->languages->bestFor($text);
         $matches = new MatchCollection();
-        $dictionary = is_array($words) ? $words : iterator_to_array($words);
+
+        if (null === $language) {
+            return $matches;
+        }
 
         $cleanText = str_replace($this->zeroWidthChars, '', $text);
 
@@ -41,7 +46,7 @@ final class ZeroWidthStrategy extends AbstractStrategy
         foreach ($words as $word) {
             $lowercaseWord = mb_strtolower($word);
 
-            foreach ($dictionary as $badWord) {
+            foreach ($language->words() as $badWord) {
                 if (mb_strtolower($badWord) === $lowercaseWord) {
                     $originalWord = $this->findOriginalWithZeroWidth($text, $word);
                     if ( ! $originalWord) {
@@ -63,9 +68,10 @@ final class ZeroWidthStrategy extends AbstractStrategy
                             new Coincidence(
                                 word: $originalWord,
                                 type: MatchType::Variation,
-                                score: Calculator::score($text, $originalWord, MatchType::Variation, $occurrences),
+                                score: Calculator::score($text, $originalWord, MatchType::Variation, $occurrences, $language),
                                 confidence: Calculator::confidence($text, $originalWord, MatchType::Variation, $occurrences),
                                 occurrences: $occurrences,
+                                language: $language->code(),
                                 context: [
                                     'original' => $badWord,
                                     'variation_type' => 'zero_width',

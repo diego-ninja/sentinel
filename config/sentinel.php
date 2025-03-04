@@ -79,8 +79,8 @@ return [
     | Languages
     |--------------------------------------------------------------------------
     |
-    | Define the list of languages available in the package
-    |
+    | Define the list of languages available in the package.
+    | Set to auto to automatically detect the language from the text.
     |
     */
     'languages' => explode(',', env('SENTINEL_LANGUAGES', 'en')),

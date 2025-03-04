@@ -5,17 +5,23 @@ namespace Ninja\Sentinel\Detection\Strategy;
 use Ninja\Sentinel\Collections\MatchCollection;
 use Ninja\Sentinel\Collections\OccurrenceCollection;
 use Ninja\Sentinel\Enums\MatchType;
+use Ninja\Sentinel\Language\Language;
 use Ninja\Sentinel\Support\Calculator;
 use Ninja\Sentinel\ValueObject\Coincidence;
 use Ninja\Sentinel\ValueObject\Position;
 
 final class RepeatedCharStrategy extends AbstractStrategy
 {
-    public function detect(string $text, iterable $words): MatchCollection
+    public function detect(string $text, ?Language $language = null): MatchCollection
     {
+        $language ??= $this->languages->bestFor($text);
         $matches = new MatchCollection();
 
-        foreach ($words as $badWord) {
+        if (null === $language) {
+            return $matches;
+        }
+
+        foreach ($language->words() as $badWord) {
             if ( ! $this->hasRepeatedChars($text)) {
                 continue;
             }
@@ -32,9 +38,10 @@ final class RepeatedCharStrategy extends AbstractStrategy
                             new Coincidence(
                                 word: $match,
                                 type: MatchType::Repeated,
-                                score: Calculator::score($text, $match, MatchType::Repeated, $occurrences),
+                                score: Calculator::score($text, $match, MatchType::Repeated, $occurrences, $language),
                                 confidence: Calculator::confidence($text, $match, MatchType::Repeated, $occurrences),
                                 occurrences: $occurrences,
+                                language: $language->code(),
                                 context: ['original' => $badWord],
                             ),
                         );

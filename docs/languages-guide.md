@@ -67,12 +67,12 @@ return [
         'amor', 'amar', 'gustar', // ...
     ],
 
-    // Educational context markers
+    // Educational language markers
     'educational_context' => [
         'investigación', 'estudio', 'análisis', // ...
     ],
 
-    // And more context-specific lists
+    // And more language-specific lists
 ];
 ```
 
@@ -92,11 +92,11 @@ return [
 
 2. Create Context File
 ```php
-// resources/context/new-language.php
+// resources/language/new-language.php
 return [
-    'intensifiers' => [ /* context-specific words */ ],
-    'negative_modifiers' => [ /* context-specific words */ ],
-    // Other context sections
+    'intensifiers' => [ /* language-specific words */ ],
+    'negative_modifiers' => [ /* language-specific words */ ],
+    // Other language sections
 ];
 ```
 
@@ -117,7 +117,7 @@ class SpanishDetectionStrategy extends AbstractStrategy
 {
     public function detect(string $text, iterable $words): MatchCollection
     {
-        // Language-specific detection logic
+        // AbstractLanguage-specific detection logic
         $matches = new MatchCollection();
         
         // Implement Spanish-specific matching
@@ -131,12 +131,12 @@ class SpanishDetectionStrategy extends AbstractStrategy
 Languages have unique context markers:
 
 ```php
-// English context detection
+// English language detection
 $englishEducationalMarkers = [
     'research', 'study', 'analysis', // ...
 ];
 
-// Spanish context detection
+// Spanish language detection
 $spanishEducationalMarkers = [
     'investigación', 'estudio', 'análisis', // ...
 ];

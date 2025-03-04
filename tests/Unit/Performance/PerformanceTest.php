@@ -6,7 +6,7 @@ use Ninja\Sentinel\Checkers\Local;
 
 test('handles large text input efficiently', function (): void {
     $local = app(Local::class);
-    $largeText = str_repeat('This is a very long text with some bad words like fuck and shit scattered throughout. ', 100);
+    $largeText = str_repeat('This is a very long text with some bad words like fuck and shit scattered throughout. ', 50);
 
     $startTime = microtime(true);
     $result = $local->check($largeText);

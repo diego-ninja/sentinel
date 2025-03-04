@@ -3,10 +3,15 @@
 namespace Tests\Unit\Detection;
 
 use Ninja\Sentinel\Detection\Strategy\RepeatedCharStrategy;
+use Ninja\Sentinel\Enums\LanguageCode;
 use Ninja\Sentinel\Enums\MatchType;
+use Ninja\Sentinel\Language\Collections\LanguageCollection;
 
 test('repeated chars strategy detects repeated characters', function (): void {
-    $strategy = new RepeatedCharStrategy();
+    $languages = app(LanguageCollection::class);
+    $language = $languages->findByCode(LanguageCode::English);
+    $strategy = new RepeatedCharStrategy($languages);
+
     $variations = [
         'fuuuck',
         'fuuuuck',
@@ -14,7 +19,7 @@ test('repeated chars strategy detects repeated characters', function (): void {
     ];
 
     foreach ($variations as $text) {
-        $result = $strategy->detect($text, ['fuck']);
+        $result = $strategy->detect($text, $language);
         expect($result)
             ->toHaveCount(1)
             ->sequence(
@@ -26,15 +31,21 @@ test('repeated chars strategy detects repeated characters', function (): void {
 });
 
 test('repeated chars strategy preserves word boundaries', function (): void {
-    $strategy = new RepeatedCharStrategy();
-    $result = $strategy->detect('claaass', ['ass']);
+    $languages = app(LanguageCollection::class);
+    $language = $languages->findByCode(LanguageCode::English);
+    $strategy = new RepeatedCharStrategy($languages);
+
+    $result = $strategy->detect('claaass', $language);
 
     expect($result)->toBeEmpty();
 });
 
 test('repeated chars strategy handles multiple words', function (): void {
-    $strategy = new RepeatedCharStrategy();
-    $result = $strategy->detect('fuuuck this shiiit', ['fuck', 'shit']);
+    $languages = app(LanguageCollection::class);
+    $language = $languages->findByCode(LanguageCode::English);
+    $strategy = new RepeatedCharStrategy($languages);
+
+    $result = $strategy->detect('fuuuck this shiiit', $language);
 
     expect($result)
         ->toHaveCount(2)
@@ -45,8 +56,11 @@ test('repeated chars strategy handles multiple words', function (): void {
 });
 
 test('repeated chars strategy ignores non-repeated characters', function (): void {
-    $strategy = new RepeatedCharStrategy();
-    $result = $strategy->detect('fuck', ['fuck']);
+    $languages = app(LanguageCollection::class);
+    $language = $languages->findByCode(LanguageCode::English);
+    $strategy = new RepeatedCharStrategy($languages);
+
+    $result = $strategy->detect('fuck', $language);
 
     expect($result)->toBeEmpty();
 });

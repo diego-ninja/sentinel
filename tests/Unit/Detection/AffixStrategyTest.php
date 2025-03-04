@@ -3,13 +3,13 @@
 namespace Tests\Unit\Detection;
 
 use Ninja\Sentinel\Detection\Strategy\AffixStrategy;
+use Ninja\Sentinel\Enums\LanguageCode;
 use Ninja\Sentinel\Enums\MatchType;
+use Ninja\Sentinel\Language\Collections\LanguageCollection;
 
 test('word variant strategy detects suffixes', function (): void {
-    $suffixes = config('sentinel.suffixes');
-    $prefixes = config('sentinel.prefixes');
-
-    $strategy = new AffixStrategy($prefixes, $suffixes);
+    $languages = app(LanguageCollection::class);
+    $strategy = new AffixStrategy($languages);
     $variations = [
         'fucking',
         'fucked',
@@ -19,7 +19,7 @@ test('word variant strategy detects suffixes', function (): void {
     ];
 
     foreach ($variations as $text) {
-        $result = $strategy->detect($text, ['fuck']);
+        $result = $strategy->detect($text, $languages->findByCode(LanguageCode::English));
         expect($result)
             ->toHaveCount(1)
             ->sequence(
@@ -31,10 +31,9 @@ test('word variant strategy detects suffixes', function (): void {
 });
 
 test('word variant strategy detects prefixes', function (): void {
-    $suffixes = config('sentinel.suffixes');
-    $prefixes = config('sentinel.prefixes');
+    $languages = app(LanguageCollection::class);
 
-    $strategy = new AffixStrategy($prefixes, $suffixes);
+    $strategy = new AffixStrategy($languages);
     $variations = [
         'unfuck',
         'refuck',
@@ -44,7 +43,7 @@ test('word variant strategy detects prefixes', function (): void {
     ];
 
     foreach ($variations as $text) {
-        $result = $strategy->detect($text, ['fuck']);
+        $result = $strategy->detect($text, $languages->findByCode(LanguageCode::English));
         expect($result)
             ->toHaveCount(1)
             ->sequence(
@@ -56,10 +55,9 @@ test('word variant strategy detects prefixes', function (): void {
 });
 
 test('word variant strategy detects prefix-suffix combinations', function (): void {
-    $suffixes = config('sentinel.suffixes');
-    $prefixes = config('sentinel.prefixes');
+    $languages = app(LanguageCollection::class);
 
-    $strategy = new AffixStrategy($prefixes, $suffixes);
+    $strategy = new AffixStrategy($languages);
     $variations = [
         'unfucking',
         'refucked',
@@ -69,7 +67,7 @@ test('word variant strategy detects prefix-suffix combinations', function (): vo
     ];
 
     foreach ($variations as $text) {
-        $result = $strategy->detect($text, ['fuck']);
+        $result = $strategy->detect($text, $languages->findByCode(LanguageCode::English));
         expect($result)
             ->toHaveCount(1)
             ->sequence(
@@ -81,30 +79,26 @@ test('word variant strategy detects prefix-suffix combinations', function (): vo
 });
 
 test('word variant strategy handles special ending rules', function (): void {
-    $suffixes = config('sentinel.suffixes');
-    $prefixes = config('sentinel.prefixes');
+    $languages = app(LanguageCollection::class);
+    $strategy = new AffixStrategy($languages);
 
-    $strategy = new AffixStrategy($prefixes, $suffixes);
-
-    $result = $strategy->detect('bitchiest', ['bitchy']);
+    $result = $strategy->detect('bitchiest', $languages->findByCode(LanguageCode::English));
     expect($result)
         ->toHaveCount(1)
         ->and($result->first()->word())->toBe('bitchiest');
 
-    $result = $strategy->detect('shitting', ['shit']);
+    $result = $strategy->detect('shitting', $languages->findByCode(LanguageCode::English));
     expect($result)
         ->toHaveCount(1)
         ->and($result->first()->word())->toBe('shitting');
 });
 
 test('word variant strategy preserves case', function (): void {
-    $suffixes = config('sentinel.suffixes');
-    $prefixes = config('sentinel.prefixes');
-
-    $strategy = new AffixStrategy($prefixes, $suffixes);
+    $languages = app(LanguageCollection::class);
+    $strategy = new AffixStrategy($languages);
 
     $text = 'UnFucking REFUCKED superFUCKER';
-    $result = $strategy->detect($text, ['fuck']);
+    $result = $strategy->detect($text, $languages->findByCode(LanguageCode::English));
 
     expect($result)
         ->toHaveCount(3)
@@ -116,13 +110,11 @@ test('word variant strategy preserves case', function (): void {
 });
 
 test('word variant strategy handles multiple words in text', function (): void {
-    $suffixes = config('sentinel.suffixes');
-    $prefixes = config('sentinel.prefixes');
-
-    $strategy = new AffixStrategy($prefixes, $suffixes);
+    $languages = app(LanguageCollection::class);
+    $strategy = new AffixStrategy($languages);
 
     $text = 'unfucking shitting superfucker';
-    $result = $strategy->detect($text, ['fuck', 'shit']);
+    $result = $strategy->detect($text, $languages->findByCode(LanguageCode::English));
 
     expect($result)->toHaveCount(3);
 });

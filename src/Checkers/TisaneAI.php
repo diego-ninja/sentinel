@@ -26,7 +26,7 @@ final class TisaneAI extends AbstractProfanityChecker
      * Check text for offensive content using Tisane API
      *
      * @param string $text Text to analyze
-     * @param ContentType|null $contentType Optional content type for context
+     * @param ContentType|null $contentType Optional content type for language
      * @param Audience|null $audience Optional audience type for threshold adjustment
      * @return Result Analysis result
      * @throws ClientException When API request fails
@@ -136,7 +136,7 @@ final class TisaneAI extends AbstractProfanityChecker
                 case ContentType::Medical:
                 case ContentType::Legal:
                     // For academic/professional content, request explanations
-                    // to better understand context
+                    // to better understand language
                     $settings['explanations'] = true;
                     // Focus less on profanity in professional contexts
                     $settings['profanity_threshold'] = 0.7;
@@ -188,7 +188,7 @@ final class TisaneAI extends AbstractProfanityChecker
                     break;
 
                 case Audience::Professional:
-                    // Professional context focuses more on appropriateness
+                    // Professional language focuses more on appropriateness
                     $settings['profanity_threshold'] = 0.7;
                     break;
 

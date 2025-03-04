@@ -3,10 +3,14 @@
 namespace Tests\Unit\Detection;
 
 use Ninja\Sentinel\Detection\Strategy\ReversedWordsStrategy;
+use Ninja\Sentinel\Enums\LanguageCode;
 use Ninja\Sentinel\Enums\MatchType;
+use Ninja\Sentinel\Language\Collections\LanguageCollection;
 
 test('reversed words strategy detects offensive words written backwards', function (): void {
-    $strategy = new ReversedWordsStrategy();
+    $languages = app(LanguageCollection::class);
+    $language = $languages->findByCode(LanguageCode::English);
+    $strategy = new ReversedWordsStrategy($languages);
 
     $variations = [
         'kcuf',
@@ -15,7 +19,7 @@ test('reversed words strategy detects offensive words written backwards', functi
     ];
 
     foreach ($variations as $text) {
-        $result = $strategy->detect($text, ['fuck', 'shit', 'bitch']);
+        $result = $strategy->detect($text, $language);
 
         expect($result)
             ->toHaveCount(1)
@@ -28,11 +32,13 @@ test('reversed words strategy detects offensive words written backwards', functi
 });
 
 test('reversed words strategy handles reversed words in sentences', function (): void {
-    $strategy = new ReversedWordsStrategy();
+    $languages = app(LanguageCollection::class);
+    $language = $languages->findByCode(LanguageCode::English);
+    $strategy = new ReversedWordsStrategy($languages);
 
     $text = "This is a kcuf word that is reversed";
 
-    $result = $strategy->detect($text, ['fuck']);
+    $result = $strategy->detect($text, $language);
 
     expect($result)
         ->toHaveCount(1)
@@ -44,22 +50,26 @@ test('reversed words strategy handles reversed words in sentences', function ():
 });
 
 test('reversed words strategy handles unicode characters correctly', function (): void {
-    $strategy = new ReversedWordsStrategy();
+    $languages = app(LanguageCollection::class);
+    $language = $languages->findByCode(LanguageCode::English);
+    $strategy = new ReversedWordsStrategy($languages);
 
     $text = "tîhś";
 
-    $result = $strategy->detect($text, ['śhît']);
+    $result = $strategy->detect($text, $language);
 
     expect($result)->toHaveCount(1)
         ->and($result->first()->word())->toBe('tîhś');
 });
 
-test('reversed words strategy preserves context information', function (): void {
-    $strategy = new ReversedWordsStrategy();
+test('reversed words strategy preserves language information', function (): void {
+    $languages = app(LanguageCollection::class);
+    $language = $languages->findByCode(LanguageCode::English);
+    $strategy = new ReversedWordsStrategy($languages);
 
     $text = "I want to say kcuf";
 
-    $result = $strategy->detect($text, ['fuck']);
+    $result = $strategy->detect($text, $language);
 
     expect($result)->toHaveCount(1)
         ->and($result->first()->context())->toHaveKey('original', 'fuck')
@@ -67,21 +77,25 @@ test('reversed words strategy preserves context information', function (): void 
 });
 
 test('reversed words strategy ignores irrelevant reversed words', function (): void {
-    $strategy = new ReversedWordsStrategy();
+    $languages = app(LanguageCollection::class);
+    $language = $languages->findByCode(LanguageCode::English);
+    $strategy = new ReversedWordsStrategy($languages);
 
     $text = "This is pots";
 
-    $result = $strategy->detect($text, ['fuck', 'shit', 'bitch']);
+    $result = $strategy->detect($text, $language);
 
     expect($result)->toBeEmpty();
 });
 
 test('reversed words strategy only detects full words', function (): void {
-    $strategy = new ReversedWordsStrategy();
+    $languages = app(LanguageCollection::class);
+    $language = $languages->findByCode(LanguageCode::English);
+    $strategy = new ReversedWordsStrategy($languages);
 
     $text = "This is kcufs";
 
-    $result = $strategy->detect($text, ['fuck']);
+    $result = $strategy->detect($text, $language);
 
     expect($result)->toBeEmpty();
 });

@@ -6,6 +6,8 @@ use Ninja\Sentinel\Collections\MatchCollection;
 use Ninja\Sentinel\Collections\OccurrenceCollection;
 use Ninja\Sentinel\Detection\OptimizedLevenshtein;
 use Ninja\Sentinel\Enums\MatchType;
+use Ninja\Sentinel\Language\Collections\LanguageCollection;
+use Ninja\Sentinel\Language\Language;
 use Ninja\Sentinel\Support\Calculator;
 use Ninja\Sentinel\ValueObject\Coincidence;
 use Ninja\Sentinel\ValueObject\Position;
@@ -14,18 +16,25 @@ final class LevenshteinStrategy extends AbstractStrategy
 {
     private int $threshold;
 
-    public function __construct()
+    public function __construct(protected LanguageCollection $languages)
     {
-
         /** @var int $threshold */
         $threshold = config('sentinel.services.local.levenshtein_threshold', 1);
         $this->threshold = $threshold;
+
+        parent::__construct($this->languages);
     }
 
-    public function detect(string $text, iterable $words): MatchCollection
+    public function detect(string $text, ?Language $language = null): MatchCollection
     {
+        $language ??= $this->languages->bestFor($text);
         $matches = new MatchCollection();
-        $dictionary = is_array($words) ? $words : iterator_to_array($words);
+
+        if (null === $language) {
+            return $matches;
+        }
+
+        $dictionary = iterator_to_array($language->words());
         $levenshtein = new OptimizedLevenshtein($dictionary);
 
         $textWords = preg_split('/\s+/', $text);
@@ -49,9 +58,10 @@ final class LevenshteinStrategy extends AbstractStrategy
                     new Coincidence(
                         word: $textWord,
                         type: MatchType::Levenshtein,
-                        score: Calculator::score($text, $textWord, MatchType::Levenshtein, $occurrences),
+                        score: Calculator::score($text, $textWord, MatchType::Levenshtein, $occurrences, $language),
                         confidence: Calculator::confidence($text, $textWord, MatchType::Levenshtein, $occurrences),
                         occurrences: $occurrences,
+                        language: $language->code(),
                         context: ['similar_words' => $similarWords],
                     ),
                 );

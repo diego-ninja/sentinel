@@ -24,7 +24,7 @@ abstract class TestCase extends BaseTestCase
         // Base configuration
         $app['config']->set('sentinel.mask_char', '*');
         $app['config']->set('sentinel.whitelist', []);
-        $app['config']->set('sentinel.languages', ['en']);
+        $app['config']->set('sentinel.languages', ['en','es','pt']);
         $app['config']->set('sentinel.dictionary_path', __DIR__ . '/../resources/dict');
         $app['config']->set('sentinel.default_service', 'local');
         $app['config']->set('sentinel.cache.enabled', false);

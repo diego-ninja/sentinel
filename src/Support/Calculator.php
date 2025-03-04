@@ -3,9 +3,8 @@
 namespace Ninja\Sentinel\Support;
 
 use Ninja\Sentinel\Collections\OccurrenceCollection;
-use Ninja\Sentinel\Context\ContextLoader;
-use Ninja\Sentinel\Context\ContextModifier;
 use Ninja\Sentinel\Enums\MatchType;
+use Ninja\Sentinel\Language\Language;
 use Ninja\Sentinel\ValueObject\Confidence;
 use Ninja\Sentinel\ValueObject\Position;
 use Ninja\Sentinel\ValueObject\Score;
@@ -33,18 +32,18 @@ final readonly class Calculator
     private const float NORMALIZATION_FACTOR = 15.0;
 
     /**
-     * Controls how much context affects the final score
+     * Controls how much language affects the final score
      */
     private const float CONTEXT_WEIGHT = 0.7;
 
     /**
-     * Calculate the score for a match based on text characteristics, match type and context
+     * Calculate the score for a match based on text characteristics, match type and language
      *
      * @param string $text The full text being analyzed
      * @param string $word The matched word or phrase
      * @param MatchType $type The type of match detected
      * @param OccurrenceCollection $occurrences Collection of match occurrences
-     * @param string|null $language Language code or null for auto-detection
+     * @param Language $language Language code or null for auto-detection
      * @return Score The calculated score
      */
     public static function score(
@@ -52,7 +51,7 @@ final readonly class Calculator
         string $word,
         MatchType $type,
         OccurrenceCollection $occurrences,
-        ?string $language = null,
+        Language $language,
     ): Score {
         $words = explode(' ', $word);
         $total = count(explode(' ', $text));
@@ -78,7 +77,7 @@ final readonly class Calculator
         $baseScore = ($typeWeight * $lengthMultiplier * count($words)) / max($normalizedTotal, 1);
         $boostedScore = $baseScore * (1 + $occurrenceBoost);
 
-        // Apply context analysis and adjust score
+        // Apply language analysis and adjust score
         $contextModifier = self::analyzeContext($text, $occurrences, $language);
         $contextAdjustedScore = $boostedScore * (1 + (($contextModifier - 1) * self::CONTEXT_WEIGHT));
 
@@ -159,49 +158,36 @@ final readonly class Calculator
     }
 
     /**
-     * Analyzes context around occurrences to adjust score based on surrounding content
+     * Analyzes language around occurrences to adjust score based on surrounding content
      *
      * @param string $text The full text being analyzed
      * @param OccurrenceCollection $occurrences Collection of match occurrences
-     * @param string|null $language Language code or null for auto-detection
+     * @param Language $language Language code or null for auto-detection
      * @return float Context modifier (>1 increases score, <1 decreases score)
      */
     private static function analyzeContext(
         string $text,
         OccurrenceCollection $occurrences,
-        ?string $language = null,
+        Language $language,
     ): float {
         if ($occurrences->isEmpty()) {
             return 1.0;
         }
 
-        // Try to determine language from config if not specified
-        if (null === $language) {
-            /** @var array<string> $configLanguages */
-            $configLanguages = config('sentinel.languages', ['en']);
-            $language = $configLanguages[0] ?? 'en';
-
-            // Check if the language has context support
-            if ( ! ContextLoader::hasContextSupport($language)) {
-                $language = 'en'; // Default to English if no context support
-            }
-        }
-
         $totalContextModifier = 0.0;
 
-        // Analyze context for each occurrence
+        // Analyze language for each occurrence
         foreach ($occurrences as $position) {
-            $contextModifier = ContextModifier::getContextModifier(
-                $text,
-                $position->start(),
-                $position->length(),
-                $language,
+            $contextModifier = $language->getContextModifier(
+                text: $text,
+                position: $position->start(),
+                length: $position->length(),
             );
 
             $totalContextModifier += $contextModifier;
         }
 
-        // Average the context modifiers
+        // Average the language modifiers
         return $totalContextModifier / $occurrences->count();
     }
 }

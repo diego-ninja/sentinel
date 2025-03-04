@@ -3,11 +3,15 @@
 use Ninja\Sentinel\Collections\MatchCollection;
 use Ninja\Sentinel\Collections\OccurrenceCollection;
 use Ninja\Sentinel\Enums\MatchType;
+use Ninja\Sentinel\Language\Contracts\Language;
 use Ninja\Sentinel\Support\Calculator;
 use Ninja\Sentinel\ValueObject\Coincidence;
 use Ninja\Sentinel\ValueObject\Position;
 
 test('collection calculates score correctly', function (): void {
+    /** @var Language $language */
+    $language = app(Language::class);
+
     $collection = new MatchCollection([
         new Coincidence(
             word: 'fuck',
@@ -17,6 +21,7 @@ test('collection calculates score correctly', function (): void {
                 'fuck',
                 MatchType::Exact,
                 new OccurrenceCollection([new Position(0, 4)]),
+                $language,
             ),
             confidence: Calculator::confidence(
                 'fuck this shit',
@@ -25,6 +30,7 @@ test('collection calculates score correctly', function (): void {
                 new OccurrenceCollection([new Position(0, 4)]),
             ),
             occurrences: new OccurrenceCollection([new Position(0, 4)]),
+            language: $language->code(),
         ),
         new Coincidence(
             word: 'shit',
@@ -34,6 +40,7 @@ test('collection calculates score correctly', function (): void {
                 'shit',
                 MatchType::Pattern,
                 new OccurrenceCollection([new Position(9, 4)]),
+                $language
             ),
             confidence: Calculator::confidence(
                 'fuck this shit',
@@ -42,6 +49,7 @@ test('collection calculates score correctly', function (): void {
                 new OccurrenceCollection([new Position(9, 4)]),
             ),
             occurrences: new OccurrenceCollection([new Position(9, 4)]),
+            language: $language->code(),
         ),
     ]);
 
@@ -49,6 +57,9 @@ test('collection calculates score correctly', function (): void {
 });
 
 test('collection calculates confidence correctly', function (): void {
+    /** @var Language $language */
+    $language = app(Language::class);
+
     $collection = new MatchCollection([
         new Coincidence(
             word: 'fuck',
@@ -58,6 +69,7 @@ test('collection calculates confidence correctly', function (): void {
                 'fuck',
                 MatchType::Exact,
                 new OccurrenceCollection([new Position(0, 4)]),
+                $language,
             ),
             confidence: Calculator::confidence(
                 'fuck this shit',
@@ -66,6 +78,7 @@ test('collection calculates confidence correctly', function (): void {
                 new OccurrenceCollection([new Position(0, 4)]),
             ),
             occurrences: new OccurrenceCollection([new Position(0, 4)]),
+            language: $language->code(),
         ),
     ]);
 
@@ -73,6 +86,9 @@ test('collection calculates confidence correctly', function (): void {
 });
 
 test('collection determines offensive content correctly', function (): void {
+    /** @var Language $language */
+    $language = app(Language::class);
+
     $collection = new MatchCollection([
         new Coincidence(
             word: 'fuck',
@@ -82,6 +98,7 @@ test('collection determines offensive content correctly', function (): void {
                 'fuck',
                 MatchType::Exact,
                 new OccurrenceCollection([new Position(5, 4)]),
+                $language
             ),
             confidence: Calculator::confidence(
                 'some fuck text',
@@ -90,6 +107,7 @@ test('collection determines offensive content correctly', function (): void {
                 new OccurrenceCollection([new Position(5, 4)]),
             ),
             occurrences: new OccurrenceCollection([new Position(5, 4)]),
+            language: $language->code(),
         ),
     ]);
 
@@ -97,6 +115,9 @@ test('collection determines offensive content correctly', function (): void {
 });
 
 test('collection cleans text correctly', function (): void {
+    /** @var Language $language */
+    $language = app(Language::class);
+
     $collection = new MatchCollection([
         new Coincidence(
             word: 'fuck',
@@ -106,6 +127,7 @@ test('collection cleans text correctly', function (): void {
                 'fuck',
                 MatchType::Exact,
                 new OccurrenceCollection([new Position(0, 4)]),
+                $language
             ),
             confidence: Calculator::confidence(
                 'fuck this shit',
@@ -114,6 +136,7 @@ test('collection cleans text correctly', function (): void {
                 new OccurrenceCollection([new Position(0, 4)]),
             ),
             occurrences: new OccurrenceCollection([new Position(0, 4)]),
+            language: $language->code(),
         ),
         new Coincidence(
             word: 'shit',
@@ -123,6 +146,7 @@ test('collection cleans text correctly', function (): void {
                 'shit',
                 MatchType::Pattern,
                 new OccurrenceCollection([new Position(9, 4)]),
+                $language
             ),
             confidence: Calculator::confidence(
                 'fuck this shit',
@@ -131,6 +155,7 @@ test('collection cleans text correctly', function (): void {
                 new OccurrenceCollection([new Position(9, 4)]),
             ),
             occurrences: new OccurrenceCollection([new Position(9, 4)]),
+            language: $language->code(),
         ),
     ]);
 
@@ -141,6 +166,9 @@ test('collection cleans text correctly', function (): void {
 });
 
 test('collection handles overlapping matches', function (): void {
+    /** @var Language $language */
+    $language = app(Language::class);
+
     $collection = new MatchCollection([
         new Coincidence(
             word: 'fuck',
@@ -150,6 +178,7 @@ test('collection handles overlapping matches', function (): void {
                 'fuck',
                 MatchType::Exact,
                 new OccurrenceCollection([new Position(0, 4)]),
+                $language
             ),
             confidence: Calculator::confidence(
                 'fucking hell',
@@ -158,6 +187,7 @@ test('collection handles overlapping matches', function (): void {
                 new OccurrenceCollection([new Position(0, 4)]),
             ),
             occurrences: new OccurrenceCollection([new Position(0, 4)]),
+            language: $language->code(),
         ),
         new Coincidence(
             word: 'fucking',
@@ -167,6 +197,7 @@ test('collection handles overlapping matches', function (): void {
                 'fucking',
                 MatchType::Pattern,
                 new OccurrenceCollection([new Position(0, 7)]),
+                $language
             ),
             confidence: Calculator::confidence(
                 'fucking hell',
@@ -175,6 +206,7 @@ test('collection handles overlapping matches', function (): void {
                 new OccurrenceCollection([new Position(0, 7)]),
             ),
             occurrences: new OccurrenceCollection([new Position(0, 7)]),
+            language: $language->code(),
         ),
     ]);
 
@@ -185,6 +217,9 @@ test('collection handles overlapping matches', function (): void {
 });
 
 test('collection returns correct match count', function (): void {
+    /** @var Language $language */
+    $language = app(Language::class);
+
     $collection = new MatchCollection([
         new Coincidence(
             word: 'fuck',
@@ -194,6 +229,7 @@ test('collection returns correct match count', function (): void {
                 'fuck',
                 MatchType::Exact,
                 new OccurrenceCollection([new Position(0, 4)]),
+                $language
             ),
             confidence: Calculator::confidence(
                 'fuck shit',
@@ -202,6 +238,7 @@ test('collection returns correct match count', function (): void {
                 new OccurrenceCollection([new Position(0, 4)]),
             ),
             occurrences: new OccurrenceCollection([new Position(0, 4)]),
+            language: $language->code(),
         ),
         new Coincidence(
             word: 'shit',
@@ -211,6 +248,7 @@ test('collection returns correct match count', function (): void {
                 'shit',
                 MatchType::Pattern,
                 new OccurrenceCollection([new Position(5, 4)]),
+                $language
             ),
             confidence: Calculator::confidence(
                 'fuck shit',
@@ -219,6 +257,7 @@ test('collection returns correct match count', function (): void {
                 new OccurrenceCollection([new Position(5, 4)]),
             ),
             occurrences: new OccurrenceCollection([new Position(5, 4)]),
+            language: $language->code(),
         ),
     ]);
 

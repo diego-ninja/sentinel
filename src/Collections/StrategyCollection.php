@@ -5,6 +5,7 @@ namespace Ninja\Sentinel\Collections;
 use Illuminate\Support\Collection;
 use Ninja\Sentinel\Detection\Contracts\DetectionStrategy;
 use Ninja\Sentinel\Detection\StrategyVotingSystem;
+use Ninja\Sentinel\Language\Language;
 
 /**
  * Collection of detection strategies that implements a weighted voting system
@@ -48,14 +49,14 @@ final class StrategyCollection extends Collection implements DetectionStrategy
      * Detect offensive content using all strategies with weighted voting
      *
      * @param string $text Text to analyze
-     * @param iterable<string> $words Dictionary of offensive words
+     * @param Language|null $language
      * @return MatchCollection Collection of matches with adjusted scores
      */
-    public function detect(string $text, iterable $words): MatchCollection
+    public function detect(string $text, ?Language $language = null): MatchCollection
     {
         // Use weighted voting if enabled
         if ($this->useWeightedVoting) {
-            return $this->getVotingSystem()->detect($text, $words);
+            return $this->getVotingSystem()->detect($text, $language);
         }
 
         // Legacy behavior (simple merging)
@@ -63,7 +64,7 @@ final class StrategyCollection extends Collection implements DetectionStrategy
 
         foreach ($this->all() as $strategy) {
             /** @var DetectionStrategy $strategy */
-            $matches = $matches->merge($strategy->detect($text, $words));
+            $matches = $matches->merge($strategy->detect($text, $language));
         }
 
         return $matches;

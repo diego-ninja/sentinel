@@ -73,7 +73,7 @@ class MatchCollection extends Collection
     }
 
     /**
-     * Determine if the text is offensive based on matches and context
+     * Determine if the text is offensive based on matches and language
      *
      * @param string|null $text Original text being analyzed
      * @param array<Category>|null $categories Categories detected in the content
@@ -87,7 +87,7 @@ class MatchCollection extends Collection
         ?ContentType $contentType = null,
         ?Audience    $audience = null,
     ): bool {
-        // Get the appropriate threshold based on context
+        // Get the appropriate threshold based on language
         $threshold = ThresholdManager::getThreshold(
             $categories ?? [],
             $contentType,

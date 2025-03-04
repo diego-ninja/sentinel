@@ -64,7 +64,7 @@ $isInTechnicalContext = $detector->isInContext(
 Update configuration in `config/sentinel.php`:
 
 ```php
-'context' => [
+'language' => [
     'enabled' => true,
     'detectors' => [
         EducationalContextDetector::class,
@@ -79,8 +79,7 @@ Update configuration in `config/sentinel.php`:
 Implement a custom context detector:
 
 ```php
-use Ninja\Sentinel\Context\Contracts\ContextDetector;
-use Ninja\Sentinel\Context\Enums\ContextType;
+use Ninja\Sentinel\Context\Contracts\ContextDetector;use Ninja\Sentinel\Enums\ContextType;
 
 class CustomContextDetector implements ContextDetector
 {
@@ -91,7 +90,7 @@ class CustomContextDetector implements ContextDetector
         array $words, 
         string $language
     ): bool {
-        // Custom context detection logic
+        // Custom language detection logic
         return false;
     }
 
@@ -124,13 +123,13 @@ $adjustedScore = $originalScore * $contextModifier;
 Different languages have unique context markers:
 
 ```php
-// English context markers
+// English language markers
 $educationalMarkers = [
     'research', 'study', 'analysis', 
     'academic', 'scientific', // ...
 ];
 
-// Spanish context markers
+// Spanish language markers
 $spanishEducationalMarkers = [
     'investigación', 'estudio', 'análisis', 
     'académico', 'científico', // ...
@@ -144,7 +143,7 @@ $spanishEducationalMarkers = [
 - Configure context window size
 
 ```php
-'context' => [
+'language' => [
     'window_size' => 10, // Words before/after to analyze
     'cache_enabled' => true,
 ],
@@ -163,7 +162,7 @@ $spanishEducationalMarkers = [
 Enable detailed logging:
 
 ```php
-config(['sentinel.context.debug' => true]);
+config(['sentinel.language.debug' => true]);
 ```
 
 This provides insights into:

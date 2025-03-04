@@ -35,7 +35,7 @@ final readonly class PrismAdapter extends AbstractAdapter implements ServiceAdap
      *         score: float,
      *         confidence: float,
      *         occurrences: array<int, array{start: int, length: int}>,
-     *         context?: array{original?: string, surrounding?: string}
+     *         language?: array{original?: string, surrounding?: string}
      *     }>
      * } $response
      * @return ServiceResponse
@@ -59,7 +59,7 @@ final readonly class PrismAdapter extends AbstractAdapter implements ServiceAdap
              *         score: float,
              *         confidence: float,
              *         occurrences: array<int, array{start: int, length: int}>,
-             *         context?: array{original?: string, surrounding?: string}
+             *         language?: array{original?: string, surrounding?: string}
              *     }>
              * } $response
              */
@@ -140,7 +140,7 @@ final readonly class PrismAdapter extends AbstractAdapter implements ServiceAdap
      *     score: float,
      *     confidence: float,
      *     occurrences: array<int, array{start: int, length: int}>,
-     *     context?: array{original?: string, surrounding?: string}
+     *     language?: array{original?: string, surrounding?: string}
      * }> $matches
      */
     private function createMatches(array $matches): MatchCollection
@@ -163,7 +163,7 @@ final readonly class PrismAdapter extends AbstractAdapter implements ServiceAdap
                 score: new Score($match['score']),
                 confidence: new Confidence($match['confidence']),
                 occurrences: $occurrences,
-                context: $match['context'] ?? null,
+                context: $match['language'] ?? null,
             ));
         }
 

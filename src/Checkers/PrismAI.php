@@ -35,7 +35,7 @@ final readonly class PrismAI implements ProfanityChecker
      * Check text for offensive content using LLM analysis
      *
      * @param string $text Text to analyze
-     * @param ContentType|null $contentType Optional content type for context-aware analysis
+     * @param ContentType|null $contentType Optional content type for language-aware analysis
      * @param Audience|null $audience Optional audience type for appropriate thresholds
      * @return Result Analysis result
      */
@@ -63,7 +63,7 @@ final readonly class PrismAI implements ProfanityChecker
              *         score: float,
              *         confidence: float,
              *         occurrences: array<int, array{start: int, length: int}>,
-             *         context?: array{original?: string, surrounding?: string}
+             *         language?: array{original?: string, surrounding?: string}
              *     }>
              * } $data
              */
@@ -83,7 +83,7 @@ final readonly class PrismAI implements ProfanityChecker
              *         score: float,
              *         confidence: float,
              *         occurrences: array<int, array{start: int, length: int}>,
-             *         context?: array{original?: string, surrounding?: string}
+             *         language?: array{original?: string, surrounding?: string}
              *     }>
              * } $data
              */
@@ -96,7 +96,7 @@ final readonly class PrismAI implements ProfanityChecker
 
         // If audience or content type were provided, include them in the result
         if (null !== $contentType || null !== $audience) {
-            // Create builder and add the context parameters
+            // Create builder and add the language parameters
             $builder = ResultBuilder::withResult($result);
 
             if (null !== $contentType) {
@@ -114,13 +114,13 @@ final readonly class PrismAI implements ProfanityChecker
     }
 
     /**
-     * Build a structured request to Prism with context-aware instructions
+     * Build a structured request to Prism with language-aware instructions
      *
      * @param Provider $provider The LLM provider
      * @param string $model The model to use
      * @param string $message The text to analyze
-     * @param ContentType|null $contentType Optional content type for context
-     * @param Audience|null $audience Optional audience type for context
+     * @param ContentType|null $contentType Optional content type for language
+     * @param Audience|null $audience Optional audience type for language
      * @return StructuredPendingRequest The pending request
      */
     private function buildStructuredPrismRequest(
@@ -167,13 +167,13 @@ final readonly class PrismAI implements ProfanityChecker
     }
 
     /**
-     * Build an unstructured request to Prism with context-aware instructions
+     * Build an unstructured request to Prism with language-aware instructions
      *
      * @param Provider $provider The LLM provider
      * @param string $model The model to use
      * @param string $message The text to analyze
-     * @param ContentType|null $contentType Optional content type for context
-     * @param Audience|null $audience Optional audience type for context
+     * @param ContentType|null $contentType Optional content type for language
+     * @param Audience|null $audience Optional audience type for language
      * @return UnstructuredPendingRequest The pending request
      */
     private function buildUnstructuredPrismRequest(
@@ -220,12 +220,12 @@ final readonly class PrismAI implements ProfanityChecker
      * Process unstructured response text into structured data
      *
      * @param string $responseText The response text
-     * @return array{is_offensive: bool, offensive_words: array<string>, categories: array<string>, confidence: float, severity: float, sentiment: array{type: string, score: float}, matches: array<int, array{text: string, match_type: string, score: float, confidence: float, occurrences: array<int, array{start: int, length: int}>, context?: array{original?: string, surrounding?: string}}>}
+     * @return array{is_offensive: bool, offensive_words: array<string>, categories: array<string>, confidence: float, severity: float, sentiment: array{type: string, score: float}, matches: array<int, array{text: string, match_type: string, score: float, confidence: float, occurrences: array<int, array{start: int, length: int}>, language?: array{original?: string, surrounding?: string}}>}
      */
     private function processUnstructuredResponse(string $responseText): array
     {
         try {
-            /** @var array{is_offensive: bool, offensive_words: array<string>, categories: array<string>, confidence: float, severity: float, sentiment: array{type: string, score: float}, matches: array<int, array{text: string, match_type: string, score: float, confidence: float, occurrences: array<int, array{start: int, length: int}>, context?: array{original?: string, surrounding?: string}}>} $data */
+            /** @var array{is_offensive: bool, offensive_words: array<string>, categories: array<string>, confidence: float, severity: float, sentiment: array{type: string, score: float}, matches: array<int, array{text: string, match_type: string, score: float, confidence: float, occurrences: array<int, array{start: int, length: int}>, language?: array{original?: string, surrounding?: string}}>} $data */
             $data = json_decode($this->cleanResponseText($responseText), true, 512, JSON_THROW_ON_ERROR);
             $this->validateResponseStructure($data);
 

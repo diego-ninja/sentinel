@@ -4,13 +4,17 @@ namespace Tests\Unit\Detection;
 
 use Ninja\Sentinel\Collections\MatchCollection;
 use Ninja\Sentinel\Detection\Strategy\LevenshteinStrategy;
+use Ninja\Sentinel\Enums\LanguageCode;
 use Ninja\Sentinel\Enums\MatchType;
+use Ninja\Sentinel\Language\Collections\LanguageCollection;
 use Ninja\Sentinel\ValueObject\Coincidence;
 
 test('levenshtein strategy detects similar words', function (): void {
     config(['sentinel.services.local.levenshtein_threshold' => 2]);
 
-    $strategy = new LevenshteinStrategy();
+    $languages = app(LanguageCollection::class);
+    $language = $languages->findByCode(LanguageCode::English);
+    $strategy = new LevenshteinStrategy($languages);
     $variations = [
         'fuk',
         'phuck',
@@ -18,7 +22,7 @@ test('levenshtein strategy detects similar words', function (): void {
     ];
 
     foreach ($variations as $text) {
-        $result = $strategy->detect($text, ['fuck']);
+        $result = $strategy->detect($text, $language);
         expect($result)
             ->toBeInstanceOf(MatchCollection::class)
             ->toHaveCount(1)
@@ -33,8 +37,11 @@ test('levenshtein strategy detects similar words', function (): void {
 test('levenshtein strategy respects threshold', function (): void {
     config(['sentinel.services.local.levenshtein_threshold' => 1]);
 
-    $strategy = new LevenshteinStrategy();
-    $result = $strategy->detect('fuk this shet', ['fuck', 'shit']);
+    $languages = app(LanguageCollection::class);
+    $language = $languages->findByCode(LanguageCode::English);
+    $strategy = new LevenshteinStrategy($languages);
+
+    $result = $strategy->detect('fuk this shet', $language);
 
     expect($result)
         ->toHaveCount(2)  // Should only match 'fuk', 'shet' is too different with threshold 1
@@ -46,8 +53,11 @@ test('levenshtein strategy respects threshold', function (): void {
 test('levenshtein strategy handles short words correctly', function (): void {
     config(['sentinel.services.local.levenshtein_threshold' => 1]);
 
-    $strategy = new LevenshteinStrategy();
-    $result = $strategy->detect('This is a text', ['shit']);
+    $languages = app(LanguageCollection::class);
+    $language = $languages->findByCode(LanguageCode::English);
+    $strategy = new LevenshteinStrategy($languages);
+
+    $result = $strategy->detect('This is a text', $language);
 
     // Should not match 'This' with 'shit' even though Levenshtein distance might be within threshold
     expect($result)->toBeEmpty();
@@ -55,8 +65,11 @@ test('levenshtein strategy handles short words correctly', function (): void {
 });
 
 test('levenshtein strategy ignores case in comparisons', function (): void {
-    $strategy = new LevenshteinStrategy();
-    $result = $strategy->detect('FuK', ['fuck']);
+    $languages = app(LanguageCollection::class);
+    $language = $languages->findByCode(LanguageCode::English);
+    $strategy = new LevenshteinStrategy($languages);
+
+    $result = $strategy->detect('FuK', $language);
 
     expect($result)
         ->toHaveCount(1)
@@ -66,9 +79,12 @@ test('levenshtein strategy ignores case in comparisons', function (): void {
 test('levenshtein strategy preserves original case in matches', function (): void {
     config(['sentinel.services.local.levenshtein_threshold' => 1]);
 
-    $strategy = new LevenshteinStrategy();
+    $languages = app(LanguageCollection::class);
+    $language = $languages->findByCode(LanguageCode::English);
+    $strategy = new LevenshteinStrategy($languages);
+
     $text = 'FuK ThIs ShEt';
-    $result = $strategy->detect($text, ['fuck', 'shit']);
+    $result = $strategy->detect($text, $language);
 
     expect($result)
         ->toHaveCount(2)
@@ -79,7 +95,9 @@ test('levenshtein strategy preserves original case in matches', function (): voi
 });
 
 test('levenshtein handles unicode chars', function (): void {
-    $strategy = new LevenshteinStrategy();
+    $languages = app(LanguageCollection::class);
+    $language = $languages->findByCode(LanguageCode::English);
+    $strategy = new LevenshteinStrategy($languages);
 
     $variations = [
         'fück' => true,
@@ -89,7 +107,7 @@ test('levenshtein handles unicode chars', function (): void {
     ];
 
     foreach ($variations as $text => $shouldMatch) {
-        $result = $strategy->detect($text, ['fuck']);
+        $result = $strategy->detect($text, $language);
         expect($result->isEmpty())->toBe( ! $shouldMatch);
     }
 });

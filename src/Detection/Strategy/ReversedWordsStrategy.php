@@ -5,19 +5,24 @@ namespace Ninja\Sentinel\Detection\Strategy;
 use Ninja\Sentinel\Collections\MatchCollection;
 use Ninja\Sentinel\Collections\OccurrenceCollection;
 use Ninja\Sentinel\Enums\MatchType;
+use Ninja\Sentinel\Language\Language;
 use Ninja\Sentinel\Support\Calculator;
 use Ninja\Sentinel\ValueObject\Coincidence;
 use Ninja\Sentinel\ValueObject\Position;
 
 final class ReversedWordsStrategy extends AbstractStrategy
 {
-    public function detect(string $text, iterable $words): MatchCollection
+    public function detect(string $text, ?Language $language = null): MatchCollection
     {
+        $language ??= $this->languages->bestFor($text);
         $matches = new MatchCollection();
-        $dictionary = is_array($words) ? $words : iterator_to_array($words);
+
+        if (null === $language) {
+            return $matches;
+        }
 
         $reversedDictionary = [];
-        foreach ($dictionary as $word) {
+        foreach ($language->words() as $word) {
             if (mb_strlen($word) >= 3) {
                 $reversedDictionary[mb_strtolower($this->mbStrRev($word))] = $word;
             }
@@ -52,9 +57,10 @@ final class ReversedWordsStrategy extends AbstractStrategy
                         new Coincidence(
                             word: $textWord,
                             type: MatchType::Variation,
-                            score: Calculator::score($text, $textWord, MatchType::Variation, $occurrences),
+                            score: Calculator::score($text, $textWord, MatchType::Variation, $occurrences, $language),
                             confidence: Calculator::confidence($text, $textWord, MatchType::Variation, $occurrences),
                             occurrences: $occurrences,
+                            language: $language->code(),
                             context: [
                                 'original' => $originalWord,
                                 'variation_type' => 'reversed',

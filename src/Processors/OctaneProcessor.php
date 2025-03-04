@@ -2,11 +2,17 @@
 
 namespace Ninja\Sentinel\Processors;
 
+use Laravel\Octane\Exceptions\TaskException;
+use Laravel\Octane\Exceptions\TaskTimeoutException;
 use Laravel\Octane\Facades\Octane;
 use Ninja\Sentinel\Result\Result;
 
 final class OctaneProcessor extends AbstractProcessor
 {
+    /**
+     * @throws TaskTimeoutException
+     * @throws TaskException
+     */
     public function process(array $chunks): array
     {
         $indexedTasks = [];

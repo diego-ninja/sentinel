@@ -4,17 +4,21 @@ namespace Tests\Unit\Support;
 
 use Ninja\Sentinel\Collections\OccurrenceCollection;
 use Ninja\Sentinel\Enums\MatchType;
+use Ninja\Sentinel\Language\Contracts\Language;
 use Ninja\Sentinel\Support\Calculator;
 use Ninja\Sentinel\ValueObject\Position;
 
 test('calculator applies text length normalization for long texts', function (): void {
+    /** @var Language $language */
+    $language = app(Language::class);
+
     // Short text
     $shortText = 'This is a short text with the word fuck in it';
     $shortOccurrences = new OccurrenceCollection([
         new Position(27, 4), // "fuck" at position 27, length 4
     ]);
 
-    // Long text (same offensive word, but in a much longer context)
+    // Long text (same offensive word, but in a much longer language)
     $longText = str_repeat('This is some innocent content. ', 100) .
         'This has the word fuck in it. ' .
         str_repeat('More innocent content here. ', 100);
@@ -23,8 +27,8 @@ test('calculator applies text length normalization for long texts', function ():
     ]);
 
     // Calculate scores
-    $shortScore = Calculator::score($shortText, 'fuck', MatchType::Exact, $shortOccurrences);
-    $longScore = Calculator::score($longText, 'fuck', MatchType::Exact, $longOccurrences);
+    $shortScore = Calculator::score($shortText, 'fuck', MatchType::Exact, $shortOccurrences, $language);
+    $longScore = Calculator::score($longText, 'fuck', MatchType::Exact, $longOccurrences, $language);
 
     // Without normalization, the long text score would be extremely low
     // With normalization, it should be more comparable to the short text score
@@ -35,19 +39,25 @@ test('calculator applies text length normalization for long texts', function ():
 });
 
 test('calculator maintains expected behavior for short texts', function (): void {
+    /** @var Language $language */
+    $language = app(Language::class);
+
     $text = 'This text has 10 words including the offensive word fuck';
     $occurrences = new OccurrenceCollection([
         new Position(50, 4), // "fuck" at position 50, length 4
     ]);
 
     // Original implementation behavior should be preserved for short texts
-    $score = Calculator::score($text, 'fuck', MatchType::Exact, $occurrences);
+    $score = Calculator::score($text, 'fuck', MatchType::Exact, $occurrences, $language);
 
     expect($score->value())->toBeGreaterThan(0.2)
         ->toBeLessThan(0.6); // Expected range for single occurrence in short text
 });
 
 test('calculator applies higher scores for multiple occurrences in long text', function (): void {
+    /** @var Language $language */
+    $language = app(Language::class);
+
     // Long text with multiple occurrences of the same word
     $longText = str_repeat('This is some innocent content. ', 50) .
         'This has the word fuck in it. ' .
@@ -64,8 +74,8 @@ test('calculator applies higher scores for multiple occurrences in long text', f
         new Position(1000, 4), // Just the first occurrence
     ]);
 
-    $multiScore = Calculator::score($longText, 'fuck', MatchType::Exact, $multipleOccurrences);
-    $singleScore = Calculator::score($longText, 'fuck', MatchType::Exact, $singleOccurrence);
+    $multiScore = Calculator::score($longText, 'fuck', MatchType::Exact, $multipleOccurrences, $language);
+    $singleScore = Calculator::score($longText, 'fuck', MatchType::Exact, $singleOccurrence, $language);
 
     // Multiple occurrences should score higher than a single occurrence
     expect($multiScore->value())->toBeGreaterThan($singleScore->value())

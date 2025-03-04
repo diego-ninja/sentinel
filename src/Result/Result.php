@@ -33,7 +33,7 @@ readonly class Result implements ResultContract
     ) {}
 
     /**
-     * Determine if content is offensive, optionally with context parameters
+     * Determine if content is offensive, optionally with language parameters
      *
      * @param ContentType|null $contentType Type of content being analyzed (overrides constructor value)
      * @param Audience|null $audienceType Target audience for content (overrides constructor value)
@@ -51,7 +51,7 @@ readonly class Result implements ResultContract
             );
         }
 
-        // If we already have a pre-calculated value and no context overrides
+        // If we already have a pre-calculated value and no language overrides
         if (null === $contentType && null === $audienceType) {
             return $this->offensive;
         }

@@ -40,8 +40,7 @@ class CustomDetectionStrategy extends AbstractStrategy
 Create a custom context detector:
 
 ```php
-use Ninja\Sentinel\Context\Contracts\ContextDetector;
-use Ninja\Sentinel\Context\Enums\ContextType;
+use Ninja\Sentinel\Context\Contracts\ContextDetector;use Ninja\Sentinel\Enums\ContextType;
 
 class CustomContextDetector implements ContextDetector
 {
@@ -52,7 +51,7 @@ class CustomContextDetector implements ContextDetector
         array $words, 
         string $language
     ): bool {
-        // Implement custom context detection
+        // Implement custom language detection
         return false;
     }
 

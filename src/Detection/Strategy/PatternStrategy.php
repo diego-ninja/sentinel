@@ -7,6 +7,8 @@ use Ninja\Sentinel\Cache\Contracts\PatternCache;
 use Ninja\Sentinel\Collections\MatchCollection;
 use Ninja\Sentinel\Collections\OccurrenceCollection;
 use Ninja\Sentinel\Enums\MatchType;
+use Ninja\Sentinel\Language\Collections\LanguageCollection;
+use Ninja\Sentinel\Language\Language;
 use Ninja\Sentinel\Support\Calculator;
 use Ninja\Sentinel\Support\PatternGenerator;
 use Ninja\Sentinel\ValueObject\Coincidence;
@@ -24,6 +26,7 @@ final class PatternStrategy extends AbstractStrategy
     private array $originalWords;
 
     public function __construct(
+        protected LanguageCollection $languages,
         private readonly PatternGenerator $generator,
         private readonly PatternCache $cache,
     ) {
@@ -51,14 +54,21 @@ final class PatternStrategy extends AbstractStrategy
 
             $this->cache->set(md5($pattern) . '_partial', $pattern);
         }
+
+        parent::__construct($this->languages);
     }
 
-    public function detect(string $text, iterable $words): MatchCollection
+    public function detect(string $text, ?Language $language = null): MatchCollection
     {
+        $language ??= $this->languages->bestFor($text);
         $matches = new MatchCollection();
 
+        if (null === $language) {
+            return $matches;
+        }
+
         // Guardar palabras originales para verificar después
-        $this->originalWords = is_array($words) ? $words : iterator_to_array($words);
+        $this->originalWords = iterator_to_array($language->words());
 
         // Primero intenta con patrones exactos (con límites de palabra)
         foreach ($this->patterns as $pattern) {
@@ -82,9 +92,10 @@ final class PatternStrategy extends AbstractStrategy
                         new Coincidence(
                             word: $match,
                             type: MatchType::Pattern,
-                            score: Calculator::score($text, $match, MatchType::Pattern, $occurrences),
+                            score: Calculator::score($text, $match, MatchType::Pattern, $occurrences, $language),
                             confidence: Calculator::confidence($text, $match, MatchType::Pattern, $occurrences),
                             occurrences: $occurrences,
+                            language: $language->code(),
                             context: ['pattern' => $pattern],
                         ),
                     );
@@ -132,9 +143,10 @@ final class PatternStrategy extends AbstractStrategy
                             new Coincidence(
                                 word: $match,
                                 type: MatchType::Pattern,
-                                score: Calculator::score($text, $match, MatchType::Pattern, $occurrences),
+                                score: Calculator::score($text, $match, MatchType::Pattern, $occurrences, $language),
                                 confidence: Calculator::confidence($text, $match, MatchType::Pattern, $occurrences),
                                 occurrences: $occurrences,
+                                language: $language->code(),
                                 context: ['pattern' => $pattern, 'partial' => true],
                             ),
                         );
@@ -160,25 +172,20 @@ final class PatternStrategy extends AbstractStrategy
      */
     private function isRelevantMatch(string $match): bool
     {
-        // Si la coincidencia es demasiado corta, no es relevante
         if (mb_strlen($match) < 3) {
-            // Excepto si es exactamente una palabra del diccionario
             return in_array(mb_strtolower($match), array_map('mb_strtolower', $this->originalWords));
         }
 
-        // Para coincidencias más largas, verificar si podría ser una variación de alguna palabra
         $matchLower = mb_strtolower($match);
         foreach ($this->originalWords as $word) {
             $wordLower = mb_strtolower($word);
 
-            // Si es igual o contiene la palabra, es relevante
             if ($matchLower === $wordLower || false !== mb_strpos($matchLower, $wordLower)) {
                 return true;
             }
 
-            // Calcular la similitud (solapamiento) entre las dos palabras
-            $similarity = similar_text($matchLower, $wordLower, $percent);
-            if ($percent > 65) {  // 65% de similitud es un buen umbral
+            $similarity = similar_text($matchLower, $wordLower);
+            if ($similarity > 65) {  // 65% de similitud es un buen umbral
                 return true;
             }
         }

@@ -3,6 +3,7 @@
 namespace Ninja\Sentinel\Support;
 
 use Ninja\Sentinel\Dictionary\LazyDictionary;
+use Ninja\Sentinel\Language\Language;
 
 final class PatternGenerator
 {
@@ -15,6 +16,25 @@ final class PatternGenerator
      * @param array<string, string> $replacements
      */
     public function __construct(private array $replacements = [], private bool $fullWords = true) {}
+
+    public static function withLanguage(Language $language): self
+    {
+        /** @var array<string, string> $replacements */
+        $replacements = config('sentinel.replacements', []);
+
+        $generator = new self($replacements);
+
+        foreach ($language->words() as $word) {
+            if ( ! empty($word)) {
+                $generator->patterns = array_merge(
+                    $generator->patterns,
+                    $generator->forWord($word),
+                );
+            }
+        }
+
+        return $generator;
+    }
 
     public static function withDictionary(LazyDictionary $dictionary): self
     {

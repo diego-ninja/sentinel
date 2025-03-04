@@ -74,8 +74,8 @@ class SentinelPrismSchema extends ObjectSchema
                                 ),
                             ),
                             new ObjectSchema(
-                                name: 'context',
-                                description: 'Match context information',
+                                name: 'language',
+                                description: 'Match language information',
                                 properties: [
                                     new StringSchema(
                                         'original',
@@ -83,7 +83,7 @@ class SentinelPrismSchema extends ObjectSchema
                                     ),
                                     new StringSchema(
                                         'surrounding',
-                                        'Text surrounding the match (brief context)',
+                                        'Text surrounding the match (brief language)',
                                     ),
                                 ],
                                 requiredFields: [],

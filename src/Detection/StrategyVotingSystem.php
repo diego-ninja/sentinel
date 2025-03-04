@@ -6,6 +6,7 @@ use Ninja\Sentinel\Collections\MatchCollection;
 use Ninja\Sentinel\Collections\StrategyCollection;
 use Ninja\Sentinel\Detection\Contracts\DetectionStrategy;
 use Ninja\Sentinel\Enums\MatchType;
+use Ninja\Sentinel\Language\Language;
 use Ninja\Sentinel\ValueObject\Coincidence;
 use Ninja\Sentinel\ValueObject\Confidence;
 use Ninja\Sentinel\ValueObject\Score;
@@ -39,10 +40,10 @@ final readonly class StrategyVotingSystem
      * Detect offensive content using a weighted voting system across all strategies
      *
      * @param string $text Text to analyze
-     * @param iterable<string> $words Dictionary of offensive words to detect
+     * @param Language|null $language Language for text
      * @return MatchCollection Collection of weighted, aggregated matches
      */
-    public function detect(string $text, iterable $words): MatchCollection
+    public function detect(string $text, ?Language $language = null): MatchCollection
     {
         // Run detection on all strategies and collect results
         $allResults = [];
@@ -50,7 +51,7 @@ final readonly class StrategyVotingSystem
 
         foreach ($this->strategies as $strategy) {
             /** @var DetectionStrategy $strategy */
-            $strategyResult = $strategy->detect($text, $words);
+            $strategyResult = $strategy->detect($text, $language);
             $weight = $strategy->weight();
 
             if ( ! $strategyResult->isEmpty()) {
@@ -113,7 +114,7 @@ final readonly class StrategyVotingSystem
      *
      * @param array<string, array<array{match: Coincidence, weight: float}>> $matchesByWord Matches grouped by word
      * @param float $totalWeight Total weight for normalization
-     * @param string $text Original text for context
+     * @param string $text Original text for language
      * @return MatchCollection Final collection of weighted matches
      */
     private function combineVotedMatches(array $matchesByWord, float $totalWeight, string $text): MatchCollection
@@ -144,6 +145,7 @@ final readonly class StrategyVotingSystem
                 score: new Score($adjustedScore),
                 confidence: new Confidence($adjustedConfidence),
                 occurrences: $bestMatch->occurrences(),
+                language: $bestMatch->language(),
                 context: [
                     ...$bestMatch->context() ?? [],
                     'strategy_agreement' => $matchCount,

@@ -26,7 +26,7 @@ final class PerspectiveAI extends AbstractProfanityChecker
      * Check text for offensive content using Perspective API
      *
      * @param string $text Text to analyze
-     * @param ContentType|null $contentType Optional content type for context
+     * @param ContentType|null $contentType Optional content type for language
      * @param Audience|null $audience Optional audience type for threshold adjustment
      * @return Result Analysis result
      * @throws ClientException When API request fails
@@ -42,9 +42,9 @@ final class PerspectiveAI extends AbstractProfanityChecker
             'requestedAttributes' => $requestedAttributes,
         ];
 
-        // Add additional context-specific parameters
+        // Add additional language-specific parameters
         if (null !== $contentType) {
-            $params['context'] = [
+            $params['language'] = [
                 'entries' => [
                     [
                         'text' => $this->getContentTypeContext($contentType),
@@ -191,7 +191,7 @@ final class PerspectiveAI extends AbstractProfanityChecker
     }
 
     /**
-     * Get context description for content type
+     * Get language description for content type
      *
      * @param ContentType $contentType The content type
      * @return string Context description
@@ -199,8 +199,8 @@ final class PerspectiveAI extends AbstractProfanityChecker
     private function getContentTypeContext(ContentType $contentType): string
     {
         return match ($contentType) {
-            ContentType::Educational => "This is educational content, which may include terms used in an academic context.",
-            ContentType::Research => "This is research content, which may include discussion of sensitive topics in a scholarly context.",
+            ContentType::Educational => "This is educational content, which may include terms used in an academic language.",
+            ContentType::Research => "This is research content, which may include discussion of sensitive topics in a scholarly language.",
             ContentType::Medical => "This is medical content, which may include clinical terminology and discussions of the human body.",
             ContentType::Legal => "This is legal content, which may include quotations or case discussions with potentially offensive language.",
             ContentType::Blog => "This is blog content, which represents personal opinion.",

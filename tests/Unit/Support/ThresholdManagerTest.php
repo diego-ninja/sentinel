@@ -7,7 +7,7 @@ use Ninja\Sentinel\Enums\Category;
 use Ninja\Sentinel\Enums\ContentType;
 use Ninja\Sentinel\Support\ThresholdManager;
 
-test('threshold manager returns default threshold when no context is provided', function (): void {
+test('threshold manager returns default threshold when no language is provided', function (): void {
     // Mock the config to return a known value
     config(['sentinel.threshold_score' => 0.55]);
 

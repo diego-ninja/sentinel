@@ -8,7 +8,7 @@ use Ninja\Sentinel\Collections\MatchCollection;
 use Ninja\Sentinel\Collections\OccurrenceCollection;
 use Ninja\Sentinel\Collections\StrategyCollection;
 use Ninja\Sentinel\Detection\Contracts\DetectionStrategy;
-use Ninja\Sentinel\Dictionary\LazyDictionary;
+use Ninja\Sentinel\Language\Collections\LanguageCollection;
 use Ninja\Sentinel\Processors\Contracts\Processor;
 use Ninja\Sentinel\Result\Builder\ResultBuilder;
 use Ninja\Sentinel\Result\Result;
@@ -29,8 +29,8 @@ abstract class AbstractProcessor implements Processor
      * @throws BindingResolutionException
      */
     public function __construct(
+        private readonly LanguageCollection $languages,
         private readonly Whitelist $whitelist,
-        private readonly LazyDictionary $dictionary,
     ) {
         /** @var string $replaceChar */
         $replaceChar = config('sentinel.mask_char', '*');
@@ -40,7 +40,7 @@ abstract class AbstractProcessor implements Processor
     }
 
     /**
-     * Process multiple chunks of text.
+     * Process multiple chunks of a text.
      *
      * @param  array<string>  $chunks
      * @return array<Result>
@@ -69,9 +69,8 @@ abstract class AbstractProcessor implements Processor
         $whitelisted = $this->whitelist->prepare($chunk);
         $normalized = TextNormalizer::normalize($whitelisted);
 
-        /** @var string[] $words */
-        $words = iterator_to_array($this->dictionary->getWords());
-        $matches = $this->strategies->detect($normalized, $words);
+        $language = $this->languages->bestFor($normalized);
+        $matches = $this->strategies->detect($normalized, $language);
 
         if ($matches->isEmpty()) {
             return $this->buildResult($chunk, $normalized, $matches);
@@ -111,9 +110,10 @@ abstract class AbstractProcessor implements Processor
                         new Coincidence(
                             word: $match->word(),
                             type: $match->type(),
-                            score: Calculator::score($original, $match->word(), $match->type(), $occurrences),
+                            score: Calculator::score($original, $match->word(), $match->type(), $occurrences, $this->languages->findByCode($match->language())),
                             confidence: Calculator::confidence($original, $match->word(), $match->type(), $occurrences),
                             occurrences: $occurrences,
+                            language: $match->language(),
                             context: $match->context(),
                         ),
                     );

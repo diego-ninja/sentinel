@@ -72,7 +72,7 @@ class Sentinel
     {
         $result = $this->check($text, $contentType, $audience);
 
-        // If not offensive, according to the context parameters (already in the result),
+        // If not offensive, according to the language parameters (already in the result),
         // return the original text
         if ( ! $result->offensive()) {
             return $text;

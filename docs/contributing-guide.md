@@ -95,8 +95,7 @@ class NewDetectionStrategy extends AbstractStrategy
 ### Adding Context Detectors
 
 ```php
-use Ninja\Sentinel\Context\Contracts\ContextDetector;
-use Ninja\Sentinel\Context\Enums\ContextType;
+use Ninja\Sentinel\Context\Contracts\ContextDetector;use Ninja\Sentinel\Enums\ContextType;
 
 class NewContextDetector implements ContextDetector
 {
@@ -107,7 +106,7 @@ class NewContextDetector implements ContextDetector
         array $words, 
         string $language
     ): bool {
-        // Implement context detection
+        // Implement language detection
     }
 
     public function getContextType(): ContextType
@@ -140,7 +139,7 @@ test('detects offensive content', function () {
         ->toHaveCount(1);
 });
 
-test('handles context-specific scenarios', function () {
+test('handles language-specific scenarios', function () {
     $result = Sentinel::check(
         'Academic study of sexual behavior', 
         ContentType::Educational

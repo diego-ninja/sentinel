@@ -50,16 +50,16 @@ function createTestDictionaryFile(): string
 
 function createContextFiles(): void
 {
-    $languages = ["en", "es", "fr"];
+    $languages = ["en", "es", "pt"];
 
-    $dir = __DIR__ . '/../vendor/orchestra/testbench-core/laravel/resources/context';
+    $dir = __DIR__ . '/../vendor/orchestra/testbench-core/laravel/resources/language';
     if ( ! file_exists($dir)) {
         mkdir(directory: $dir, recursive: true);
     }
 
     foreach ($languages as $lang) {
-        $source = sprintf(__DIR__ . '/../vendor/orchestra/testbench-core/laravel/resources/context/%s.php', $lang);
-        $dest = sprintf(__DIR__ . '/../resources/context/%s.php', $lang);
+        $source = sprintf(__DIR__ . '/../vendor/orchestra/testbench-core/laravel/resources/language/%s.php', $lang);
+        $dest = sprintf(__DIR__ . '/../resources/language/%s.php', $lang);
         file_put_contents($source, file_get_contents($dest));
     }
 }

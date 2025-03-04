@@ -3,6 +3,7 @@
 namespace Ninja\Sentinel\ValueObject;
 
 use Ninja\Sentinel\Collections\OccurrenceCollection;
+use Ninja\Sentinel\Enums\LanguageCode;
 use Ninja\Sentinel\Enums\MatchType;
 
 /**
@@ -19,6 +20,7 @@ final readonly class Coincidence
         public Score $score,
         public Confidence $confidence,
         public OccurrenceCollection $occurrences,
+        public LanguageCode $language,
         public ?array $context = null,
     ) {}
 
@@ -53,6 +55,11 @@ final readonly class Coincidence
     public function context(): ?array
     {
         return $this->context;
+    }
+
+    public function language(): LanguageCode
+    {
+        return $this->language;
     }
 
     public function clean(string $text): string

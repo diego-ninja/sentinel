@@ -25,7 +25,7 @@ return [
     'couille',      // Ball (testicle)
     'couillon',     // Stupid (masculine)
     'couillonne',   // Stupid (feminine)
-    'crevard',      // Backstabber or Hobo, depending on the context
+    'crevard',      // Backstabber or Hobo, depending on the language
     'cul',          // Ass
     'encule',       // Mother-fucker (masculine)
     'enculé',       // Mother-fucker (masculine)
