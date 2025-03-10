@@ -22,7 +22,7 @@ class MatchResource extends JsonResource
             'type' => $this->resource->type(),
             'score' => $this->resource->score()->value(),
             'confidence' => $this->resource->confidence()->value(),
-            'language' => $this->resource->context(),
+            'context' => $this->resource->context(),
         ];
     }
 }

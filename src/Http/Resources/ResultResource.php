@@ -24,6 +24,10 @@ class ResultResource extends JsonResource
                 'original' => $this->resource->original(),
                 'replaced' => $this->resource->replaced(),
             ],
+            'sentiment' => [
+                'type' => $this->resource->sentiment()?->type()?->value,
+                'score' => $this->resource->sentiment()?->value(),
+            ],
             'offensive' => $this->resource->offensive(),
             'words' => $this->resource->words(),
             'score' => $this->resource->score()?->value(),

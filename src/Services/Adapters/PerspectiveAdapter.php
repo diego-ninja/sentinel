@@ -6,6 +6,7 @@ use Ninja\Sentinel\Collections\MatchCollection;
 use Ninja\Sentinel\Collections\OccurrenceCollection;
 use Ninja\Sentinel\Enums\Category;
 use Ninja\Sentinel\Enums\MatchType;
+use Ninja\Sentinel\Language\Collections\LanguageCollection;
 use Ninja\Sentinel\Services\Contracts\ServiceResponse;
 use Ninja\Sentinel\ValueObject\Coincidence;
 use Ninja\Sentinel\ValueObject\Confidence;
@@ -44,6 +45,8 @@ final readonly class PerspectiveAdapter extends AbstractAdapter
         $avgConfidence = 0.0;
         $categories = [];
 
+        $language = app(LanguageCollection::class)->bestFor($text);
+
         foreach ($response['attributeScores'] as $attribute => $data) {
             $weight = self::RELEVANT_ATTRIBUTES[$attribute] ?? 0.0;
             $score = $data['summaryScore']['value'] * $weight;
@@ -71,6 +74,7 @@ final readonly class PerspectiveAdapter extends AbstractAdapter
                             score: new Score($span['score']['value']),
                             confidence: new Confidence(($data['summaryScore']['confidence'] ?? 0.7)),
                             occurrences: $occurrences,
+                            language: $language->code(),
                             context: [
                                 'attribute' => $attribute,
                                 'score' => $span['score']['value'],

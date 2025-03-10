@@ -5,6 +5,7 @@ namespace Ninja\Sentinel\Services\Adapters;
 use Ninja\Sentinel\Collections\MatchCollection;
 use Ninja\Sentinel\Collections\OccurrenceCollection;
 use Ninja\Sentinel\Enums\Category;
+use Ninja\Sentinel\Enums\LanguageCode;
 use Ninja\Sentinel\Enums\MatchType;
 use Ninja\Sentinel\Enums\SentimentType;
 use Ninja\Sentinel\Services\Contracts\ServiceAdapter;
@@ -23,6 +24,7 @@ final readonly class PrismAdapter extends AbstractAdapter implements ServiceAdap
     /**
      * @param string $text
      * @param array{
+     *     detected_language: string,
      *     is_offensive: bool,
      *     offensive_words: array<string>,
      *     categories: array<string>,
@@ -35,18 +37,19 @@ final readonly class PrismAdapter extends AbstractAdapter implements ServiceAdap
      *         score: float,
      *         confidence: float,
      *         occurrences: array<int, array{start: int, length: int}>,
-     *         language?: array{original?: string, surrounding?: string}
+     *         context?: array{original?: string, surrounding?: string}
      *     }>
      * } $response
      * @return ServiceResponse
      */
     public function adapt(string $text, array $response): ServiceResponse
     {
-        $matches = $this->createMatches($response['matches']);
+        $matches = $this->createMatches($response['matches'], LanguageCode::from($response['detected_language']));
 
         return new readonly class ($text, $response, $matches) implements ServiceResponse {
             /**
              * @param array{
+             *     detected_language: string,
              *     is_offensive: bool,
              *     offensive_words: array<string>,
              *     categories: array<string>,
@@ -59,7 +62,7 @@ final readonly class PrismAdapter extends AbstractAdapter implements ServiceAdap
              *         score: float,
              *         confidence: float,
              *         occurrences: array<int, array{start: int, length: int}>,
-             *         language?: array{original?: string, surrounding?: string}
+             *         context?: array{original?: string, surrounding?: string}
              *     }>
              * } $response
              */
@@ -140,10 +143,10 @@ final readonly class PrismAdapter extends AbstractAdapter implements ServiceAdap
      *     score: float,
      *     confidence: float,
      *     occurrences: array<int, array{start: int, length: int}>,
-     *     language?: array{original?: string, surrounding?: string}
+     *     context?: array{original?: string, surrounding?: string}
      * }> $matches
      */
-    private function createMatches(array $matches): MatchCollection
+    private function createMatches(array $matches, LanguageCode $language): MatchCollection
     {
         $collection = new MatchCollection();
 
@@ -163,7 +166,8 @@ final readonly class PrismAdapter extends AbstractAdapter implements ServiceAdap
                 score: new Score($match['score']),
                 confidence: new Confidence($match['confidence']),
                 occurrences: $occurrences,
-                context: $match['language'] ?? null,
+                language: $language,
+                context: $match['context'] ?? null,
             ));
         }
 

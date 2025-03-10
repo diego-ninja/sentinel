@@ -16,6 +16,7 @@ class SentinelPrismSchema extends ObjectSchema
             name: 'profanity_analysis',
             description: 'Profanity, sentiment and content analysis',
             properties: [
+                new StringSchema('detected_language', 'Detected language of the text'),
                 // Base analysis properties
                 new BooleanSchema('is_offensive', 'Whether the text contains offensive content'),
                 new ArraySchema(
@@ -74,8 +75,8 @@ class SentinelPrismSchema extends ObjectSchema
                                 ),
                             ),
                             new ObjectSchema(
-                                name: 'language',
-                                description: 'Match language information',
+                                name: 'context',
+                                description: 'Match context information',
                                 properties: [
                                     new StringSchema(
                                         'original',
@@ -83,17 +84,18 @@ class SentinelPrismSchema extends ObjectSchema
                                     ),
                                     new StringSchema(
                                         'surrounding',
-                                        'Text surrounding the match (brief language)',
+                                        'Text surrounding the match (brief context)',
                                     ),
                                 ],
                                 requiredFields: [],
                             ),
                         ],
-                        requiredFields: ['text', 'match_type', 'score', 'confidence', 'occurrences'],
+                        requiredFields: ['text', 'match_type', 'score', 'confidence', 'occurrences', 'context'],
                     ),
                 ),
             ],
             requiredFields: [
+                'detected_language',
                 'is_offensive',
                 'offensive_words',
                 'categories',

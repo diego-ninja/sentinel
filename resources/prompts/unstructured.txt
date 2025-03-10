@@ -2,6 +2,7 @@
 
     You must respond with ONLY a valid JSON object using this exact structure. Do not add any markdown formatting or additional text:
     {
+        "detected_language": string,
         "is_offensive": boolean,
         "offensive_words": string[],
         "categories": string[],
