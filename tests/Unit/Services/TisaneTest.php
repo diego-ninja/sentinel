@@ -4,7 +4,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
-use Ninja\Sentinel\Checkers\TisaneAI;
+use Ninja\Sentinel\Analyzers\TisaneAI;
 use Ninja\Sentinel\Services\Adapters\TisaneAdapter;
 use Ninja\Sentinel\Services\Pipeline\TransformationPipeline;
 
@@ -39,7 +39,7 @@ test('tisane detects abuse and profanity', function (): void {
         client: $client,
     );
 
-    $result = $checker->check('offensive content with badword');
+    $result = $checker->analyze('offensive content with badword');
 
     expect($result)
         ->toBeOffensive()
@@ -67,7 +67,7 @@ test('tisane handles clean content', function (): void {
         client: $client,
     );
 
-    $result = $checker->check('clean content');
+    $result = $checker->analyze('clean content');
 
     expect($result)
         ->toBeClean()

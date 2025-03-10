@@ -3,19 +3,19 @@
 namespace Ninja\Sentinel\Decorators;
 
 use Illuminate\Support\Facades\Cache;
-use Ninja\Sentinel\Checkers\Contracts\ProfanityChecker;
+use Ninja\Sentinel\Analyzers\Contracts\Analyzer;
 use Ninja\Sentinel\Enums\Audience;
 use Ninja\Sentinel\Enums\ContentType;
 use Ninja\Sentinel\Result\Contracts\Result;
 
-final readonly class CachedProfanityChecker implements ProfanityChecker
+final readonly class CachedAnalyzer implements Analyzer
 {
     public function __construct(
-        private ProfanityChecker $checker,
-        private int $ttl = 3600, // 1 hour by default
+        private Analyzer $checker,
+        private int      $ttl = 3600, // 1 hour by default
     ) {}
 
-    public function check(string $text, ?ContentType $contentType = null, ?Audience $audience = null): Result
+    public function analyze(string $text, ?ContentType $contentType = null, ?Audience $audience = null): Result
     {
         $cacheKey = sprintf(
             'sentinel:%s:%s:%s:%s',
@@ -29,7 +29,7 @@ final readonly class CachedProfanityChecker implements ProfanityChecker
         $store = config('sentinel.cache.store', 'default');
 
         /** @var Result $result */
-        $result = Cache::store($store)->remember($cacheKey, $this->ttl, fn(): Result => $this->checker->check($text));
+        $result = Cache::store($store)->remember($cacheKey, $this->ttl, fn(): Result => $this->checker->analyze($text));
 
         return $result;
     }

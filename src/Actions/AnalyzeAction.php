@@ -3,18 +3,18 @@
 namespace Ninja\Sentinel\Actions;
 
 use Lorisleiva\Actions\Concerns\AsAction;
-use Ninja\Sentinel\Checkers\Contracts\ProfanityChecker;
+use Ninja\Sentinel\Analyzers\Contracts\Analyzer;
 use Ninja\Sentinel\Enums\Audience;
 use Ninja\Sentinel\Enums\ContentType;
 use Ninja\Sentinel\Http\Requests\TextAnalysisRequest;
 use Ninja\Sentinel\Http\Resources\ResultResource;
 use Ninja\Sentinel\Result\Contracts\Result;
 
-final readonly class CheckAction
+final readonly class AnalyzeAction
 {
     use AsAction;
 
-    public function __construct(private ProfanityChecker $checker) {}
+    public function __construct(private Analyzer $analyzer) {}
 
     /**
      * Check text for offensive content
@@ -26,7 +26,7 @@ final readonly class CheckAction
      */
     public function handle(string $text, ?ContentType $contentType = null, ?Audience $audience = null): Result
     {
-        return $this->checker->check($text, $contentType, $audience);
+        return $this->analyzer->analyze($text, $contentType, $audience);
     }
 
     /**

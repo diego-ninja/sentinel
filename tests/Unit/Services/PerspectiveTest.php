@@ -4,7 +4,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
-use Ninja\Sentinel\Checkers\PerspectiveAI;
+use Ninja\Sentinel\Analyzers\PerspectiveAI;
 use Ninja\Sentinel\Services\Adapters\PerspectiveAdapter;
 use Ninja\Sentinel\Services\Pipeline\TransformationPipeline;
 
@@ -36,7 +36,7 @@ test('perspective detects toxic content', function (): void {
         client: $client,
     );
 
-    $result = $checker->check('toxic content');
+    $result = $checker->analyze('toxic content');
 
     expect($result)
         ->toBeOffensive()
@@ -67,7 +67,7 @@ test('perspective handles clean content', function (): void {
         client: $client,
     );
 
-    $result = $checker->check('clean content');
+    $result = $checker->analyze('clean content');
 
     expect($result)
         ->toBeClean()

@@ -2,14 +2,14 @@
 
 namespace Tests\Unit\Performance;
 
-use Ninja\Sentinel\Checkers\Local;
+use Ninja\Sentinel\Analyzers\Local;
 
 test('handles large text input efficiently', function (): void {
     $local = app(Local::class);
     $largeText = str_repeat('This is a very long text with some bad words like fuck and shit scattered throughout. ', 50);
 
     $startTime = microtime(true);
-    $result = $local->check($largeText);
+    $result = $local->analyze($largeText);
     $endTime = microtime(true);
 
     $executionTime = ($endTime - $startTime);
@@ -23,7 +23,7 @@ test('memory usage stays within acceptable limits', function (): void {
     $largeText = str_repeat('Some text with profanity fuck shit damn repeated many times. ', 100);
 
     $initialMemory = memory_get_usage();
-    $local->check($largeText);
+    $local->analyze($largeText);
     $peakMemory = memory_get_peak_usage() - $initialMemory;
 
     // Memory usage should be less than 20MB for this operation

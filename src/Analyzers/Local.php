@@ -1,8 +1,8 @@
 <?php
 
-namespace Ninja\Sentinel\Checkers;
+namespace Ninja\Sentinel\Analyzers;
 
-use Ninja\Sentinel\Checkers\Contracts\ProfanityChecker;
+use Ninja\Sentinel\Analyzers\Contracts\Analyzer;
 use Ninja\Sentinel\Enums\Audience;
 use Ninja\Sentinel\Enums\ContentType;
 use Ninja\Sentinel\Processors\Contracts\Processor;
@@ -12,7 +12,7 @@ use Ninja\Sentinel\Services\Contracts\ServiceAdapter;
 use Ninja\Sentinel\Services\Pipeline\TransformationPipeline;
 use Ninja\Sentinel\Support\ThresholdManager;
 
-final class Local implements ProfanityChecker
+final class Local implements Analyzer
 {
     private const int CHUNK_SIZE = 500;
 
@@ -30,7 +30,7 @@ final class Local implements ProfanityChecker
      * @param Audience|null $audience Optional audience type for threshold adjustment
      * @return Result The analysis result
      */
-    public function check(string $text, ?ContentType $contentType = null, ?Audience $audience = null): Result
+    public function analyze(string $text, ?ContentType $contentType = null, ?Audience $audience = null): Result
     {
         // Process the text
         if (mb_strlen($text) < self::CHUNK_SIZE) {

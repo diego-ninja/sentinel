@@ -1,11 +1,11 @@
 <?php
 
-use Ninja\Sentinel\Checkers\Local;
+use Ninja\Sentinel\Analyzers\Local;
 use Ninja\Sentinel\Result\Result;
 
 test('sentinel result provides all required information', function (): void {
     $local = app(Local::class);
-    $result = $local->check('fuck this shit');
+    $result = $local->analyze('fuck this shit');
     expect($result)
         ->toBeInstanceOf(Result::class)
         ->toBeOffensive()

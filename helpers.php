@@ -1,6 +1,6 @@
 <?php
 
-use Ninja\Sentinel\Actions\CheckAction;
+use Ninja\Sentinel\Actions\AnalyzeAction;
 use Ninja\Sentinel\Actions\CleanAction;
 use Ninja\Sentinel\Enums\Audience;
 use Ninja\Sentinel\Enums\ContentType;
@@ -18,7 +18,7 @@ if ( ! function_exists('is_offensive')) {
     function is_offensive(string $text, ?ContentType $contentType = null, ?Audience $audience = null): bool
     {
         /** @var Result $result */
-        $result = CheckAction::run($text, $contentType, $audience);
+        $result = AnalyzeAction::run($text, $contentType, $audience);
 
         // No need to pass parameters again, the result already has them
         return $result->offensive();

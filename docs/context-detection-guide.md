@@ -123,7 +123,7 @@ $adjustedScore = $originalScore * $contextModifier;
 Different languages have unique context markers:
 
 ```php
-// English language markers
+// En language markers
 $educationalMarkers = [
     'research', 'study', 'analysis', 
     'academic', 'scientific', // ...

@@ -390,4 +390,7 @@ return [
             ],
         ],
     ],
+    'rules' => [
+        Ninja\Sentinel\Language\Rules\AffixRule::class,
+    ],
 ];

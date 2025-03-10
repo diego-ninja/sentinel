@@ -2,14 +2,9 @@
 
 namespace Tests\Unit\Detection;
 
-use Ninja\Sentinel\Cache\MemoryPatternCache;
 use Ninja\Sentinel\Detection\Strategy\PatternStrategy;
-use Ninja\Sentinel\Dictionary\LazyDictionary;
-use Ninja\Sentinel\Enums\LanguageCode;
 use Ninja\Sentinel\Enums\MatchType;
-use Ninja\Sentinel\Language\Collections\LanguageCollection;
 use Ninja\Sentinel\Language\Contracts\Language;
-use Ninja\Sentinel\Support\PatternGenerator;
 
 test('pattern strategy detects exact matches', function (): void {
     $language = app(Language::class);

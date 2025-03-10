@@ -131,7 +131,7 @@ class SpanishDetectionStrategy extends AbstractStrategy
 Languages have unique context markers:
 
 ```php
-// English language detection
+// En language detection
 $englishEducationalMarkers = [
     'research', 'study', 'analysis', // ...
 ];

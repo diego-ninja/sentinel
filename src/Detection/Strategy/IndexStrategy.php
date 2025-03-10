@@ -14,6 +14,8 @@ use Ninja\Sentinel\ValueObject\Position;
 
 final class IndexStrategy extends AbstractStrategy
 {
+    public const float STRATEGY_EFFICIENCY = 1.0;
+
     public function __construct(
         protected LanguageCollection $languages,
         private readonly TrieIndex $index,
@@ -110,6 +112,7 @@ final class IndexStrategy extends AbstractStrategy
                     score: Calculator::score($text, $word, MatchType::Trie, $occurrences, $language),
                     confidence: Calculator::confidence($text, $word, MatchType::Trie, $occurrences),
                     occurrences: $occurrences,
+                    language: $language->code(),
                     context: ['method' => 'trie_index', 'full_word' => false],
                 ),
             );

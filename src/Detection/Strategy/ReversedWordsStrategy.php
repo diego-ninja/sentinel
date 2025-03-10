@@ -12,6 +12,8 @@ use Ninja\Sentinel\ValueObject\Position;
 
 final class ReversedWordsStrategy extends AbstractStrategy
 {
+    public const float STRATEGY_EFFICIENCY = 2.0;
+
     public function detect(string $text, ?Language $language = null): MatchCollection
     {
         $language ??= $this->languages->bestFor($text);

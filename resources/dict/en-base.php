@@ -1,7 +1,7 @@
 <?php
 
 /**
- * PHP Array for English words
+ * PHP Array for En words
  */
 
 return [

@@ -5,6 +5,7 @@ namespace Ninja\Sentinel\Language\Contracts;
 use Illuminate\Support\Collection;
 use Ninja\Sentinel\Dictionary\LazyDictionary;
 use Ninja\Sentinel\Enums\LanguageCode;
+use Ninja\Sentinel\Language\Collections\RuleCollection;
 use Ninja\Sentinel\Language\DTO\DetectionResult;
 
 interface Language
@@ -42,4 +43,9 @@ interface Language
      * @return LanguageCode
      */
     public function code(): LanguageCode;
+
+    /**
+     * @return RuleCollection
+     */
+    public function rules(): RuleCollection;
 }

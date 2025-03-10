@@ -1,19 +1,19 @@
 <?php
 
-namespace Ninja\Sentinel\Checkers;
+namespace Ninja\Sentinel\Analyzers;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\ClientTrait;
 use GuzzleHttp\Exception\GuzzleException;
-use Ninja\Sentinel\Checkers\Contracts\ProfanityChecker;
+use Ninja\Sentinel\Analyzers\Contracts\Analyzer;
 use Ninja\Sentinel\Enums\Audience;
 use Ninja\Sentinel\Enums\ContentType;
 use Ninja\Sentinel\Exceptions\ClientException;
 use Ninja\Sentinel\Result\Contracts\Result;
 use Psr\Http\Message\ResponseInterface;
 
-abstract class AbstractProfanityChecker implements ProfanityChecker
+abstract class AbstractAnalyzer implements Analyzer
 {
     public function __construct(protected ?ClientInterface $client = null)
     {
@@ -35,7 +35,7 @@ abstract class AbstractProfanityChecker implements ProfanityChecker
      * @param Audience|null $audience Optional audience type for threshold adjustment
      * @return Result The analysis result
      */
-    abstract public function check(string $text, ?ContentType $contentType = null, ?Audience $audience = null): Result;
+    abstract public function analyze(string $text, ?ContentType $contentType = null, ?Audience $audience = null): Result;
 
     /**
      * @param  array<string, mixed>  $query

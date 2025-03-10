@@ -282,4 +282,7 @@ return [
             '/\b(puttana) (eva|miseria|troia|madonna)\b/i',  // Espressioni idiomatiche
         ],
     ],
+    'rules' => [
+        Ninja\Sentinel\Language\Rules\AffixRule::class,
+    ],
 ];

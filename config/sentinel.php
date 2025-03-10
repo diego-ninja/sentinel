@@ -83,7 +83,7 @@ return [
     | Set to auto to automatically detect the language from the text.
     |
     */
-    'languages' => explode(',', env('SENTINEL_LANGUAGES', 'en')),
+    'languages' => explode(',', env('SENTINEL_LANGUAGES', 'auto')),
 
     /*
     |--------------------------------------------------------------------------
@@ -313,7 +313,7 @@ return [
         'azure_ai' => [
             'key' => env('AZURE_AI_API_KEY'),
             'endpoint' => env('AZURE_AI_ENDPOINT'),
-            'version' => env('AZURE_AI_VERSION', Ninja\Sentinel\Checkers\AzureAI::DEFAULT_API_VERSION),
+            'version' => env('AZURE_AI_VERSION', Ninja\Sentinel\Analyzers\AzureAI::DEFAULT_API_VERSION),
         ],
         'purgomalum' => [],
         'local' => [

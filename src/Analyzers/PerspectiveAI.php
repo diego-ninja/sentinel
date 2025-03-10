@@ -1,6 +1,6 @@
 <?php
 
-namespace Ninja\Sentinel\Checkers;
+namespace Ninja\Sentinel\Analyzers;
 
 use GuzzleHttp\ClientInterface;
 use Ninja\Sentinel\Enums\Audience;
@@ -11,7 +11,7 @@ use Ninja\Sentinel\Result\Contracts\Result;
 use Ninja\Sentinel\Services\Contracts\ServiceAdapter;
 use Ninja\Sentinel\Services\Pipeline\TransformationPipeline;
 
-final class PerspectiveAI extends AbstractProfanityChecker
+final class PerspectiveAI extends AbstractAnalyzer
 {
     public function __construct(
         private readonly string $key,
@@ -31,7 +31,7 @@ final class PerspectiveAI extends AbstractProfanityChecker
      * @return Result Analysis result
      * @throws ClientException When API request fails
      */
-    public function check(string $text, ?ContentType $contentType = null, ?Audience $audience = null): Result
+    public function analyze(string $text, ?ContentType $contentType = null, ?Audience $audience = null): Result
     {
         // Build the request parameters based on content type and audience
         $requestedAttributes = $this->getRequestedAttributes($contentType, $audience);
@@ -176,9 +176,6 @@ final class PerspectiveAI extends AbstractProfanityChecker
                     $attributes['PROFANITY']['scoreThreshold'] = 0.6;
                     break;
 
-                default:
-                    // Use default thresholds
-                    break;
             }
         }
 

@@ -5,18 +5,18 @@ namespace Ninja\Sentinel;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Validator;
+use Ninja\Sentinel\Analyzers\AzureAI;
+use Ninja\Sentinel\Analyzers\Contracts\Analyzer;
+use Ninja\Sentinel\Analyzers\PerspectiveAI;
+use Ninja\Sentinel\Analyzers\PrismAI;
+use Ninja\Sentinel\Analyzers\TisaneAI;
 use Ninja\Sentinel\Cache\Contracts\PatternCache;
-use Ninja\Sentinel\Checkers\AzureAI;
-use Ninja\Sentinel\Checkers\Contracts\ProfanityChecker;
-use Ninja\Sentinel\Checkers\PerspectiveAI;
-use Ninja\Sentinel\Checkers\PrismAI;
-use Ninja\Sentinel\Checkers\TisaneAI;
 use Ninja\Sentinel\Dictionary\LazyDictionary;
 use Ninja\Sentinel\Enums\Audience;
 use Ninja\Sentinel\Enums\ContentType;
 use Ninja\Sentinel\Enums\LanguageCode;
 use Ninja\Sentinel\Enums\Provider;
-use Ninja\Sentinel\Factories\ProfanityCheckerFactory;
+use Ninja\Sentinel\Factories\AnalyzerFactory;
 use Ninja\Sentinel\Index\TrieIndex;
 use Ninja\Sentinel\Language\Collections\LanguageCollection;
 use Ninja\Sentinel\Language\Contracts\Language;
@@ -103,7 +103,7 @@ final class SentinelServiceProvider extends ServiceProvider
 
         $this->app->when(AzureAI::class)->needs(ServiceAdapter::class)->give(AzureAdapter::class);
         $this->app->when(TisaneAI::class)->needs(ServiceAdapter::class)->give(TisaneAdapter::class);
-        $this->app->when(Checkers\Local::class)->needs(ServiceAdapter::class)->give(LocalAdapter::class);
+        $this->app->when(Analyzers\Local::class)->needs(ServiceAdapter::class)->give(LocalAdapter::class);
         $this->app->when(PerspectiveAI::class)->needs(ServiceAdapter::class)->give(PerspectiveAdapter::class);
         $this->app->when(PrismAI::class)->needs(ServiceAdapter::class)->give(PrismAdapter::class);
 
@@ -130,8 +130,8 @@ final class SentinelServiceProvider extends ServiceProvider
 
         /** @var Provider $default */
         $default = config('sentinel.default_service', Provider::Local);
-        $this->app->bind(ProfanityChecker::class, function () use ($default): ProfanityChecker {
-            /** @var ProfanityChecker $service */
+        $this->app->bind(Analyzer::class, function () use ($default): Analyzer {
+            /** @var Analyzer $service */
             $service = app($default->value);
 
             return $service;
@@ -195,7 +195,7 @@ final class SentinelServiceProvider extends ServiceProvider
             $config = config(sprintf('sentinel.services.%s', $service->value));
 
             if (null !== $config) {
-                $this->app->singleton($service->value, fn(): ProfanityChecker => ProfanityCheckerFactory::create($service, $config));
+                $this->app->singleton($service->value, fn(): Analyzer => AnalyzerFactory::create($service, $config));
             }
         }
 
@@ -207,7 +207,7 @@ final class SentinelServiceProvider extends ServiceProvider
             /** @var ServiceAdapter $adapter */
             $adapter = app(ServiceAdapter::class);
 
-            return new Checkers\Local(
+            return new Analyzers\Local(
                 processor: $processor,
                 adapter: $adapter,
                 pipeline: app(TransformationPipeline::class),

@@ -3,8 +3,6 @@
 namespace Tests\Unit\Dictionary;
 
 use Ninja\Sentinel\Dictionary\LazyDictionary;
-use Ninja\Sentinel\Exceptions\DictionaryFileNotFound;
-use Ninja\Sentinel\Language\Collections\LanguageCollection;
 
 /**
  * @param  array<string>  $words

@@ -12,6 +12,8 @@ use Ninja\Sentinel\ValueObject\Position;
 
 final class ZeroWidthStrategy extends AbstractStrategy
 {
+    public const float STRATEGY_EFFICIENCY = 2.5;
+
     /**
      * @var array<string>
      */

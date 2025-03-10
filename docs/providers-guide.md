@@ -103,11 +103,11 @@ return [
 Implement a custom provider:
 
 ```php
-use Ninja\Sentinel\Checkers\Contracts\ProfanityChecker;
+use Ninja\Sentinel\Analyzers\Contracts\Analyzer;
 use Ninja\Sentinel\Enums\ContentType;
 use Ninja\Sentinel\Enums\Audience;
 
-class CustomProfanityChecker implements ProfanityChecker
+class CustomProfanityChecker implements Analyzer
 {
     public function check(
         string $text, 

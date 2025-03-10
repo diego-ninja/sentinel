@@ -76,6 +76,7 @@ abstract class AbstractProcessor implements Processor
         $batchSize = $earlyTermination['batch_size'] ?? 3;
 
         $this->strategies
+            ->useWeightedVoting(false)
             ->useEarlyTermination($enabled, $threshold)
             ->setBatchSize($batchSize);
     }

@@ -4,7 +4,6 @@ namespace Ninja\Sentinel\Detection\Strategy;
 
 use Ninja\Sentinel\Collections\MatchCollection;
 use Ninja\Sentinel\Collections\OccurrenceCollection;
-use Ninja\Sentinel\Enums\LanguageCode;
 use Ninja\Sentinel\Enums\MatchType;
 use Ninja\Sentinel\Language\Language;
 use Ninja\Sentinel\Support\Calculator;
@@ -30,11 +29,12 @@ final class AffixStrategy extends AbstractStrategy
             return $matches;
         }
 
-        $index = $this->buildIndex($language->words(), $language->code());
+        $index = $this->buildIndex($language);
 
         foreach (array_unique($textWords) as $textWord) {
             /** @var string $textWord */
             $lowerTextWord = mb_strtolower($textWord);
+
             if (isset($index[$lowerTextWord])) {
                 $positions = [];
                 $pos = 0;
@@ -74,16 +74,16 @@ final class AffixStrategy extends AbstractStrategy
     }
 
     /**
-     * @param  iterable<string>  $words
+     * @param Language $language
      * @return array<string, string>
      */
-    private function buildIndex(iterable $words, LanguageCode $code): array
+    private function buildIndex(Language $language): array
     {
         $index = [];
-        $dictionary = is_array($words) ? $words : iterator_to_array($words);
+        $dictionary = iterator_to_array($language->words());
 
         foreach ($dictionary as $word) {
-            $variants = $this->getCachedVariants($word, $code);
+            $variants = $this->getCachedVariants($word, $language);
             foreach ($variants as $variant) {
                 $index[mb_strtolower($variant)] = $word;
             }
@@ -92,82 +92,22 @@ final class AffixStrategy extends AbstractStrategy
         return $index;
     }
 
-    /**
-     * @return array<string>
-     */
-    private function generateVariants(string $word, LanguageCode $code): array
-    {
-        $variants = [];
-        $mb_word = mb_strtolower($word);
-
-        $prefixes = $this->languages->findByCode($code)?->prefixes();
-        if (null === $prefixes) {
-            return $this->generateSuffixVariants($mb_word, $code);
-        }
-
-        foreach ($prefixes as $prefix) {
-            $variants[] = $prefix . $mb_word;
-            foreach ($this->generateSuffixVariants($mb_word, $code) as $suffixVariant) {
-                $variants[] = $prefix . $suffixVariant;
-            }
-        }
-
-        return array_merge($variants, $this->generateSuffixVariants($mb_word, $code));
-    }
 
     /**
-     * @return array<string>
+     * @return string[]
      */
-    private function generateSuffixVariants(string $word, LanguageCode $code): array
-    {
-        $variants = [];
-
-        $suffixes = $this->languages->findByCode($code)?->suffixes();
-        if (null === $suffixes) {
-            return $variants;
-        }
-
-        if (preg_match('/[aeiou][bcdfghjklmnpqrstvwxz]$/i', $word)) {
-            $doubles = $word . mb_substr($word, -1);
-            foreach ($suffixes as $suffix) {
-                if (in_array($suffix, ['ing', 'ed', 'er', 'est'])) {
-                    $variants[] = $doubles . $suffix;
-                }
-            }
-        }
-
-        if ('e' === mb_substr($word, -1)) {
-            $base = mb_substr($word, 0, -1);
-            foreach ($suffixes as $suffix) {
-                if (in_array($suffix, ['ing', 'er', 'est'])) {
-                    $variants[] = $base . $suffix;
-                }
-            }
-        }
-
-        foreach ($suffixes as $suffix) {
-            $variants[] = $word . $suffix;
-        }
-
-        if ('y' === mb_substr($word, -1)) {
-            $base = mb_substr($word, 0, -1);
-            $variants[] = $base . 'ies';
-            $variants[] = $base . 'ied';
-            $variants[] = $base . 'ier';
-            $variants[] = $base . 'iest';
-        }
-
-        return $variants;
-    }
-
-    /**
-     * @return array<string>
-     */
-    private function getCachedVariants(string $word, LanguageCode $code): array
+    private function getCachedVariants(string $word, Language $language): array
     {
         $key = mb_strtolower($word);
         if ( ! isset($this->cache[$key])) {
-            $this->cache[$key] = $this->generateVariants($word, $code);
+            $rule = $language->rules()->findByName('affix');
+            if (null === $rule) {
+                return [];
+            }
+
+            /** @var string[] $variants */
+            $variants = $rule($word, $language)->toArray();
+            $this->cache[$key] = $variants;
         }
 
         return $this->cache[$key];

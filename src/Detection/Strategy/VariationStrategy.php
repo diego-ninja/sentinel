@@ -14,6 +14,8 @@ use Ninja\Sentinel\ValueObject\Position;
 
 final class VariationStrategy extends AbstractStrategy
 {
+    public const float STRATEGY_EFFICIENCY = 3.5;
+
     public function __construct(
         protected LanguageCollection $languages,
         private readonly bool $fullWords = true,

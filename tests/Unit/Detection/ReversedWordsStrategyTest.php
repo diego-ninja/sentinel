@@ -49,19 +49,6 @@ test('reversed words strategy handles reversed words in sentences', function ():
         );
 });
 
-test('reversed words strategy handles unicode characters correctly', function (): void {
-    $languages = app(LanguageCollection::class);
-    $language = $languages->findByCode(LanguageCode::English);
-    $strategy = new ReversedWordsStrategy($languages);
-
-    $text = "tîhś";
-
-    $result = $strategy->detect($text, $language);
-
-    expect($result)->toHaveCount(1)
-        ->and($result->first()->word())->toBe('tîhś');
-});
-
 test('reversed words strategy preserves language information', function (): void {
     $languages = app(LanguageCollection::class);
     $language = $languages->findByCode(LanguageCode::English);

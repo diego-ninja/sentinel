@@ -4,6 +4,7 @@ namespace Ninja\Sentinel\Dictionary;
 
 use Exception;
 use Generator;
+use Illuminate\Support\Collection;
 use IteratorAggregate;
 use Ninja\Sentinel\Exceptions\DictionaryFileNotFound;
 use Ninja\Sentinel\Language\Collections\LanguageCollection;
@@ -33,6 +34,14 @@ final class LazyDictionary implements IteratorAggregate
     {
         $dictionary = new self(new LanguageCollection());
         $dictionary->addWords($words);
+
+        return $dictionary;
+    }
+
+    public static function withCollection(Collection $collection): self
+    {
+        $dictionary = new self(new LanguageCollection());
+        $dictionary->addWords($collection->unique()->all());
 
         return $dictionary;
     }

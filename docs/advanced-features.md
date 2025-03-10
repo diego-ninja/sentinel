@@ -85,11 +85,11 @@ config(['sentinel.languages' => ['custom']]);
 Create a custom service provider:
 
 ```php
-use Ninja\Sentinel\Checkers\Contracts\ProfanityChecker;
+use Ninja\Sentinel\Analyzers\Contracts\Analyzer;
 use Ninja\Sentinel\Services\Contracts\ServiceAdapter;
 use Ninja\Sentinel\Services\Pipeline\TransformationPipeline;
 
-class CustomProfanityChecker implements ProfanityChecker
+class CustomProfanityChecker implements Analyzer
 {
     public function __construct(
         private ServiceAdapter $adapter,

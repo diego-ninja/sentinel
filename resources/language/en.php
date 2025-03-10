@@ -1,7 +1,7 @@
 <?php
 
 /**
- * English language definitions for profanity detection
+ * En language definitions for profanity detection
  * These define contextual words and patterns that help analyze the severity and intent
  * of potentially offensive content.
  */
@@ -493,7 +493,7 @@ return [
                 '/\b(study|research|paper|analysis|book|article|racism|discrimination).*\bnigger\b/i', // Academic language
             ],
             'fag' => [
-                '/\b(british|uk|england|english|cigarette).*\bfag\b/i', // British English meaning
+                '/\b(british|uk|england|english|cigarette).*\bfag\b/i', // British En meaning
                 '/\b(slang|historical|homosexuality|gay rights|homophobia|slur|pejorative).*\bfag\b/i', // Academic language
                 '/\b(fagging|public school|boarding school|british tradition).*\bfag\b/i', // British school tradition
             ],
@@ -508,5 +508,10 @@ return [
                 '/\b(sex) (education|determination|ratio|linked|change|chromosome|organ|cell|hormone|characteristic|difference|discrimination)\b/i', // Scientific compounds
             ],
         ],
+    ],
+    'rules' => [
+        Ninja\Sentinel\Language\Rules\En\AdverbRule::class,
+        Ninja\Sentinel\Language\Rules\En\AffixRule::class,
+        Ninja\Sentinel\Language\Rules\En\PluralizeRule::class
     ],
 ];

@@ -99,6 +99,67 @@ final class StrategyCollection extends Collection implements DetectionStrategy
     }
 
     /**
+     * Enable or disable the weighted voting system
+     *
+     * @param bool $enable Whether to enable voting
+     * @return self
+     */
+    public function useWeightedVoting(bool $enable = true): self
+    {
+        $this->useWeightedVoting = $enable;
+        return $this;
+    }
+
+    /**
+     * Enable or disable early termination
+     *
+     * @param bool $enable Whether to enable early termination
+     * @param float|null $threshold Optional threshold override
+     * @return self
+     */
+    public function useEarlyTermination(bool $enable = true, ?float $threshold = null): self
+    {
+        $this->useEarlyTermination = $enable;
+
+        if (null !== $threshold) {
+            $this->earlyTerminationThreshold = max(0.5, min(0.95, $threshold));
+        }
+
+        return $this;
+    }
+
+    /**
+     * Set batch size for strategy processing
+     *
+     * @param int $size Number of strategies to process before checking results
+     * @return self
+     */
+    public function setBatchSize(int $size): self
+    {
+        $this->batchSize = max(1, min(10, $size));
+        return $this;
+    }
+
+    /**
+     * Get the overall efficiency for this collection of strategies
+     *
+     * @return float Weight value
+     */
+
+    public function efficiency(): float
+    {
+        if ($this->isEmpty()) {
+            return 0.0;
+        }
+
+        /** @var float $totalEfficiency */
+        $totalEfficiency = $this->sum(fn(DetectionStrategy $strategy) => $strategy->efficiency());
+        $totalStrategies = $this->count();
+
+        return $totalEfficiency / $totalStrategies;
+    }
+
+    /**
      * Get the overall weight for this collection of strategies
      *
      * @return float Weight value
@@ -240,48 +301,6 @@ final class StrategyCollection extends Collection implements DetectionStrategy
     }
 
     /**
-     * Enable or disable the weighted voting system
-     *
-     * @param bool $enable Whether to enable voting
-     * @return self
-     */
-    public function useWeightedVoting(bool $enable = true): self
-    {
-        $this->useWeightedVoting = $enable;
-        return $this;
-    }
-
-    /**
-     * Enable or disable early termination
-     *
-     * @param bool $enable Whether to enable early termination
-     * @param float|null $threshold Optional threshold override
-     * @return self
-     */
-    public function useEarlyTermination(bool $enable = true, ?float $threshold = null): self
-    {
-        $this->useEarlyTermination = $enable;
-
-        if ($threshold !== null) {
-            $this->earlyTerminationThreshold = max(0.5, min(0.95, $threshold));
-        }
-
-        return $this;
-    }
-
-    /**
-     * Set batch size for strategy processing
-     *
-     * @param int $size Number of strategies to process before checking results
-     * @return self
-     */
-    public function setBatchSize(int $size): self
-    {
-        $this->batchSize = max(1, min(10, $size));
-        return $this;
-    }
-
-    /**
      * Get the voting system instance, creating it if needed
      *
      * @return StrategyVotingSystem
@@ -303,28 +322,13 @@ final class StrategyCollection extends Collection implements DetectionStrategy
      */
     private function orderByEfficiency(): void
     {
-        $sorted = $this->sortByDesc(function (DetectionStrategy $strategy) {
-            $costs = [
-                'IndexStrategy' => 1.0,     // Fastest
-                'SafeContextStrategy' => 1.5,
-                'PatternStrategy' => 3.0,   // Medium cost
-                'NGramStrategy' => 2.5,
-                'VariationStrategy' => 3.5,
-                'AffixStrategy' => 2.0,
-                'LevenshteinStrategy' => 4.0, // Higher cost
-                'PhoneticStrategy' => 3.5,
-                'RepeatedCharStrategy' => 2.0,
-                'AlphanumericVariationStrategy' => 2.5,
-                'ReversedWordsStrategy' => 2.0,
-                'ZeroWidthStrategy' => 2.5,
-            ];
-            $className = class_basename(get_class($strategy));
-            $cost = $costs[$className] ?? 2.0;
+        $sorted = $this->sortBy(fn(DetectionStrategy $strategy) => $strategy->efficiency());
+        $this->items = $sorted->values()->all();
+    }
 
-            // Efficiency formula: weight / computational cost
-            return $strategy->weight() / $cost;
-        });
-
+    private function orderByWeight(): void
+    {
+        $sorted = $this->sortByDesc(fn(DetectionStrategy $strategy) => $strategy->weight());
         $this->items = $sorted->values()->all();
     }
 }

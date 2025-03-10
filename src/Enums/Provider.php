@@ -5,7 +5,6 @@ namespace Ninja\Sentinel\Enums;
 enum Provider: string
 {
     case Perspective = 'perspective_ai';
-    case PurgoMalum = 'purgomalum';
     case Tisane = 'tisane_ai';
     case Azure = 'azure_ai';
     case Prism = 'prism_ai';
@@ -18,7 +17,6 @@ enum Provider: string
     {
         return [
             self::Perspective,
-            self::PurgoMalum,
             self::Tisane,
             self::Azure,
             self::Prism,

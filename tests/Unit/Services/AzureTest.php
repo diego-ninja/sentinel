@@ -4,7 +4,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
-use Ninja\Sentinel\Checkers\AzureAI;
+use Ninja\Sentinel\Analyzers\AzureAI;
 use Ninja\Sentinel\Services\Adapters\AzureAdapter;
 use Ninja\Sentinel\Services\Pipeline\TransformationPipeline;
 
@@ -39,7 +39,7 @@ test('azure detects harmful content', function (): void {
         httpClient: $client,
     );
 
-    $result = $checker->check('offensive content');
+    $result = $checker->analyze('offensive content');
 
     expect($result)
         ->toBeOffensive()
@@ -72,7 +72,7 @@ test('azure handles clean content', function (): void {
         httpClient: $client,
     );
 
-    $result = $checker->check('clean content');
+    $result = $checker->analyze('clean content');
 
     expect($result)
         ->toBeClean()

@@ -11,7 +11,7 @@ return [
             // Palabras vulgares generales
             'puta', 'puto', 'maricón', 'marica', 'maricon', 'joder', 'jodido', 'jodete', 'jódete',
             'cabrón', 'cabron', 'cabrona', 'chinga', 'chingada', 'chingado', 'chingar', 'chingón',
-            'pendejo', 'pendeja', 'gilipollas', 'gilipolla', 'capullo', 'capulla', 'coño', 'cono',
+            'pendejo', 'pendeja', 'gilipollas', 'gilipolla', 'capullo', 'capulla', 'coño',
             'mierda', 'carajo', 'verga', 'polla', 'pingo', 'pija', 'pene', 'cuca', 'chocha', 'concha',
             'rabo', 'pichula', 'picha', 'cojones', 'huevos', 'pinche', 'puta madre', 'hijo de puta',
             'hija de puta', 'hijueputa', 'hdp', 'malparido', 'malparida', 'culero', 'culera',
@@ -22,7 +22,7 @@ return [
             'weon', 'weona', 'imbécil', 'idiota', 'mamón', 'mamona', 'lameculos', 'gilipollas',
 
             // Insultos raciales/étnicos
-            'sudaca', 'indio', 'negro', 'negrata', 'gitano', 'moro', 'machupichu', 'machupichu',
+            'sudaca', 'indio', 'negro', 'negrata', 'gitano', 'moro', 'machupichu', 'nazi',
             'polaco', 'gallego', 'gabacho', 'guiri', 'gringo', 'pocho', 'yanqui', 'chino', 'indígena',
 
             // Términos sexuales
@@ -107,12 +107,11 @@ return [
         ],
     ],
     'prefixes' => [
-        'des', 're', 'dis', 'mal', 'pre', 'sobre', 'sub', 'sub', 'super', 'anti', 'auto', 'bi', 'co', 'de', 'en', 'ex',
+        'des', 're', 'dis', 'mal', 'pre', 'sobre', 'sub', 'super', 'anti', 'auto', 'bi', 'co', 'de', 'en', 'ex',
         'ante', 'in', 'inter', 'medio', 'no', 'extra', 'pos', 'semi', 'tri', 'in', 'sub', 'a', 'con',
     ],
     'suffixes' => [
-        'ando', 'endo', 'iendo', 'ado', 'ido', 'dor', 'tor', 'sor', 'nte', 'ero', 'era', 'ista', 's', 'es', 'es', "'s",
-        'es', 'ísimo', 'ísima', 'mente', 'ero', 'era', 'ista', 'ísimo', 'ísima',
+        'ando', 'endo', 'iendo', 'ado', 'ido', 'dor', 'tor', 'sor', 'nte', 'ero', 'era', 's', 'es', 'ísimo', 'ísima', 'mente', 'ero', 'era', 'ista',
     ],
     'pronouns' => [
         'yo', 'me', 'mi', 'mí', 'conmigo', 'mío', 'mía', 'míos', 'mías',
@@ -347,8 +346,8 @@ return [
             ],
         ],
     ],
-    'patrones' => [
-        'palabra_específica' => [
+    'patterns' => [
+        'word_specific' => [
             'culo' => [
                 '/\b(cálculo|artículo|espectáculo|vehículo|minúsculo|mayúsculo|ridículo|currículum|currículo|divertículo)\b/i',  // Palabras que contienen "culo"
                 '/\b(particular|auricular|perpendicular|secular|molecular|circular|muscular|vascular|ocular|celular|tubular|angular)\b/i',  // Palabras terminadas en "cular"
@@ -399,5 +398,14 @@ return [
                 '/\b(zoología|biología|veterinaria|ganadería|rural|campo|granja)\b.*\b(cabrón)\b/i',  // Contexto biológico
             ],
         ],
+    ],
+    'rules' => [
+        Ninja\Sentinel\Language\Rules\AffixRule::class,
+        Ninja\Sentinel\Language\Rules\Es\AdverbRule::class,
+        Ninja\Sentinel\Language\Rules\Es\AugmentativeRule::class,
+        Ninja\Sentinel\Language\Rules\Es\DiminutiveRule::class,
+        Ninja\Sentinel\Language\Rules\Es\GenderVariationRule::class,
+        Ninja\Sentinel\Language\Rules\Es\PluralizeRule::class,
+        Ninja\Sentinel\Language\Rules\Es\VerbConjugationRule::class,
     ],
 ];

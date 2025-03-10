@@ -7,8 +7,10 @@ use Illuminate\Support\Str;
 use Ninja\Sentinel\Dictionary\LazyDictionary;
 use Ninja\Sentinel\Enums\ContextType;
 use Ninja\Sentinel\Enums\LanguageCode;
+use Ninja\Sentinel\Language\Collections\RuleCollection;
 use Ninja\Sentinel\Language\Contracts\Context as ContextContract;
 use Ninja\Sentinel\Language\Contracts\Language as LanguageContract;
+use Ninja\Sentinel\Language\Contracts\Rule;
 use Ninja\Sentinel\Language\DTO\DetectionResult;
 use Ninja\Sentinel\ValueObject\Confidence;
 use Ninja\Sentinel\ValueObject\Score;
@@ -62,6 +64,8 @@ final readonly class Language implements LanguageContract
     /** @var Collection<int, ContextContract> */
     private Collection $contexts;
 
+    private RuleCollection $rules;
+
 
     /**
      * @param array{
@@ -85,7 +89,8 @@ final readonly class Language implements LanguageContract
      *      }>,
      *      patterns: array{
      *          word_specific: array<string, array<int, string>>
-     *      }
+     *      },
+     *     rules: array<string, callable>|array{}
      *  } $data
      * @param LanguageCode $code
      */
@@ -103,7 +108,10 @@ final readonly class Language implements LanguageContract
         $this->excuse_markers = collect($this->data['words']['excuse']);
 
         $this->contexts = new Collection();
+        $this->rules = new RuleCollection();
+
         $this->loadContexts();
+        $this->loadRules();
     }
 
     public function code(): LanguageCode
@@ -260,6 +268,61 @@ final readonly class Language implements LanguageContract
         return $this->suffixes;
     }
 
+    public function isPronoun(string $word): bool
+    {
+        return $this->pronouns->contains($word);
+    }
+
+    public function isMarker(string $word): bool
+    {
+        return $this->language_markers->contains($word);
+    }
+
+    public function isIntensifier(string $word): bool
+    {
+        return $this->intensifiers->contains($word);
+    }
+
+    public function isModifier(string $word): bool
+    {
+        return
+            $this->positive_modifiers->contains($word) ||
+            $this->negative_modifiers->contains($word);
+    }
+
+    public function isPositive(string $word): bool
+    {
+        return $this->positive_modifiers->contains($word);
+    }
+
+    public function isNegative(string $word): bool
+    {
+        return $this->negative_modifiers->contains($word);
+    }
+
+    public function isQuoteMarker(string $word): bool
+    {
+        return $this->quote_markers->contains($word);
+    }
+
+    public function isExcuseMarker(string $word): bool
+    {
+        return $this->excuse_markers->contains($word);
+    }
+
+    /**
+     * @return Collection<int, string>
+     */
+    public function pronouns(): Collection
+    {
+        return $this->pronouns;
+    }
+
+    public function rules(): RuleCollection
+    {
+        return $this->rules;
+    }
+
     private function loadContexts(): void
     {
         foreach ($this->data['contexts'] as $type => $data) {
@@ -269,6 +332,23 @@ final readonly class Language implements LanguageContract
             }
 
             $this->contexts->add(new Context($contextType, $data['markers'], $data['whitelist']));
+        }
+    }
+
+    private function loadRules(): void
+    {
+        foreach ($this->data['rules'] as $rule) {
+            if (is_callable($rule)) {
+                $this->rules->add($rule);
+                continue;
+            }
+
+            if (is_string($rule)) {
+                /** @var Rule $rule */
+                $rule = new $rule();
+            }
+
+            $this->rules->add($rule);
         }
     }
 
@@ -348,48 +428,6 @@ final readonly class Language implements LanguageContract
         return $wordScore;
     }
 
-    public function isPronoun(string $word): bool
-    {
-        return $this->pronouns->contains($word);
-    }
-
-    public function isMarker(string $word): bool
-    {
-        return $this->language_markers->contains($word);
-    }
-
-    public function isIntensifier(string $word): bool
-    {
-        return $this->intensifiers->contains($word);
-    }
-
-    public function isModifier(string $word): bool
-    {
-        return
-            $this->positive_modifiers->contains($word) ||
-            $this->negative_modifiers->contains($word);
-    }
-
-    public function isPositive(string $word): bool
-    {
-        return $this->positive_modifiers->contains($word);
-    }
-
-    public function isNegative(string $word): bool
-    {
-        return $this->negative_modifiers->contains($word);
-    }
-
-    public function isQuoteMarker(string $word): bool
-    {
-        return $this->quote_markers->contains($word);
-    }
-
-    public function isExcuseMarker(string $word): bool
-    {
-        return $this->excuse_markers->contains($word);
-    }
-
     /**
      * @param Collection<int,non-falsy-string> $words
      * @param LanguageDetectionDetails $details
@@ -404,7 +442,7 @@ final readonly class Language implements LanguageContract
         $pronounFactor = min(1.0, count($details['pronouns']) / 5);
         $confidence = ($elementRatio * 0.7) + ($pronounFactor * 0.3);
 
-        if ($details["total_language_elements"] < 3) {
+        if ($details['total_language_elements'] < 3) {
             $confidence *= 0.5;
         }
 
@@ -435,13 +473,5 @@ final readonly class Language implements LanguageContract
         }
 
         return new Score($finalScore);
-    }
-
-    /**
-     * @return Collection<int, string>
-     */
-    public function pronouns(): Collection
-    {
-        return $this->pronouns;
     }
 }

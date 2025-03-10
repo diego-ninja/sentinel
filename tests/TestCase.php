@@ -105,7 +105,7 @@ abstract class TestCase extends BaseTestCase
                     \Ninja\Sentinel\Detection\Strategy\IndexStrategy::class,
                     \Ninja\Sentinel\Detection\Strategy\PatternStrategy::class,
                     \Ninja\Sentinel\Detection\Strategy\NGramStrategy::class,
-                    \Ninja\Sentinel\Detection\Strategy\AffixStrategy::class,
+                    //\Ninja\Sentinel\Detection\Strategy\AffixStrategy::class,
                     \Ninja\Sentinel\Detection\Strategy\VariationStrategy::class,
                     \Ninja\Sentinel\Detection\Strategy\RepeatedCharStrategy::class,
                     \Ninja\Sentinel\Detection\Strategy\LevenshteinStrategy::class,

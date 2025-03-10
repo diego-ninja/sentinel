@@ -12,6 +12,8 @@ use Ninja\Sentinel\ValueObject\Position;
 
 final class NGramStrategy extends AbstractStrategy
 {
+    public const float STRATEGY_EFFICIENCY = 2.5;
+
     public function detect(string $text, ?Language $language = null): MatchCollection
     {
         $language ??= $this->languages->bestFor($text);

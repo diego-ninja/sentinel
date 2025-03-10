@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Ninja\Sentinel\Actions\CheckAction;
+use Ninja\Sentinel\Actions\AnalyzeAction;
 
-Route::post('sentinel/check', CheckAction::class)
-    ->name('sentinel.check');
+Route::post('sentinel/analyze', AnalyzeAction::class)
+    ->name('sentinel.analyze');

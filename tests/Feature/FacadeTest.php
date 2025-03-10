@@ -2,14 +2,8 @@
 
 namespace Tests\Feature;
 
-use Ninja\Sentinel\Checkers\PurgoMalum;
-use Ninja\Sentinel\Checkers\TisaneAI;
-use Ninja\Sentinel\Enums\Provider;
 use Ninja\Sentinel\Facades\Sentinel;
 use Ninja\Sentinel\Result\Contracts\Result;
-use Ninja\Sentinel\Services\Adapters\PurgoMalumAdapter;
-use Ninja\Sentinel\Services\Adapters\TisaneAdapter;
-use Ninja\Sentinel\Services\Pipeline\TransformationPipeline;
 
 test('facade check method returns result instance', function (): void {
     $result = Sentinel::check('test text');

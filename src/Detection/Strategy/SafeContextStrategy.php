@@ -18,6 +18,8 @@ use Ninja\Sentinel\ValueObject\Score;
  */
 final class SafeContextStrategy extends AbstractStrategy
 {
+    public const float STRATEGY_EFFICIENCY = 1.5;
+
     /**
      * Negative score value for safe language matches
      */

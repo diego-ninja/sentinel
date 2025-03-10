@@ -1,13 +1,13 @@
 <?php
 
-use Ninja\Sentinel\Checkers\Local;
+use Ninja\Sentinel\Analyzers\Local;
 use Ninja\Sentinel\ValueObject\Score;
 
 test('detects exact matches', function (): void {
     /** @var Local $local */
     $local = app(Local::class);
 
-    $result = $local->check('fuck this shit');
+    $result = $local->analyze('fuck this shit');
     expect($result)
         ->toBeOffensive()
         ->and($result->words())->toHaveCount(2)
@@ -28,7 +28,7 @@ test('detects character replacements', function (): void {
     ];
 
     foreach ($variations as $text) {
-        $result = $local->check($text);
+        $result = $local->analyze($text);
         expect($result)
             ->toBeOffensive()
             ->and($result->replaced())->toBe(str_repeat('*', mb_strlen($text)));
@@ -47,7 +47,7 @@ test('detects separated characters', function (): void {
     ];
 
     foreach ($variations as $text) {
-        $result = $local->check($text);
+        $result = $local->analyze($text);
         expect($result)
             ->toBeOffensive()
             ->and(mb_strlen($result->replaced()))->toBe(mb_strlen($text));
@@ -66,7 +66,7 @@ test('detects similar words using levenshtein', function (): void {
     ];
 
     foreach ($variations as $text) {
-        $result = $local->check($text);
+        $result = $local->analyze($text);
         expect($result)
             ->toBeOffensive()
             ->and($result->words())->toHaveCount(1)
@@ -85,7 +85,7 @@ test('detects offensive phrases using ngrams', function (): void {
     ];
 
     foreach ($phrases as $phrase) {
-        $result = $local->check($phrase);
+        $result = $local->analyze($phrase);
         expect($result)
             ->toBeOffensive()
             ->and($result->score()->value())->toBeGreaterThan(0.2);
@@ -105,7 +105,7 @@ test('respects whitelist', function (): void {
     ];
 
     foreach ($texts as $text) {
-        $result = $local->check($text);
+        $result = $local->analyze($text);
         expect($result)
             ->offensive()->toBeFalse()
             ->and($result->replaced())->toBe($text);
@@ -116,13 +116,13 @@ test('handles empty and null inputs', function (): void {
     /** @var Local $local */
     $local = app(Local::class);
 
-    $result1 = $local->check('');
+    $result1 = $local->analyze('');
     expect($result1)
         ->offensive()->toBeFalse()
         ->and($result1->replaced())->toBe('')
         ->and($result1->score()->value())->toBe(0.0);
 
-    $result2 = $local->check('   ');
+    $result2 = $local->analyze('   ');
     expect($result2)
         ->offensive()->toBeFalse()
         ->and(mb_trim($result2->replaced()))->toBe('')
@@ -143,7 +143,7 @@ test('calculates appropriate scores', function (): void {
     ];
 
     foreach ($scenarios as [$text, [$min, $max]]) {
-        $result = $local->check($text);
+        $result = $local->analyze($text);
         expect($result->score())
             ->toBeInstanceOf(Score::class)
             ->and($result->score()->value())
@@ -166,7 +166,7 @@ test('handles unicode and special characters', function (): void {
     ];
 
     foreach ($texts as $input => $expected) {
-        $result = $local->check($input);
+        $result = $local->analyze($input);
         expect($result->replaced())->toBe($expected);
     }
 });
@@ -183,7 +183,7 @@ test('handles repeating characters', function (): void {
     ];
 
     foreach ($variations as $text) {
-        $result = $local->check($text);
+        $result = $local->analyze($text);
         expect($result)
             ->toBeOffensive()
             ->and(mb_strlen($result->replaced()))->toBe(mb_strlen($text));
@@ -195,7 +195,7 @@ test('combines multiple detection strategies correctly', function (): void {
     $local = app(Local::class);
 
     $text = 'This f.u.c.k contains sh!t and fuuuck and of corpse fuck88';
-    $result = $local->check($text);
+    $result = $local->analyze($text);
 
     expect($result)
         ->toBeOffensive()
@@ -215,7 +215,7 @@ test('local service detects alphanumeric variations', function (): void {
     ];
 
     foreach ($variations as $text) {
-        $result = $local->check($text);
+        $result = $local->analyze($text);
         expect($result)
             ->toBeOffensive()
             ->and($result->replaced())->not->toBe($text)
@@ -237,7 +237,7 @@ test('detects phonetic variations', function (): void {
     ];
 
     foreach ($variations as $text) {
-        $result = $local->check($text);
+        $result = $local->analyze($text);
         expect($result)
             ->toBeOffensive()
             ->and($result->replaced())->not->toBe($text)
@@ -261,14 +261,14 @@ test('detects zero-width character variations', function (): void {
     ];
 
     foreach ($variations as $text) {
-        $result = $local->check($text);
+        $result = $local->analyze($text);
         expect($result)
             ->toBeOffensive()
             ->and($result->replaced())->not->toBe($text);
     }
 
     $textWithHidden = "This text contains hidden f{$zws}u{$zws}c{$zws}k word";
-    $result = $local->check($textWithHidden);
+    $result = $local->analyze($textWithHidden);
 
     expect($result)
         ->toBeOffensive()
@@ -287,7 +287,7 @@ test('detects reversed offensive words', function (): void {
     ];
 
     foreach ($variations as $text) {
-        $result = $local->check($text);
+        $result = $local->analyze($text);
         expect($result)
             ->toBeOffensive()
             ->and($result->replaced())->not->toBe($text)
@@ -295,7 +295,7 @@ test('detects reversed offensive words', function (): void {
     }
 
     $text = "She said kcuf this tihs";
-    $result = $local->check($text);
+    $result = $local->analyze($text);
 
     expect($result)
         ->toBeOffensive()

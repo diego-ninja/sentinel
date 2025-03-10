@@ -14,6 +14,8 @@ use Ninja\Sentinel\ValueObject\Position;
 
 final class LevenshteinStrategy extends AbstractStrategy
 {
+    public const float STRATEGY_EFFICIENCY = 4.0;
+
     private int $threshold;
 
     public function __construct(protected LanguageCollection $languages)

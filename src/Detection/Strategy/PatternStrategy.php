@@ -15,6 +15,8 @@ use Ninja\Sentinel\ValueObject\Position;
 
 final class PatternStrategy extends AbstractStrategy
 {
+    public const float STRATEGY_EFFICIENCY = 3.0;
+
     /**
      * Maximum patterns to process in a single run
      */

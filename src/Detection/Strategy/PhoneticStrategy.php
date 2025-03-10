@@ -14,6 +14,8 @@ use Ninja\Sentinel\ValueObject\Position;
 
 final class PhoneticStrategy extends AbstractStrategy
 {
+    public const float STRATEGY_EFFICIENCY = 3.5;
+
     /**
      * @var array<string, array<string>>
      */

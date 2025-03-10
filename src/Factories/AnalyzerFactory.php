@@ -4,35 +4,33 @@ namespace Ninja\Sentinel\Factories;
 
 use EchoLabs\Prism\Prism;
 use Illuminate\Contracts\Container\BindingResolutionException;
-use Ninja\Sentinel\Checkers\AzureAI;
-use Ninja\Sentinel\Checkers\Local;
-use Ninja\Sentinel\Checkers\Contracts\ProfanityChecker;
-use Ninja\Sentinel\Checkers\PerspectiveAI;
-use Ninja\Sentinel\Checkers\PrismAI;
-use Ninja\Sentinel\Checkers\PurgoMalum;
-use Ninja\Sentinel\Checkers\TisaneAI;
-use Ninja\Sentinel\Decorators\CachedProfanityChecker;
+use Ninja\Sentinel\Analyzers\AzureAI;
+use Ninja\Sentinel\Analyzers\Contracts\Analyzer;
+use Ninja\Sentinel\Analyzers\Local;
+use Ninja\Sentinel\Analyzers\PerspectiveAI;
+use Ninja\Sentinel\Analyzers\PrismAI;
+use Ninja\Sentinel\Analyzers\TisaneAI;
+use Ninja\Sentinel\Decorators\CachedAnalyzer;
 use Ninja\Sentinel\Enums\Provider;
 use Ninja\Sentinel\Processors\Contracts\Processor;
 use Ninja\Sentinel\Services\Contracts\ServiceAdapter;
 use Ninja\Sentinel\Services\Pipeline\TransformationPipeline;
 use RuntimeException;
 
-final readonly class ProfanityCheckerFactory
+final readonly class AnalyzerFactory
 {
     /**
      * @param  array<string,mixed>  $config
      * @throws BindingResolutionException
      */
-    public static function create(Provider $service, array $config = []): ProfanityChecker
+    public static function create(Provider $service, array $config = []): Analyzer
     {
         $pipeline = app()->make(TransformationPipeline::class);
 
-        /** @var class-string<ProfanityChecker> $class */
+        /** @var class-string<Analyzer> $class */
         $class = match ($service) {
             Provider::Local => Local::class,
             Provider::Perspective => PerspectiveAI::class,
-            Provider::PurgoMalum => PurgoMalum::class,
             Provider::Tisane => TisaneAI::class,
             Provider::Azure => AzureAI::class,
             Provider::Prism => PrismAI::class,
@@ -60,10 +58,6 @@ final readonly class ProfanityCheckerFactory
                 adapter: app()->make(ServiceAdapter::class),
                 pipeline: $pipeline,
             ),
-            Provider::PurgoMalum => new $class(
-                adapter: app()->make(ServiceAdapter::class),
-                pipeline: $pipeline,
-            ),
             Provider::Prism => new $class(
                 prism: app()->make(Prism::class),
                 adapter: app()->make(ServiceAdapter::class),
@@ -75,7 +69,7 @@ final readonly class ProfanityCheckerFactory
             /** @var int $ttl */
             $ttl = config('sentinel.cache.ttl', 3600);
 
-            return new CachedProfanityChecker($checker, $ttl);
+            return new CachedAnalyzer($checker, $ttl);
         }
 
         return $checker;

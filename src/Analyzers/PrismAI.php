@@ -1,6 +1,6 @@
 <?php
 
-namespace Ninja\Sentinel\Checkers;
+namespace Ninja\Sentinel\Analyzers;
 
 use EchoLabs\Prism\Enums\Provider;
 use EchoLabs\Prism\Prism;
@@ -11,7 +11,7 @@ use EchoLabs\Prism\ValueObjects\Messages\SystemMessage;
 use EchoLabs\Prism\ValueObjects\Messages\UserMessage;
 use InvalidArgumentException;
 use JsonException;
-use Ninja\Sentinel\Checkers\Contracts\ProfanityChecker;
+use Ninja\Sentinel\Analyzers\Contracts\Analyzer;
 use Ninja\Sentinel\Enums\Audience;
 use Ninja\Sentinel\Enums\ContentType;
 use Ninja\Sentinel\Result\Builder\ResultBuilder;
@@ -23,7 +23,7 @@ use Ninja\Sentinel\Services\Pipeline\TransformationPipeline;
 /**
  * LLM-based profanity checker using Laravel Prism.
  */
-final readonly class PrismAI implements ProfanityChecker
+final readonly class PrismAI implements Analyzer
 {
     public function __construct(
         private Prism $prism,
@@ -39,7 +39,7 @@ final readonly class PrismAI implements ProfanityChecker
      * @param Audience|null $audience Optional audience type for appropriate thresholds
      * @return Result Analysis result
      */
-    public function check(string $text, ?ContentType $contentType = null, ?Audience $audience = null): Result
+    public function analyze(string $text, ?ContentType $contentType = null, ?Audience $audience = null): Result
     {
         /** @var Provider $provider */
         $provider = config('sentinel.services.prism_ai.provider');

@@ -3,7 +3,7 @@
 $words = include __DIR__ . DIRECTORY_SEPARATOR . 'en-base.php';
 
 /**
- * PHP Array for English words
+ * PHP Array for En words
  */
 return array_merge($words, [
     'abortion',

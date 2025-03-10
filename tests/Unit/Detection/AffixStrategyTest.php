@@ -9,7 +9,7 @@ use Ninja\Sentinel\Language\Collections\LanguageCollection;
 
 test('word variant strategy detects suffixes', function (): void {
     $languages = app(LanguageCollection::class);
-    $strategy = new AffixStrategy($languages);
+    $strategy = app(AffixStrategy::class);
     $variations = [
         'fucking',
         'fucked',

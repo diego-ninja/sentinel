@@ -15,4 +15,6 @@ interface DetectionStrategy
     public function detect(string $text, ?Language $language = null): MatchCollection;
 
     public function weight(): float;
+
+    public function efficiency(): float;
 }

@@ -2,7 +2,7 @@
 
 namespace Ninja\Sentinel;
 
-use Ninja\Sentinel\Checkers\Contracts\ProfanityChecker;
+use Ninja\Sentinel\Analyzers\Contracts\Analyzer;
 use Ninja\Sentinel\Enums\Audience;
 use Ninja\Sentinel\Enums\ContentType;
 use Ninja\Sentinel\Enums\Provider;
@@ -24,18 +24,18 @@ class Sentinel
     public function check(string $text, ?ContentType $contentType = null, ?Audience $audience = null): Result
     {
         try {
-            /** @var ProfanityChecker $service */
-            $service = app(ProfanityChecker::class);
+            /** @var Analyzer $service */
+            $service = app(Analyzer::class);
 
-            return $service->check($text, $contentType, $audience);
+            return $service->analyze($text, $contentType, $audience);
         } catch (Throwable $e) {
             /** @var Provider|null $fallbackService */
             $fallbackService = config('sentinel.fallback_service');
             if ($fallbackService) {
-                /** @var ProfanityChecker $fallback */
+                /** @var Analyzer $fallback */
                 $fallback = app($fallbackService->value);
 
-                return $fallback->check($text, $contentType, $audience);
+                return $fallback->analyze($text, $contentType, $audience);
             }
 
             throw new ClientException('Error analyzing text', 0, $e);
@@ -92,9 +92,9 @@ class Sentinel
      */
     public function with(Provider $service, string $text, ?ContentType $contentType = null, ?Audience $audience = null): ?Result
     {
-        /** @var ProfanityChecker $checker */
+        /** @var Analyzer $checker */
         $checker = app($service->value);
 
-        return $checker->check($text, $contentType, $audience);
+        return $checker->analyze($text, $contentType, $audience);
     }
 }

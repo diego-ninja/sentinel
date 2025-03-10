@@ -358,4 +358,7 @@ return [
             '/\b(c\'est|être|faire) cul-cul\b/i',  // Expresiones con verbos
         ],
     ],
+    'rules' => [
+        Ninja\Sentinel\Language\Rules\AffixRule::class,
+    ],
 ];

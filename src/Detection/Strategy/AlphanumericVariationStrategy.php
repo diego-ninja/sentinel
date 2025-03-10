@@ -13,6 +13,8 @@ use Ninja\Sentinel\ValueObject\Position;
 
 final class AlphanumericVariationStrategy extends AbstractStrategy
 {
+    public const float STRATEGY_EFFICIENCY = 2.5;
+
     public function __construct(
         protected LanguageCollection $languages,
         private readonly int $maxAffixLength = 5,

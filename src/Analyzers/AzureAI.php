@@ -1,6 +1,6 @@
 <?php
 
-namespace Ninja\Sentinel\Checkers;
+namespace Ninja\Sentinel\Analyzers;
 
 use GuzzleHttp\ClientInterface;
 use Ninja\Sentinel\Enums\Audience;
@@ -11,7 +11,7 @@ use Ninja\Sentinel\Result\Contracts\Result;
 use Ninja\Sentinel\Services\Contracts\ServiceAdapter;
 use Ninja\Sentinel\Services\Pipeline\TransformationPipeline;
 
-final class AzureAI extends AbstractProfanityChecker
+final class AzureAI extends AbstractAnalyzer
 {
     public const string DEFAULT_API_VERSION = '2024-09-01';
 
@@ -35,7 +35,7 @@ final class AzureAI extends AbstractProfanityChecker
      * @return Result Analysis result
      * @throws ClientException
      */
-    public function check(string $text, ?ContentType $contentType = null, ?Audience $audience = null): Result
+    public function analyze(string $text, ?ContentType $contentType = null, ?Audience $audience = null): Result
     {
         $endpoint = sprintf('/content/safety/text:analyze?api-version=%s', $this->version);
 

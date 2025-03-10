@@ -1,12 +1,12 @@
 <?php
 
-namespace Ninja\Sentinel\Checkers\Contracts;
+namespace Ninja\Sentinel\Analyzers\Contracts;
 
 use Ninja\Sentinel\Enums\Audience;
 use Ninja\Sentinel\Enums\ContentType;
 use Ninja\Sentinel\Result\Contracts\Result;
 
-interface ProfanityChecker
+interface Analyzer
 {
     /**
      * Check text for offensive content
@@ -16,5 +16,5 @@ interface ProfanityChecker
      * @param Audience|null $audience Optional audience type for threshold adjustment
      * @return Result The analysis result
      */
-    public function check(string $text, ?ContentType $contentType = null, ?Audience $audience = null): Result;
+    public function analyze(string $text, ?ContentType $contentType = null, ?Audience $audience = null): Result;
 }

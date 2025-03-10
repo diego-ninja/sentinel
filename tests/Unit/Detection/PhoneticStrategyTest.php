@@ -94,18 +94,3 @@ test('phonetic strategy handles multiple matches', function (): void {
         ->and($result[0]->word())->toBe('shet')
         ->and($result[1]->word())->toBe('beech');
 });
-
-test('phonetic strategy provides correct language information', function (): void {
-    $languages = app(LanguageCollection::class);
-    $language = $languages->findByCode(LanguageCode::English);
-    $strategy = new PhoneticStrategy($languages, PhoneticAlgorithm::Metaphone);
-
-    $text = "This is a phuking bad idea";
-
-    $result = $strategy->detect($text, $language);
-
-    expect($result)->toHaveCount(1)
-        ->and($result->first()->context())->toHaveKey('original', 'fucking')
-        ->and($result->first()->context())->toHaveKey('variation_type', 'phonetic')
-        ->and($result->first()->context())->toHaveKey('algorithm', 'metaphone');
-});

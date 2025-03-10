@@ -40,7 +40,7 @@ test('collection calculates score correctly', function (): void {
                 'shit',
                 MatchType::Pattern,
                 new OccurrenceCollection([new Position(9, 4)]),
-                $language
+                $language,
             ),
             confidence: Calculator::confidence(
                 'fuck this shit',
@@ -98,7 +98,7 @@ test('collection determines offensive content correctly', function (): void {
                 'fuck',
                 MatchType::Exact,
                 new OccurrenceCollection([new Position(5, 4)]),
-                $language
+                $language,
             ),
             confidence: Calculator::confidence(
                 'some fuck text',
@@ -127,7 +127,7 @@ test('collection cleans text correctly', function (): void {
                 'fuck',
                 MatchType::Exact,
                 new OccurrenceCollection([new Position(0, 4)]),
-                $language
+                $language,
             ),
             confidence: Calculator::confidence(
                 'fuck this shit',
@@ -146,7 +146,7 @@ test('collection cleans text correctly', function (): void {
                 'shit',
                 MatchType::Pattern,
                 new OccurrenceCollection([new Position(9, 4)]),
-                $language
+                $language,
             ),
             confidence: Calculator::confidence(
                 'fuck this shit',
@@ -178,7 +178,7 @@ test('collection handles overlapping matches', function (): void {
                 'fuck',
                 MatchType::Exact,
                 new OccurrenceCollection([new Position(0, 4)]),
-                $language
+                $language,
             ),
             confidence: Calculator::confidence(
                 'fucking hell',
@@ -197,7 +197,7 @@ test('collection handles overlapping matches', function (): void {
                 'fucking',
                 MatchType::Pattern,
                 new OccurrenceCollection([new Position(0, 7)]),
-                $language
+                $language,
             ),
             confidence: Calculator::confidence(
                 'fucking hell',
@@ -229,7 +229,7 @@ test('collection returns correct match count', function (): void {
                 'fuck',
                 MatchType::Exact,
                 new OccurrenceCollection([new Position(0, 4)]),
-                $language
+                $language,
             ),
             confidence: Calculator::confidence(
                 'fuck shit',
@@ -248,7 +248,7 @@ test('collection returns correct match count', function (): void {
                 'shit',
                 MatchType::Pattern,
                 new OccurrenceCollection([new Position(5, 4)]),
-                $language
+                $language,
             ),
             confidence: Calculator::confidence(
                 'fuck shit',
