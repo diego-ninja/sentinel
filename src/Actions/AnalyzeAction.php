@@ -6,8 +6,11 @@ use Lorisleiva\Actions\Concerns\AsAction;
 use Ninja\Sentinel\Analyzers\Contracts\Analyzer;
 use Ninja\Sentinel\Enums\Audience;
 use Ninja\Sentinel\Enums\ContentType;
+use Ninja\Sentinel\Enums\LanguageCode;
 use Ninja\Sentinel\Http\Requests\TextAnalysisRequest;
 use Ninja\Sentinel\Http\Resources\ResultResource;
+use Ninja\Sentinel\Language\Collections\LanguageCollection;
+use Ninja\Sentinel\Language\Language;
 use Ninja\Sentinel\Result\Contracts\Result;
 
 final readonly class AnalyzeAction
@@ -24,9 +27,9 @@ final readonly class AnalyzeAction
      * @param Audience|null $audience Optional audience type for threshold adjustment
      * @return Result The analysis result
      */
-    public function handle(string $text, ?ContentType $contentType = null, ?Audience $audience = null): Result
+    public function handle(string $text, ?Language $language = null, ?ContentType $contentType = null, ?Audience $audience = null): Result
     {
-        return $this->analyzer->analyze($text, $contentType, $audience);
+        return $this->analyzer->analyze($text, $language, $contentType, $audience);
     }
 
     /**
@@ -39,6 +42,7 @@ final readonly class AnalyzeAction
     {
         $result = $this->handle(
             text: $request->text(),
+            language: $request->language(),
             contentType: $request->contentType(),
             audience: $request->audience(),
         );
