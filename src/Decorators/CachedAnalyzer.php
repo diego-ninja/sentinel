@@ -13,7 +13,7 @@ use Ninja\Sentinel\Result\Contracts\Result;
 final readonly class CachedAnalyzer implements Analyzer
 {
     public function __construct(
-        private Analyzer $checker,
+        private Analyzer $analyzer,
         private int      $ttl = 3600, // 1 hour by default
     ) {}
 
@@ -21,7 +21,7 @@ final readonly class CachedAnalyzer implements Analyzer
     {
         $cacheKey = sprintf(
             'sentinel:%s:%s:%s:%s:%s',
-            class_basename($this->checker),
+            class_basename($this->analyzer),
             md5($text),
             $contentType->value ?? 'null',
             $audience->value ?? 'null',
@@ -32,7 +32,7 @@ final readonly class CachedAnalyzer implements Analyzer
         $store = config('sentinel.cache.store', 'default');
 
         /** @var Result $result */
-        $result = Cache::store($store)->remember($cacheKey, $this->ttl, fn(): Result => $this->checker->analyze(
+        $result = Cache::store($store)->remember($cacheKey, $this->ttl, fn(): Result => $this->analyzer->analyze(
             text: $text,
             language: $language,
             contentType: $contentType,

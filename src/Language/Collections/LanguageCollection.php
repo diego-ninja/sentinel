@@ -7,6 +7,7 @@ use Ninja\Sentinel\Enums\LanguageCode;
 use Ninja\Sentinel\Language\DTO\DetectionResult;
 use Ninja\Sentinel\Language\Exceptions\LanguageFileNotFound;
 use Ninja\Sentinel\Language\Language;
+use RuntimeException;
 
 /**
  * Collection of languages.
@@ -69,6 +70,21 @@ class LanguageCollection extends Collection
         }
 
         return $this->findByCode($bestResult->code);
+    }
+
+    public function default(): Language
+    {
+        /** @var string $default */
+        $default = config('sentinel.default_language', 'en');
+        $code = LanguageCode::from($default);
+
+        $language = $this->findByCode($code);
+        if (null === $language) {
+            throw new RuntimeException(sprintf("Language '%s' not configured", $default));
+        }
+
+        return $language;
+
     }
 
     /**

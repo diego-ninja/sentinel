@@ -5,6 +5,9 @@ namespace Ninja\Sentinel;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Validator;
+
+use function language;
+
 use Ninja\Sentinel\Analyzers\AzureAI;
 use Ninja\Sentinel\Analyzers\Contracts\Analyzer;
 use Ninja\Sentinel\Analyzers\PerspectiveAI;
@@ -73,6 +76,7 @@ final class SentinelServiceProvider extends ServiceProvider
 
                 return ! Facades\Sentinel::check(
                     text: $value,
+                    language: language(),
                     contentType: ContentType::from($contentType),
                     audience: Audience::from($audience),
                 )->offensive();
@@ -176,7 +180,6 @@ final class SentinelServiceProvider extends ServiceProvider
             $processorClass = config('sentinel.services.local.processor', DefaultProcessor::class);
 
             return new $processorClass(
-                app(LanguageCollection::class),
                 app(Whitelist::class),
             );
 

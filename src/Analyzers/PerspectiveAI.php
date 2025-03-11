@@ -36,32 +36,14 @@ final class PerspectiveAI extends AbstractAnalyzer
      */
     public function analyze(string $text, ?Language $language = null, ?ContentType $contentType = null, ?Audience $audience = null): Result
     {
-        // Build the request parameters based on content type and audience
-        $requestedAttributes = $this->getRequestedAttributes($contentType, $audience);
         $language ??= app(LanguageCollection::class)->bestFor($text);
+        $requestedAttributes = $this->getRequestedAttributes($contentType, $audience);
 
         $params = [
             'comment' => ['text' => $text],
             'languages' => $language ? [$language->code()] : config('sentinel.languages', [LanguageCode::English]),
             'requestedAttributes' => $requestedAttributes,
         ];
-
-        // Add additional language-specific parameters
-        if (null !== $contentType) {
-            $params['language'] = [
-                'entries' => [
-                    [
-                        'text' => $this->getContentTypeContext($contentType),
-                    ],
-                ],
-            ];
-        }
-
-        // If we have an audience type, we might want to adjust analysis
-        if (null !== $audience) {
-            // Perspective doesn't directly support audience parameters,
-            // but we can modify our later interpretation of the results
-        }
 
         // Make the API request
         $response = $this->post(sprintf('comments:analyze?key=%s', $this->key), $params);
