@@ -6,6 +6,7 @@ use Ninja\Sentinel\Collections\MatchCollection;
 use Ninja\Sentinel\Enums\Audience;
 use Ninja\Sentinel\Enums\Category;
 use Ninja\Sentinel\Enums\ContentType;
+use Ninja\Sentinel\Enums\LanguageCode;
 use Ninja\Sentinel\Result\Contracts\Result as ResultContract;
 use Ninja\Sentinel\Support\ThresholdManager;
 use Ninja\Sentinel\ValueObject\Confidence;
@@ -19,6 +20,7 @@ readonly class Result implements ResultContract
      * @param  array<Category>|null  $categories Detected content categories
      */
     public function __construct(
+        public LanguageCode     $language,
         public bool             $offensive,
         public array            $words,
         public string           $replaced,
@@ -31,6 +33,16 @@ readonly class Result implements ResultContract
         public ?ContentType     $contentType = null,
         public ?Audience        $audience = null,
     ) {}
+
+    /**
+     * Get the language code
+     *
+     * @return LanguageCode Language code
+     */
+    public function language(): LanguageCode
+    {
+        return $this->language;
+    }
 
     /**
      * Determine if content is offensive, optionally with language parameters

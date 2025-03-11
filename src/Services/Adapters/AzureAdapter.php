@@ -5,7 +5,10 @@ namespace Ninja\Sentinel\Services\Adapters;
 use Ninja\Sentinel\Collections\MatchCollection;
 use Ninja\Sentinel\Collections\OccurrenceCollection;
 use Ninja\Sentinel\Enums\Category;
+use Ninja\Sentinel\Enums\LanguageCode;
 use Ninja\Sentinel\Enums\MatchType;
+use Ninja\Sentinel\Language\Collections\LanguageCollection;
+use Ninja\Sentinel\Language\Language;
 use Ninja\Sentinel\Services\Contracts\ServiceResponse;
 use Ninja\Sentinel\Support\Calculator;
 use Ninja\Sentinel\ValueObject\Coincidence;
@@ -39,7 +42,9 @@ final readonly class AzureAdapter extends AbstractAdapter
      */
     public function adapt(string $text, array $response): ServiceResponse
     {
-        $matches = $this->createMatches($text, $response['blocklistsMatch'] ?? []);
+        $language = app(LanguageCollection::class)->bestFor($text);
+
+        $matches = $this->createMatches($text, $response['blocklistsMatch'] ?? [], $language);
         $categories = [];
         $maxScore = 0.0;
         $avgConfidence = 0.0;
@@ -61,7 +66,7 @@ final readonly class AzureAdapter extends AbstractAdapter
             ? new Score($maxScore)
             : $matches->score();
 
-        return new readonly class ($text, $matches, $finalScore, new Confidence($confidenceValue), $categories) implements ServiceResponse {
+        return new readonly class ($text, $matches, $finalScore, new Confidence($confidenceValue), $categories, $language?->code() ?? LanguageCode::English) implements ServiceResponse {
             public function __construct(
                 private string          $original,
                 private MatchCollection $matches,
@@ -69,6 +74,7 @@ final readonly class AzureAdapter extends AbstractAdapter
                 private Confidence      $confidence,
                 /** @var array<Category> */
                 private array           $categories,
+                private LanguageCode    $language,
             ) {}
 
             public function original(): string
@@ -106,6 +112,11 @@ final readonly class AzureAdapter extends AbstractAdapter
             {
                 return null;
             }
+
+            public function language(): LanguageCode
+            {
+                return $this->language;
+            }
         };
     }
 
@@ -116,7 +127,7 @@ final readonly class AzureAdapter extends AbstractAdapter
      *     length?: int
      * }> $blocklistMatches
      */
-    private function createMatches(string $text, array $blocklistMatches): MatchCollection
+    private function createMatches(string $text, array $blocklistMatches, Language $language): MatchCollection
     {
         $matches = new MatchCollection();
 
@@ -138,9 +149,10 @@ final readonly class AzureAdapter extends AbstractAdapter
                     new Coincidence(
                         word: $match['text'],
                         type: MatchType::Exact,
-                        score: Calculator::score($text, $match['text'], MatchType::Exact, $occurrences),
+                        score: Calculator::score($text, $match['text'], MatchType::Exact, $occurrences, $language),
                         confidence: Calculator::confidence($text, $match['text'], MatchType::Exact, $occurrences),
                         occurrences: $occurrences,
+                        language: $language->code(),
                         context: ['source' => 'azure_blocklist'],
                     ),
                 );

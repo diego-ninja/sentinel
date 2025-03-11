@@ -5,7 +5,10 @@ namespace Ninja\Sentinel\Analyzers;
 use GuzzleHttp\ClientInterface;
 use Ninja\Sentinel\Enums\Audience;
 use Ninja\Sentinel\Enums\ContentType;
+use Ninja\Sentinel\Enums\LanguageCode;
 use Ninja\Sentinel\Exceptions\ClientException;
+use Ninja\Sentinel\Language\Collections\LanguageCollection;
+use Ninja\Sentinel\Language\Language;
 use Ninja\Sentinel\Result\Builder\ResultBuilder;
 use Ninja\Sentinel\Result\Contracts\Result;
 use Ninja\Sentinel\Services\Contracts\ServiceAdapter;
@@ -35,9 +38,11 @@ final class AzureAI extends AbstractAnalyzer
      * @return Result Analysis result
      * @throws ClientException
      */
-    public function analyze(string $text, ?ContentType $contentType = null, ?Audience $audience = null): Result
+    public function analyze(string $text, ?Language $language = null, ?ContentType $contentType = null, ?Audience $audience = null): Result
     {
         $endpoint = sprintf('/content/safety/text:analyze?api-version=%s', $this->version);
+
+        $language ??= app(LanguageCollection::class)->bestFor($text);
 
         // Adjust Azure request based on content type and audience
         $data = [
@@ -86,7 +91,9 @@ final class AzureAI extends AbstractAnalyzer
         if (null !== $contentType || null !== $audience) {
             // Create a new builder with all the data from the existing result
             $builder = new ResultBuilder();
-            $builder = $builder->withOriginalText($result->original())
+            $builder = $builder
+                ->withLanguage($language?->code() ?? LanguageCode::English)
+                ->withOriginalText($result->original())
                 ->withReplaced($result->replaced())
                 ->withWords($result->words())
                 ->withScore($result->score())

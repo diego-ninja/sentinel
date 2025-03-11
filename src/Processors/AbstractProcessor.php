@@ -8,7 +8,9 @@ use Ninja\Sentinel\Collections\MatchCollection;
 use Ninja\Sentinel\Collections\OccurrenceCollection;
 use Ninja\Sentinel\Collections\StrategyCollection;
 use Ninja\Sentinel\Detection\Contracts\DetectionStrategy;
+use Ninja\Sentinel\Enums\LanguageCode;
 use Ninja\Sentinel\Language\Collections\LanguageCollection;
+use Ninja\Sentinel\Language\Language;
 use Ninja\Sentinel\Processors\Contracts\Processor;
 use Ninja\Sentinel\Result\Builder\ResultBuilder;
 use Ninja\Sentinel\Result\Result;
@@ -90,13 +92,13 @@ abstract class AbstractProcessor implements Processor
         $matches = $this->strategies->detect($normalized, $language);
 
         if ($matches->isEmpty()) {
-            return $this->buildResult($chunk, $normalized, $matches);
+            return $this->buildResult($chunk, $normalized, $matches, $language?->code() ?? LanguageCode::English);
         }
 
         $cleaned = $matches->clean($normalized);
         $finalText = $this->whitelist->restore($cleaned);
 
-        return $this->buildResult($chunk, $finalText, $matches);
+        return $this->buildResult($chunk, $finalText, $matches, $language?->code() ?? LanguageCode::English);
     }
 
     /**
@@ -139,15 +141,17 @@ abstract class AbstractProcessor implements Processor
             $replaced .= $result->replaced();
         }
 
-        return $this->buildResult($original, $replaced, $matches);
+        return $this->buildResult($original, $replaced, $matches, $results[0]->language());
     }
 
     private function buildResult(
         string $original,
         string $finalText,
         MatchCollection $matches,
+        LanguageCode $language,
     ): Result {
         return (new ResultBuilder())
+            ->withLanguage($language)
             ->withOriginalText($original)
             ->withReplaced($finalText)
             ->withWords(array_unique($matches->words()))

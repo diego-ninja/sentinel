@@ -5,6 +5,9 @@ namespace Ninja\Sentinel\Analyzers;
 use Ninja\Sentinel\Analyzers\Contracts\Analyzer;
 use Ninja\Sentinel\Enums\Audience;
 use Ninja\Sentinel\Enums\ContentType;
+use Ninja\Sentinel\Enums\LanguageCode;
+use Ninja\Sentinel\Language\Collections\LanguageCollection;
+use Ninja\Sentinel\Language\Language;
 use Ninja\Sentinel\Processors\Contracts\Processor;
 use Ninja\Sentinel\Result\Builder\ResultBuilder;
 use Ninja\Sentinel\Result\Contracts\Result;
@@ -30,8 +33,10 @@ final class Local implements Analyzer
      * @param Audience|null $audience Optional audience type for threshold adjustment
      * @return Result The analysis result
      */
-    public function analyze(string $text, ?ContentType $contentType = null, ?Audience $audience = null): Result
+    public function analyze(string $text, ?Language $language = null, ?ContentType $contentType = null, ?Audience $audience = null): Result
     {
+        $language ??= app(LanguageCollection::class)->bestFor($text);
+
         // Process the text
         if (mb_strlen($text) < self::CHUNK_SIZE) {
             $processorResult = $this->processor->process([$text])[0];
@@ -45,6 +50,7 @@ final class Local implements Analyzer
                 'result' => $results[0],
             ]);
         }
+
         $result = $this->pipeline->process($adaptedResult);
 
         // If contextual parameters are provided, we need to:
@@ -64,6 +70,7 @@ final class Local implements Analyzer
             // Create a new result with the contextual parameters
             $builder = new ResultBuilder();
             return $builder
+                ->withLanguage($language?->code() ?? LanguageCode::English)
                 ->withOriginalText($result->original())
                 ->withReplaced($result->replaced())
                 ->withWords($result->words())

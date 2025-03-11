@@ -5,7 +5,10 @@ namespace Ninja\Sentinel\Analyzers;
 use GuzzleHttp\ClientInterface;
 use Ninja\Sentinel\Enums\Audience;
 use Ninja\Sentinel\Enums\ContentType;
+use Ninja\Sentinel\Enums\LanguageCode;
 use Ninja\Sentinel\Exceptions\ClientException;
+use Ninja\Sentinel\Language\Collections\LanguageCollection;
+use Ninja\Sentinel\Language\Language;
 use Ninja\Sentinel\Result\Builder\ResultBuilder;
 use Ninja\Sentinel\Result\Contracts\Result;
 use Ninja\Sentinel\Services\Contracts\ServiceAdapter;
@@ -31,14 +34,15 @@ final class PerspectiveAI extends AbstractAnalyzer
      * @return Result Analysis result
      * @throws ClientException When API request fails
      */
-    public function analyze(string $text, ?ContentType $contentType = null, ?Audience $audience = null): Result
+    public function analyze(string $text, ?Language $language = null, ?ContentType $contentType = null, ?Audience $audience = null): Result
     {
         // Build the request parameters based on content type and audience
         $requestedAttributes = $this->getRequestedAttributes($contentType, $audience);
+        $language ??= app(LanguageCollection::class)->bestFor($text);
 
         $params = [
             'comment' => ['text' => $text],
-            'languages' => config('sentinel.languages', ['en']),
+            'languages' => $language ? [$language->code()] : config('sentinel.languages', [LanguageCode::English]),
             'requestedAttributes' => $requestedAttributes,
         ];
 
@@ -74,6 +78,8 @@ final class PerspectiveAI extends AbstractAnalyzer
             // adjust the offensive flag based on contextual thresholds
 
             $builder = ResultBuilder::withResult($result);
+
+            $builder->withLanguage($language?->code() ?? LanguageCode::English);
 
             // Determine if content is offensive based on contextual thresholds
             $isOffensive = $result->offensive($contentType, $audience);

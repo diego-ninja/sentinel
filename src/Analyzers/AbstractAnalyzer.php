@@ -10,6 +10,7 @@ use Ninja\Sentinel\Analyzers\Contracts\Analyzer;
 use Ninja\Sentinel\Enums\Audience;
 use Ninja\Sentinel\Enums\ContentType;
 use Ninja\Sentinel\Exceptions\ClientException;
+use Ninja\Sentinel\Language\Language;
 use Ninja\Sentinel\Result\Contracts\Result;
 use Psr\Http\Message\ResponseInterface;
 
@@ -35,7 +36,7 @@ abstract class AbstractAnalyzer implements Analyzer
      * @param Audience|null $audience Optional audience type for threshold adjustment
      * @return Result The analysis result
      */
-    abstract public function analyze(string $text, ?ContentType $contentType = null, ?Audience $audience = null): Result;
+    abstract public function analyze(string $text, ?Language $language = null, ?ContentType $contentType = null, ?Audience $audience = null): Result;
 
     /**
      * @param  array<string, mixed>  $query

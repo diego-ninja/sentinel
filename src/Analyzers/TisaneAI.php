@@ -5,7 +5,10 @@ namespace Ninja\Sentinel\Analyzers;
 use GuzzleHttp\ClientInterface;
 use Ninja\Sentinel\Enums\Audience;
 use Ninja\Sentinel\Enums\ContentType;
+use Ninja\Sentinel\Enums\LanguageCode;
 use Ninja\Sentinel\Exceptions\ClientException;
+use Ninja\Sentinel\Language\Collections\LanguageCollection;
+use Ninja\Sentinel\Language\Language;
 use Ninja\Sentinel\Result\Builder\ResultBuilder;
 use Ninja\Sentinel\Result\Contracts\Result;
 use Ninja\Sentinel\Services\Contracts\ServiceAdapter;
@@ -31,10 +34,12 @@ final class TisaneAI extends AbstractAnalyzer
      * @return Result Analysis result
      * @throws ClientException When API request fails
      */
-    public function analyze(string $text, ?ContentType $contentType = null, ?Audience $audience = null): Result
+    public function analyze(string $text, ?Language $language = null, ?ContentType $contentType = null, ?Audience $audience = null): Result
     {
+        $language ??= app(LanguageCollection::class)->bestFor($text);
+
         /** @var string[] $languages */
-        $languages = config('sentinel.languages', ['en']);
+        $languages = $language ? [$language->code->value] : config('sentinel.languages', ['en']);
 
         // Build request settings based on content type and audience
         $settings = $this->getApiSettings($contentType, $audience);
@@ -82,10 +87,11 @@ final class TisaneAI extends AbstractAnalyzer
             $this->adapter->adapt($text, $response),
         );
 
+        $builder = ResultBuilder::withResult($result);
+        $builder = $builder->withLanguage($language?->code() ?? LanguageCode::English);
+
         // If contextual parameters were provided, include them in the result
         if (null !== $contentType || null !== $audience) {
-            // Create a new result with contextual information
-            $builder = ResultBuilder::withResult($result);
             // Apply contextual thresholds to determine if offensive
             $isOffensive = $result->offensive($contentType, $audience);
             $builder = $builder->withOffensive($isOffensive);

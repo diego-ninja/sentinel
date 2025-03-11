@@ -6,6 +6,7 @@ use Ninja\Sentinel\Collections\MatchCollection;
 use Ninja\Sentinel\Enums\Audience;
 use Ninja\Sentinel\Enums\Category;
 use Ninja\Sentinel\Enums\ContentType;
+use Ninja\Sentinel\Enums\LanguageCode;
 use Ninja\Sentinel\Result\Result;
 use Ninja\Sentinel\ValueObject\Confidence;
 use Ninja\Sentinel\ValueObject\Score;
@@ -13,6 +14,7 @@ use Ninja\Sentinel\ValueObject\Sentiment;
 
 interface ResultBuilder
 {
+    public function withLanguage(LanguageCode $language): self;
     public function withOriginalText(string $text): self;
 
     public function withOffensive(bool $offensive): self;

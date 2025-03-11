@@ -55,6 +55,10 @@ class LanguageCollection extends Collection
 
     public function bestFor(string $text): ?Language
     {
+        if (1 === $this->count()) {
+            return $this->first();
+        }
+
         $results = $this->detect($text);
         $bestResult = $results->sortByDesc(fn(DetectionResult $result) => $result->score)->first();
         if (null === $bestResult) {

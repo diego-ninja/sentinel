@@ -6,6 +6,7 @@ use Ninja\Sentinel\Collections\MatchCollection;
 use Ninja\Sentinel\Enums\Audience;
 use Ninja\Sentinel\Enums\Category;
 use Ninja\Sentinel\Enums\ContentType;
+use Ninja\Sentinel\Enums\LanguageCode;
 use Ninja\Sentinel\Result\Contracts\ResultBuilder as ResultBuilderContract;
 use Ninja\Sentinel\Result\Result;
 use Ninja\Sentinel\ValueObject\Confidence;
@@ -14,6 +15,11 @@ use Ninja\Sentinel\ValueObject\Sentiment;
 
 final class ResultBuilder implements ResultBuilderContract
 {
+    /**
+     * The language code for the detected language
+     */
+    private LanguageCode $language;
+
     /**
      * The original text being analyzed
      */
@@ -77,6 +83,7 @@ final class ResultBuilder implements ResultBuilderContract
     {
         $builder = new ResultBuilder();
         return $builder
+            ->withLanguage($result->language())
             ->withOriginalText($result->original())
             ->withReplaced($result->replaced())
             ->withWords($result->words())
@@ -113,6 +120,7 @@ final class ResultBuilder implements ResultBuilderContract
     public function build(): Result
     {
         return new Result(
+            language: $this->language,
             offensive: $this->offensive,
             words: $this->words,
             replaced: $this->replaced,
@@ -125,6 +133,20 @@ final class ResultBuilder implements ResultBuilderContract
             contentType: $this->contentType,
             audience: $this->audience,
         );
+    }
+
+    /**
+     * Set the language code
+     *
+     * @param LanguageCode $language Language code
+     * @return ResultBuilderContract Builder instance
+     */
+    public function withLanguage(LanguageCode $language): ResultBuilderContract
+    {
+        $clone = clone $this;
+        $clone->language = $language;
+
+        return $clone;
     }
 
     /**

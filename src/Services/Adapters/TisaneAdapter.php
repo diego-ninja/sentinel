@@ -6,6 +6,7 @@ use InvalidArgumentException;
 use Ninja\Sentinel\Collections\MatchCollection;
 use Ninja\Sentinel\Collections\OccurrenceCollection;
 use Ninja\Sentinel\Enums\Category;
+use Ninja\Sentinel\Enums\LanguageCode;
 use Ninja\Sentinel\Enums\MatchType;
 use Ninja\Sentinel\Language\Collections\LanguageCollection;
 use Ninja\Sentinel\Services\Contracts\ServiceResponse;
@@ -62,7 +63,7 @@ final readonly class TisaneAdapter extends AbstractAdapter
                     score: Calculator::score($text, $abuse['text'], MatchType::Exact, $occurrences, $language),
                     confidence: Calculator::confidence($text, $abuse['text'], MatchType::Exact, $occurrences),
                     occurrences: $occurrences,
-                    language: $language->code(),
+                    language: $language?->code() ?? LanguageCode::English,
                     context: [
                         'type' => $abuse['type'],
                         'severity' => $abuse['severity'],
@@ -75,7 +76,7 @@ final readonly class TisaneAdapter extends AbstractAdapter
         $sentiment = $this->createSentiment($response['sentiment']);
         $score = $this->calculateScore($matches, $sentiment);
 
-        return new readonly class ($text, $matches, $score, $sentiment, $categories) implements ServiceResponse {
+        return new readonly class ($text, $matches, $score, $sentiment, $categories, $language?->code() ?? LanguageCode::English) implements ServiceResponse {
             /**
              * @param  array<Category>  $categories
              */
@@ -85,6 +86,7 @@ final readonly class TisaneAdapter extends AbstractAdapter
                 private Score           $score,
                 private Sentiment       $sentiment,
                 private array           $categories,
+                private LanguageCode    $language,
             ) {}
 
             public function original(): string
@@ -121,6 +123,11 @@ final readonly class TisaneAdapter extends AbstractAdapter
             public function sentiment(): Sentiment
             {
                 return $this->sentiment;
+            }
+
+            public function language(): LanguageCode
+            {
+                return $this->language;
             }
         };
     }

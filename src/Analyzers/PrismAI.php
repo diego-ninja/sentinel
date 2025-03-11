@@ -14,6 +14,9 @@ use JsonException;
 use Ninja\Sentinel\Analyzers\Contracts\Analyzer;
 use Ninja\Sentinel\Enums\Audience;
 use Ninja\Sentinel\Enums\ContentType;
+use Ninja\Sentinel\Enums\LanguageCode;
+use Ninja\Sentinel\Language\Collections\LanguageCollection;
+use Ninja\Sentinel\Language\Language;
 use Ninja\Sentinel\Result\Builder\ResultBuilder;
 use Ninja\Sentinel\Result\Contracts\Result;
 use Ninja\Sentinel\Schemas\SentinelPrismSchema;
@@ -35,11 +38,12 @@ final readonly class PrismAI implements Analyzer
      * Check text for offensive content using LLM analysis
      *
      * @param string $text Text to analyze
+     * @param Language|null $language Optional language of the text
      * @param ContentType|null $contentType Optional content type for language-aware analysis
      * @param Audience|null $audience Optional audience type for appropriate thresholds
      * @return Result Analysis result
      */
-    public function analyze(string $text, ?ContentType $contentType = null, ?Audience $audience = null): Result
+    public function analyze(string $text, ?Language $language = null, ?ContentType $contentType = null, ?Audience $audience = null): Result
     {
         /** @var Provider $provider */
         $provider = config('sentinel.services.prism_ai.provider');
@@ -51,6 +55,7 @@ final readonly class PrismAI implements Analyzer
         if ($this->supports_structured($provider)) {
             $response = $this->buildStructuredPrismRequest($provider, $model, $text, $contentType, $audience)->generate();
             /** @var array{
+             *     detected_language: string,
              *     is_offensive: bool,
              *     offensive_words: array<string>,
              *     categories: array<string>,
@@ -63,7 +68,7 @@ final readonly class PrismAI implements Analyzer
              *         score: float,
              *         confidence: float,
              *         occurrences: array<int, array{start: int, length: int}>,
-             *         language?: array{original?: string, surrounding?: string}
+             *         context?: array{original?: string, surrounding?: string}
              *     }>
              * } $data
              */
@@ -71,6 +76,7 @@ final readonly class PrismAI implements Analyzer
         } else {
             $response = $this->buildUnstructuredPrismRequest($provider, $model, $text, $contentType, $audience)->generate();
             /** @var array{
+             *     detected_language: string,
              *     is_offensive: bool,
              *     offensive_words: array<string>,
              *     categories: array<string>,
@@ -83,7 +89,7 @@ final readonly class PrismAI implements Analyzer
              *         score: float,
              *         confidence: float,
              *         occurrences: array<int, array{start: int, length: int}>,
-             *         language?: array{original?: string, surrounding?: string}
+             *         context?: array{original?: string, surrounding?: string}
              *     }>
              * } $data
              */
@@ -106,6 +112,8 @@ final readonly class PrismAI implements Analyzer
             if (null !== $audience) {
                 $builder = $builder->withAudience($audience);
             }
+
+            $builder = $builder->withLanguage(LanguageCode::from($data['detected_language']) ?? LanguageCode::English);
 
             return $builder->build();
         }

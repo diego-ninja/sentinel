@@ -44,9 +44,10 @@ final readonly class PrismAdapter extends AbstractAdapter implements ServiceAdap
      */
     public function adapt(string $text, array $response): ServiceResponse
     {
-        $matches = $this->createMatches($response['matches'], LanguageCode::from($response['detected_language']));
+        $language = LanguageCode::from($response['detected_language']) ?? LanguageCode::English;
+        $matches = $this->createMatches($response['matches'], $language);
 
-        return new readonly class ($text, $response, $matches) implements ServiceResponse {
+        return new readonly class ($text, $response, $matches, $language) implements ServiceResponse {
             /**
              * @param array{
              *     detected_language: string,
@@ -70,6 +71,7 @@ final readonly class PrismAdapter extends AbstractAdapter implements ServiceAdap
                 private string $text,
                 private array $response,
                 private ?MatchCollection $matches,
+                private LanguageCode $language,
             ) {}
 
             public function original(): string
@@ -132,6 +134,11 @@ final readonly class PrismAdapter extends AbstractAdapter implements ServiceAdap
                     },
                     score: new Score($sentiment['score']),
                 );
+            }
+
+            public function language(): LanguageCode
+            {
+                return $this->language;
             }
         };
     }
