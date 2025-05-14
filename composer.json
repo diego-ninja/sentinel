@@ -24,7 +24,7 @@
         "symfony/string": "^7.2",
         "google/cloud-language": "^0.34.1",
         "aws/aws-sdk-php": "^3.334",
-        "echolabsdev/prism": "^0.37.0",
+        "echolabsdev/prism": "^0.60.0",
         "lorisleiva/laravel-actions": "^2.8"
     },
     "require-dev": {
