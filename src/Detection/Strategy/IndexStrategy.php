@@ -6,35 +6,53 @@ use Ninja\Sentinel\Collections\MatchCollection;
 use Ninja\Sentinel\Collections\OccurrenceCollection;
 use Ninja\Sentinel\Enums\MatchType;
 use Ninja\Sentinel\Index\TrieIndex;
+use Ninja\Sentinel\Language\Collections\LanguageCollection;
+use Ninja\Sentinel\Language\Language;
 use Ninja\Sentinel\Support\Calculator;
 use Ninja\Sentinel\ValueObject\Coincidence;
 use Ninja\Sentinel\ValueObject\Position;
 
 final class IndexStrategy extends AbstractStrategy
 {
+    public const float STRATEGY_EFFICIENCY = 1.0;
+
     public function __construct(
+        protected LanguageCollection $languages,
         private readonly TrieIndex $index,
         private readonly bool $fullWords = true,
-    ) {}
+    ) {
+        parent::__construct($languages);
+    }
 
-    public function detect(string $text, iterable $words): MatchCollection
+    public function detect(string $text, ?Language $language = null): MatchCollection
     {
+        $language ??= $this->languages->bestFor($text);
         $matches = new MatchCollection();
-        $textWords = $this->fullWords
-            ? preg_split('/\b|\s+/', $text, -1, PREG_SPLIT_NO_EMPTY)
-            : [$text];
 
-        if ( ! $textWords) {
+        if (null === $language) {
             return $matches;
         }
 
-        foreach ($textWords as $textWord) {
+        // CAMBIO CLAVE: Reemplazamos el `preg_split` problemático por `preg_match_all`
+        // para extraer palabras de forma correcta y compatible con Unicode.
+        if ($this->fullWords) {
+            preg_match_all('/[\p{L}\p{N}]+/u', $text, $foundWords);
+            $textWords = $foundWords[0];
+        } else {
+            $textWords = [$text];
+        }
+
+        if (empty($textWords)) {
+            return $matches;
+        }
+
+        foreach (array_unique($textWords) as $textWord) {
             $word = mb_strtolower($textWord);
             if ($this->index->search($word)) {
                 if ($this->fullWords) {
-                    $this->detectFullWord($text, $textWord, $matches);
+                    $this->detectFullWord($text, $textWord, $matches, $language);
                 } else {
-                    $this->detectPartial($text, $textWord, $matches);
+                    $this->detectPartial($text, $textWord, $matches, $language);
                 }
             }
         }
@@ -47,20 +65,14 @@ final class IndexStrategy extends AbstractStrategy
         return MatchType::Trie->weight();
     }
 
-    private function detectFullWord(string $text, string $word, MatchCollection $matches): void
+    private function detectFullWord(string $text, string $word, MatchCollection $matches, Language $language): void
     {
         $positions = [];
         $pos = 0;
 
+        // Esta lógica de búsqueda ahora es más fiable porque $word es una palabra completa.
         while (($pos = mb_stripos($text, $word, $pos)) !== false) {
-            $before = $pos > 0 ? mb_substr($text, $pos - 1, 1) : ' ';
-            $after = $pos + mb_strlen($word) < mb_strlen($text)
-                ? mb_substr($text, $pos + mb_strlen($word), 1)
-                : ' ';
-
-            if (preg_match('/\s/', $before) && preg_match('/\s/', $after)) {
-                $positions[] = new Position($pos, mb_strlen($word));
-            }
+            $positions[] = new Position($pos, mb_strlen($word));
             $pos += mb_strlen($word);
         }
 
@@ -70,16 +82,17 @@ final class IndexStrategy extends AbstractStrategy
                 new Coincidence(
                     word: $word,
                     type: MatchType::Trie,
-                    score: Calculator::score($text, $word, MatchType::Trie, $occurrences),
+                    score: Calculator::score($text, $word, MatchType::Trie, $occurrences, $language),
                     confidence: Calculator::confidence($text, $word, MatchType::Trie, $occurrences),
                     occurrences: $occurrences,
+                    language: $language->code(),
                     context: ['method' => 'trie_index', 'full_word' => true],
                 ),
             );
         }
     }
 
-    private function detectPartial(string $text, string $word, MatchCollection $matches): void
+    private function detectPartial(string $text, string $word, MatchCollection $matches, Language $language): void
     {
         $positions = [];
         $pos = 0;
@@ -95,9 +108,10 @@ final class IndexStrategy extends AbstractStrategy
                 new Coincidence(
                     word: $word,
                     type: MatchType::Trie,
-                    score: Calculator::score($text, $word, MatchType::Trie, $occurrences),
+                    score: Calculator::score($text, $word, MatchType::Trie, $occurrences, $language),
                     confidence: Calculator::confidence($text, $word, MatchType::Trie, $occurrences),
                     occurrences: $occurrences,
+                    language: $language->code(),
                     context: ['method' => 'trie_index', 'full_word' => false],
                 ),
             );

@@ -20,9 +20,14 @@ class ResultResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
+            'detected_language' => $this->resource->language()->value,
             'text' => [
                 'original' => $this->resource->original(),
                 'replaced' => $this->resource->replaced(),
+            ],
+            'sentiment' => [
+                'type' => $this->resource->sentiment()?->type()?->value,
+                'score' => $this->resource->sentiment()?->value(),
             ],
             'offensive' => $this->resource->offensive(),
             'words' => $this->resource->words(),

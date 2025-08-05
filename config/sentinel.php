@@ -15,6 +15,56 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Threshold settings
+    |--------------------------------------------------------------------------
+    |
+    | Define dynamic thresholds for different contexts and categories
+    |
+    */
+    'thresholds' => [
+        // Category-specific thresholds (lower values = more strict)
+        'categories' => [
+            'hate_speech' => 0.3,      // Threshold for hate speech detection
+            'harassment' => 0.3,        // Threshold for harassment detection
+            'violence' => 0.4,          // Threshold for violence detection
+            'sexual' => 0.4,            // Threshold for sexual content
+            'threat' => 0.3,            // Threshold for threats
+            'self_harm' => 0.3,         // Threshold for self-harm content
+            'profanity' => 0.6,         // Threshold for general profanity
+            'toxicity' => 0.5,          // Threshold for toxic content
+            'insult' => 0.4,            // Threshold for insults
+            'obscenity' => 0.5,         // Threshold for obscene content
+            'adult_content' => 0.4,     // Threshold for adult content
+            'crime' => 0.4,             // Threshold for crime references
+            'personal_attack' => 0.3,   // Threshold for personal attacks
+            'mental_health' => 0.5,     // Threshold for mental health content
+        ],
+
+        // Content type thresholds (higher values = more lenient)
+        'content_types' => [
+            'social_media' => 0.5,      // Social media posts
+            'news' => 0.6,              // News articles
+            'blog' => 0.5,              // Blog posts
+            'forum' => 0.5,             // Forum discussions
+            'educational' => 0.7,       // Educational materials
+            'research' => 0.8,          // Research papers/discussions
+            'medical' => 0.8,           // Medical content
+            'legal' => 0.7,             // Legal content
+            'gaming' => 0.6,            // Gaming content
+            'chat' => 0.4,              // Chat/messaging content
+        ],
+
+        // Audience thresholds (higher values = more lenient)
+        'audiences' => [
+            'children' => 0.3,      // Content for children (more strict)
+            'teen' => 0.4,          // Content for teenagers
+            'adult' => 0.6,         // Content for adults
+            'professional' => 0.7,  // Professional communications
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Default language
     |--------------------------------------------------------------------------
     |
@@ -29,11 +79,11 @@ return [
     | Languages
     |--------------------------------------------------------------------------
     |
-    | Define the list of languages available in the package
-    |
+    | Define the list of languages available in the package.
+    | Set to auto to automatically detect the language from the text.
     |
     */
-    'languages' => explode(',', env('SENTINEL_LANGUAGES', 'en')),
+    'languages' => explode(',', env('SENTINEL_LANGUAGES', 'auto')),
 
     /*
     |--------------------------------------------------------------------------
@@ -52,6 +102,29 @@ return [
     |
     */
     'fallback_service' => Ninja\Sentinel\Enums\Provider::Local,
+
+    /*
+    |--------------------------------------------------------------------------
+    | Default content type
+    |--------------------------------------------------------------------------
+    |
+    | Define the default content type
+    |
+    |
+    */
+    'default_content_type' => env('SENTINEL_DEFAULT_CONTENT_TYPE', 'social_media'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Default audience
+    |--------------------------------------------------------------------------
+    |
+    | Define the default audience
+    |
+    |
+    */
+    'default_audience' => env('SENTINEL_DEFAULT_AUDIENCE', 'adult'),
+
 
     /*
     |--------------------------------------------------------------------------
@@ -79,7 +152,7 @@ return [
         'e' => '(e|e\.|e\-|3|€|È|è|É|é|Ê|ê|∑|ë|Ë|Σ|Ē|ē|Ĕ|ĕ|Ė|ė|Ę|ę|Ě|ě|Ȅ|ȅ|Ȇ|ȇ|Ẹ|ẹ|Ẻ|ẻ|Ẽ|ẽ|Ế|ế|Ề|ề|Ể|ể|Ễ|ễ|Ệ|ệ|Е|Э|Ε|έ|Έ)',
         'i' => '(i|i\.|i\-|!|\||\]\[|]|1|∫|Ì|Í|Î|Ï|ì|í|î|ï|Ī|ī|Ĭ|ĭ|Į|į|İ|ı|Ǐ|ǐ|Ȉ|ȉ|Ȋ|ȋ|Ḭ|ḭ|Ḯ|ḯ|Ỉ|ỉ|Ị|ị|Ι|Í|Ì|Ĩ|Ī|ι|í|ì|ĩ|ī|И|Й|1|!|¡|∣|ﺍ)',
         'o' => '(o|o\.|o\-|0|Ο|ο|Φ|¤|°|ø|ô|ö|ò|ó|õ|Ō|ō|Ŏ|ŏ|Ő|ő|Œ|œ|Ơ|ơ|Ǒ|ǒ|Ǫ|ǫ|Ǭ|ǭ|Ȍ|ȍ|Ȏ|ȏ|Ọ|ọ|Ỏ|ỏ|Ố|ố|Ồ|ồ|Ổ|ổ|Ỗ|ỗ|Ộ|ộ|Ớ|ớ|Ờ|ờ|Ở|ở|Ỡ|ỡ|Ợ|ợ|О|Θ|Ο|ό|Ό|0|°|º|⊕|☺|☻)',
-        'u' => '(u|u\.|u\-|υ|µ|û|ü|ù|ú|ū|ů|Ū|ū|Ŭ|ŭ|Ů|ů|Ű|ű|Ų|ų|Ư|ư|Ǔ|ǔ|Ǖ|ǖ|Ǘ|ǘ|Ǚ|ǚ|Ǜ|ǜ|Ȕ|ȕ|Ȗ|ȗ|Ụ|ụ|Ủ|ủ|Ứ|ứ|Ừ|ừ|Ử|ử|Ữ|ữ|Ự|ự|Ũ|ũ|У|Υ|Ц|v|V)',
+        'u' => '(u|u\.|u\-|υ|µ|û|ü|ù|ú|ū|ů|Ū|ū|Ŭ|ŭ|Ů|ů|Ű|ű|Ų|ų|Ư|ư|Ǔ|ǔ|Ǖ|ǖ|Ǘ|ǘ|Ǚ|ǚ|Ǜ|ǜ|Ȕ|ȕ|Ȗ|ȗ|Ụ|ụ|Ủ|ủ|Ứ|ứ|Ừ|ừ|Ử|ử|Ữ|ữ|Ự|ự|Ũ|ũ|У|Υ|Ц|v|V|♥)',
         'y' => '(y|y\.|y\-|¥|γ|ÿ|ý|Ÿ|Ý|Ŷ|ŷ|Ÿ|Ƴ|ƴ|Ȳ|ȳ|Ẏ|ẏ|ʏ|Ỳ|ỳ|Ỵ|ỵ|Ỷ|ỷ|Ỹ|ỹ|Υ|γ|У|￥)',
 
         // Consonants
@@ -135,70 +208,6 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Word suffixes
-    |--------------------------------------------------------------------------
-    |
-    | Define the list of word suffixes used to generate the regular expression
-    | to match the profanity
-    |
-    */
-    'suffixes' => [
-        'ing',
-        'ed',
-        'er',
-        's',
-        'ers',
-        "'s",
-        'es',
-        'est',
-        'ly',
-        'ier',
-        'iest',
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Word prefixes
-    |--------------------------------------------------------------------------
-    |
-    | Define the list of word prefixes used to generate the regular expression
-    | to match the profanity
-    |
-    */
-    'prefixes' => [
-        'un',
-        're',
-        'dis',
-        'mis',
-        'pre',
-        'over',
-        'under',
-        'sub',
-        'super',
-        'anti',
-        'auto',
-        'bi',
-        'co',
-        'de',
-        'en',
-        'ex',
-        'fore',
-        'in',
-        'inter',
-        'mid',
-        'non',
-        'out',
-        'post',
-        'semi',
-        'tri',
-        'un',
-        'under',
-        'up',
-        'with',
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
     | Whitelisted words
     |--------------------------------------------------------------------------
     |
@@ -240,7 +249,7 @@ return [
         'azure_ai' => [
             'key' => env('AZURE_AI_API_KEY'),
             'endpoint' => env('AZURE_AI_ENDPOINT'),
-            'version' => env('AZURE_AI_VERSION', Ninja\Sentinel\Checkers\AzureAI::DEFAULT_API_VERSION),
+            'version' => env('AZURE_AI_VERSION', Ninja\Sentinel\Analyzers\AzureAI::DEFAULT_API_VERSION),
         ],
         'purgomalum' => [],
         'local' => [
@@ -257,6 +266,11 @@ return [
                 Ninja\Sentinel\Detection\Strategy\PhoneticStrategy::class,
                 Ninja\Sentinel\Detection\Strategy\ReversedWordsStrategy::class,
                 Ninja\Sentinel\Detection\Strategy\ZeroWidthStrategy::class,
+            ],
+            'early_termination' => [
+                'enabled' => env('SENTINEL_EARLY_TERMINATION', true),
+                'threshold' => env('SENTINEL_EARLY_TERMINATION_THRESHOLD', 0.8),
+                'batch_size' => env('SENTINEL_EARLY_TERMINATION_BATCH', 3),
             ],
         ],
     ],

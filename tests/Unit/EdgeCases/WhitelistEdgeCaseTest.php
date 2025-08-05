@@ -2,7 +2,7 @@
 
 namespace Tests\Unit\EdgeCases;
 
-use Ninja\Sentinel\Checkers\Local;
+use Ninja\Sentinel\Analyzers\Local;
 use Ninja\Sentinel\Whitelist;
 
 test('whitelist handles special regex characters', function (): void {
@@ -30,7 +30,7 @@ test('whitelist handles overlapping terms', function (): void {
     $local = app(Local::class);
 
     $text = 'This class assessment will assess your assessment skills';
-    $result = $local->check($text);
+    $result = $local->analyze($text);
 
     expect($result->offensive())->toBeFalse();
 });

@@ -24,6 +24,7 @@ final class TransformationPipeline
     {
         $builder = new ResultBuilder();
         $builder = $builder->withOriginalText($response->original());
+        $builder = $builder->withLanguage($response->language());
 
         foreach ($this->stages as $stage) {
             $builder = $stage->transform($response, $builder);

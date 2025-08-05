@@ -2,32 +2,42 @@
 
 namespace Ninja\Sentinel;
 
-use Ninja\Sentinel\Checkers\Contracts\ProfanityChecker;
+use Ninja\Sentinel\Analyzers\Contracts\Analyzer;
+use Ninja\Sentinel\Enums\Audience;
+use Ninja\Sentinel\Enums\ContentType;
 use Ninja\Sentinel\Enums\Provider;
 use Ninja\Sentinel\Exceptions\ClientException;
+use Ninja\Sentinel\Language\Language;
 use Ninja\Sentinel\Result\Contracts\Result;
 use Throwable;
 
 class Sentinel
 {
     /**
+     * Check text for offensive content
+     *
+     * @param string $text The text to check
+     * @param Language|null $language Optional language for analyzing text
+     * @param ContentType|null $contentType Optional content type for threshold adjustment
+     * @param Audience|null $audience Optional audience type for threshold adjustment
+     * @return Result The analysis result
      * @throws ClientException
      */
-    public function check(string $text): Result
+    public function check(string $text, ?Language $language = null, ?ContentType $contentType = null, ?Audience $audience = null): Result
     {
         try {
-            /** @var ProfanityChecker $service */
-            $service = app(ProfanityChecker::class);
+            /** @var Analyzer $service */
+            $service = app(Analyzer::class);
 
-            return $service->check($text);
+            return $service->analyze($text, $language, $contentType, $audience);
         } catch (Throwable $e) {
-            /** @var Provider $fallbackService */
+            /** @var Provider|null $fallbackService */
             $fallbackService = config('sentinel.fallback_service');
             if ($fallbackService) {
-                /** @var ProfanityChecker $fallback */
+                /** @var Analyzer $fallback */
                 $fallback = app($fallbackService->value);
 
-                return $fallback->check($text);
+                return $fallback->analyze($text, $language, $contentType, $audience);
             }
 
             throw new ClientException('Error analyzing text', 0, $e);
@@ -35,26 +45,61 @@ class Sentinel
     }
 
     /**
+     * Check if a text contains offensive content
+     *
+     * @param string $text The text to check
+     * @param Language|null $language Optional language for analyzing text
+     * @param ContentType|null $contentType Optional content type for threshold adjustment
+     * @param Audience|null $audience Optional audience type for threshold adjustment
+     * @return bool True if the text contains offensive content
      * @throws ClientException
      */
-    public function offensive(string $text): bool
+    public function offensive(string $text, ?Language $language = null, ?ContentType $contentType = null, ?Audience $audience = null): bool
     {
-        return $this->check($text)->offensive();
+        $result = $this->check($text, $language, $contentType, $audience);
+
+        // No need to pass parameters again, they're already incorporated in the result
+        return $result->offensive();
     }
 
     /**
+     * Clean text by replacing offensive content
+     *
+     * @param string $text The text to clean
+     * @param Language|null $language Optional language for analyzing text
+     * @param ContentType|null $contentType Optional content type for threshold adjustment
+     * @param Audience|null $audience Optional audience type for threshold adjustment
+     * @return string The cleaned text
      * @throws ClientException
      */
-    public function clean(string $text): string
+    public function clean(string $text, ?Language $language = null, ?ContentType $contentType = null, ?Audience $audience = null): string
     {
-        return $this->check($text)->replaced();
+        $result = $this->check($text, $language, $contentType, $audience);
+
+        // If not offensive, according to the language parameters (already in the result),
+        // return the original text
+        if ( ! $result->offensive()) {
+            return $text;
+        }
+
+        return $result->replaced();
     }
 
-    public function with(Provider $service, string $text): ?Result
+    /**
+     * Use a specific service to check text
+     *
+     * @param Provider $service The service to use
+     * @param string $text The text to check
+     * @param Language|null $language Optional language for analyzing text
+     * @param ContentType|null $contentType Optional content type for threshold adjustment
+     * @param Audience|null $audience Optional audience type for threshold adjustment
+     * @return Result|null The analysis result
+     */
+    public function with(Provider $service, string $text, ?Language $language = null, ?ContentType $contentType = null, ?Audience $audience = null): ?Result
     {
-        /** @var ProfanityChecker $checker */
+        /** @var Analyzer $checker */
         $checker = app($service->value);
 
-        return $checker->check($text);
+        return $checker->analyze($text, $language, $contentType, $audience);
     }
 }

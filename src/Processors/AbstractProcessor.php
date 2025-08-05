@@ -8,7 +8,7 @@ use Ninja\Sentinel\Collections\MatchCollection;
 use Ninja\Sentinel\Collections\OccurrenceCollection;
 use Ninja\Sentinel\Collections\StrategyCollection;
 use Ninja\Sentinel\Detection\Contracts\DetectionStrategy;
-use Ninja\Sentinel\Dictionary\LazyDictionary;
+use Ninja\Sentinel\Enums\LanguageCode;
 use Ninja\Sentinel\Processors\Contracts\Processor;
 use Ninja\Sentinel\Result\Builder\ResultBuilder;
 use Ninja\Sentinel\Result\Result;
@@ -30,7 +30,6 @@ abstract class AbstractProcessor implements Processor
      */
     public function __construct(
         private readonly Whitelist $whitelist,
-        private readonly LazyDictionary $dictionary,
     ) {
         /** @var string $replaceChar */
         $replaceChar = config('sentinel.mask_char', '*');
@@ -40,7 +39,7 @@ abstract class AbstractProcessor implements Processor
     }
 
     /**
-     * Process multiple chunks of text.
+     * Process multiple chunks of a text.
      *
      * @param  array<string>  $chunks
      * @return array<Result>
@@ -62,6 +61,23 @@ abstract class AbstractProcessor implements Processor
             $class = app()->build($strategy);
             $this->strategies->addStrategy($class);
         }
+
+        /** @var array<string, mixed> $earlyTermination */
+        $earlyTermination = config('sentinel.services.local.early_termination', []);
+
+        /** @var bool $enabled */
+        $enabled = $earlyTermination['enabled'] ?? true;
+
+        /** @var float $threshold */
+        $threshold = $earlyTermination['threshold'] ?? 0.8;
+
+        /** @var int $batchSize */
+        $batchSize = $earlyTermination['batch_size'] ?? 3;
+
+        $this->strategies
+            ->useWeightedVoting(false)
+            ->useEarlyTermination($enabled, $threshold)
+            ->setBatchSize($batchSize);
     }
 
     protected function processChunk(string $chunk): Result
@@ -69,18 +85,16 @@ abstract class AbstractProcessor implements Processor
         $whitelisted = $this->whitelist->prepare($chunk);
         $normalized = TextNormalizer::normalize($whitelisted);
 
-        /** @var string[] $words */
-        $words = iterator_to_array($this->dictionary->getWords());
-        $matches = $this->strategies->detect($normalized, $words);
+        $matches = $this->strategies->detect($normalized, language());
 
         if ($matches->isEmpty()) {
-            return $this->buildResult($chunk, $normalized, $matches);
+            return $this->buildResult($chunk, $normalized, $matches, language()->code());
         }
 
         $cleaned = $matches->clean($normalized);
         $finalText = $this->whitelist->restore($cleaned);
 
-        return $this->buildResult($chunk, $finalText, $matches);
+        return $this->buildResult($chunk, $finalText, $matches, language()->code());
     }
 
     /**
@@ -111,9 +125,10 @@ abstract class AbstractProcessor implements Processor
                         new Coincidence(
                             word: $match->word(),
                             type: $match->type(),
-                            score: Calculator::score($original, $match->word(), $match->type(), $occurrences),
+                            score: Calculator::score($original, $match->word(), $match->type(), $occurrences, language()),
                             confidence: Calculator::confidence($original, $match->word(), $match->type(), $occurrences),
                             occurrences: $occurrences,
+                            language: $match->language(),
                             context: $match->context(),
                         ),
                     );
@@ -122,15 +137,17 @@ abstract class AbstractProcessor implements Processor
             $replaced .= $result->replaced();
         }
 
-        return $this->buildResult($original, $replaced, $matches);
+        return $this->buildResult($original, $replaced, $matches, $results[0]->language());
     }
 
     private function buildResult(
         string $original,
         string $finalText,
         MatchCollection $matches,
+        LanguageCode $language,
     ): Result {
         return (new ResultBuilder())
+            ->withLanguage($language)
             ->withOriginalText($original)
             ->withReplaced($finalText)
             ->withWords(array_unique($matches->words()))

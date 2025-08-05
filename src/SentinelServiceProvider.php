@@ -5,17 +5,24 @@ namespace Ninja\Sentinel;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Validator;
+
+use function language;
+
+use Ninja\Sentinel\Analyzers\AzureAI;
+use Ninja\Sentinel\Analyzers\Contracts\Analyzer;
+use Ninja\Sentinel\Analyzers\PerspectiveAI;
+use Ninja\Sentinel\Analyzers\PrismAI;
+use Ninja\Sentinel\Analyzers\TisaneAI;
 use Ninja\Sentinel\Cache\Contracts\PatternCache;
-use Ninja\Sentinel\Checkers\AzureAI;
-use Ninja\Sentinel\Checkers\Contracts\ProfanityChecker;
-use Ninja\Sentinel\Checkers\PerspectiveAI;
-use Ninja\Sentinel\Checkers\PrismAI;
-use Ninja\Sentinel\Checkers\PurgoMalum;
-use Ninja\Sentinel\Checkers\TisaneAI;
 use Ninja\Sentinel\Dictionary\LazyDictionary;
+use Ninja\Sentinel\Enums\Audience;
+use Ninja\Sentinel\Enums\ContentType;
+use Ninja\Sentinel\Enums\LanguageCode;
 use Ninja\Sentinel\Enums\Provider;
-use Ninja\Sentinel\Factories\ProfanityCheckerFactory;
+use Ninja\Sentinel\Factories\AnalyzerFactory;
 use Ninja\Sentinel\Index\TrieIndex;
+use Ninja\Sentinel\Language\Collections\LanguageCollection;
+use Ninja\Sentinel\Language\Contracts\Language;
 use Ninja\Sentinel\Processors\AbstractProcessor;
 use Ninja\Sentinel\Processors\Contracts\Processor;
 use Ninja\Sentinel\Processors\DefaultProcessor;
@@ -23,7 +30,6 @@ use Ninja\Sentinel\Services\Adapters\AzureAdapter;
 use Ninja\Sentinel\Services\Adapters\LocalAdapter;
 use Ninja\Sentinel\Services\Adapters\PerspectiveAdapter;
 use Ninja\Sentinel\Services\Adapters\PrismAdapter;
-use Ninja\Sentinel\Services\Adapters\PurgoMalumAdapter;
 use Ninja\Sentinel\Services\Adapters\TisaneAdapter;
 use Ninja\Sentinel\Services\Contracts\ServiceAdapter;
 use Ninja\Sentinel\Services\Pipeline\Stage\MatchesStage;
@@ -44,8 +50,9 @@ final class SentinelServiceProvider extends ServiceProvider
             ], 'sentinel-config');
 
             $this->publishes([
-                __DIR__ . '/../resources/dict' => resource_path('dict'),
-            ], 'sentinel-dictionaries');
+                __DIR__ . '/../resources/language' => resource_path('language'),
+            ], 'sentinel-languages');
+
         }
 
         app('validator')->extend(
@@ -61,7 +68,18 @@ final class SentinelServiceProvider extends ServiceProvider
                     return false;
                 }
 
-                return ! Facades\Sentinel::check($value)->offensive();
+                /** @var string $contentType */
+                $contentType = config('sentinel.default_content_type', 'social_media');
+
+                /** @var string $audience */
+                $audience = config('sentinel.default_audience', 'adult');
+
+                return ! Facades\Sentinel::check(
+                    text: $value,
+                    language: language(),
+                    contentType: ContentType::from($contentType),
+                    audience: Audience::from($audience),
+                )->offensive();
             },
             message: 'The :attribute contains offensive language.',
         );
@@ -75,7 +93,6 @@ final class SentinelServiceProvider extends ServiceProvider
             return match (config('sentinel.default_service', Provider::Local)) {
                 Provider::Azure => $app->make(AzureAdapter::class),
                 Provider::Perspective => $app->make(PerspectiveAdapter::class),
-                Provider::PurgoMalum => $app->make(PurgoMalumAdapter::class),
                 Provider::Tisane => $app->make(TisaneAdapter::class),
                 Provider::Prism => $app->make(PrismAdapter::class),
                 default => $app->make(LocalAdapter::class),
@@ -85,15 +102,13 @@ final class SentinelServiceProvider extends ServiceProvider
         $this->app->singleton(LocalAdapter::class);
         $this->app->singleton(AzureAdapter::class);
         $this->app->singleton(PerspectiveAdapter::class);
-        $this->app->singleton(PurgoMalumAdapter::class);
         $this->app->singleton(TisaneAdapter::class);
         $this->app->singleton(PrismAdapter::class);
 
         $this->app->when(AzureAI::class)->needs(ServiceAdapter::class)->give(AzureAdapter::class);
         $this->app->when(TisaneAI::class)->needs(ServiceAdapter::class)->give(TisaneAdapter::class);
-        $this->app->when(Checkers\Local::class)->needs(ServiceAdapter::class)->give(LocalAdapter::class);
+        $this->app->when(Analyzers\Local::class)->needs(ServiceAdapter::class)->give(LocalAdapter::class);
         $this->app->when(PerspectiveAI::class)->needs(ServiceAdapter::class)->give(PerspectiveAdapter::class);
-        $this->app->when(PurgoMalum::class)->needs(ServiceAdapter::class)->give(PurgoMalumAdapter::class);
         $this->app->when(PrismAI::class)->needs(ServiceAdapter::class)->give(PrismAdapter::class);
 
         $this->app->singleton(TransformationPipeline::class, fn() => (new TransformationPipeline())
@@ -103,12 +118,24 @@ final class SentinelServiceProvider extends ServiceProvider
             ->addStage(new MetadataStage())
             ->addStage(new OffensiveStage()));
 
+        $this->app->singleton(LanguageCollection::class, function () {
+            /** @var string[] $languages */
+            $languages = config('sentinel.languages', [config('app.locale')]);
+            return LanguageCollection::fromConfig($languages);
+        });
+
+        $this->app->singleton(Language::class, function () {
+            /** @var string $code */
+            $code = config('sentinel.default_language', 'en');
+            return app(LanguageCollection::class)->findByCode(LanguageCode::from($code));
+        });
+
         $this->registerProfanityProviders();
 
         /** @var Provider $default */
         $default = config('sentinel.default_service', Provider::Local);
-        $this->app->bind(ProfanityChecker::class, function () use ($default): ProfanityChecker {
-            /** @var ProfanityChecker $service */
+        $this->app->bind(Analyzer::class, function () use ($default): Analyzer {
+            /** @var Analyzer $service */
             $service = app($default->value);
 
             return $service;
@@ -132,12 +159,7 @@ final class SentinelServiceProvider extends ServiceProvider
             return PatternGenerator::withDictionary($dictionary);
         });
 
-        $this->app->singleton(LazyDictionary::class, function (): LazyDictionary {
-            /** @var string[] $languages */
-            $languages = config('sentinel.languages', [config('app.locale')]);
-
-            return LazyDictionary::withLanguages($languages);
-        });
+        $this->app->singleton(LazyDictionary::class, fn(): LazyDictionary => new LazyDictionary(app(LanguageCollection::class)));
 
         $this->app->singleton(Whitelist::class, function (): Whitelist {
             /** @var string[] $whitelist */
@@ -159,7 +181,6 @@ final class SentinelServiceProvider extends ServiceProvider
 
             return new $processorClass(
                 app(Whitelist::class),
-                app(LazyDictionary::class),
             );
 
         });
@@ -177,7 +198,7 @@ final class SentinelServiceProvider extends ServiceProvider
             $config = config(sprintf('sentinel.services.%s', $service->value));
 
             if (null !== $config) {
-                $this->app->singleton($service->value, fn(): ProfanityChecker => ProfanityCheckerFactory::create($service, $config));
+                $this->app->singleton($service->value, fn(): Analyzer => AnalyzerFactory::create($service, $config));
             }
         }
 
@@ -189,7 +210,7 @@ final class SentinelServiceProvider extends ServiceProvider
             /** @var ServiceAdapter $adapter */
             $adapter = app(ServiceAdapter::class);
 
-            return new Checkers\Local(
+            return new Analyzers\Local(
                 processor: $processor,
                 adapter: $adapter,
                 pipeline: app(TransformationPipeline::class),

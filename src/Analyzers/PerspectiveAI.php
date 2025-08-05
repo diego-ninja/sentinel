@@ -1,0 +1,178 @@
+<?php
+
+namespace Ninja\Sentinel\Analyzers;
+
+use GuzzleHttp\ClientInterface;
+use Ninja\Sentinel\Enums\Audience;
+use Ninja\Sentinel\Enums\ContentType;
+use Ninja\Sentinel\Enums\LanguageCode;
+use Ninja\Sentinel\Exceptions\ClientException;
+use Ninja\Sentinel\Language\Collections\LanguageCollection;
+use Ninja\Sentinel\Language\Language;
+use Ninja\Sentinel\Result\Builder\ResultBuilder;
+use Ninja\Sentinel\Result\Contracts\Result;
+use Ninja\Sentinel\Services\Contracts\ServiceAdapter;
+use Ninja\Sentinel\Services\Pipeline\TransformationPipeline;
+
+final class PerspectiveAI extends AbstractAnalyzer
+{
+    public function __construct(
+        private readonly string $key,
+        private readonly ServiceAdapter $adapter,
+        private readonly TransformationPipeline $pipeline,
+        protected ?ClientInterface $client = null,
+    ) {
+        parent::__construct($client);
+    }
+
+    /**
+     * Check text for offensive content using Perspective API
+     *
+     * @param string $text Text to analyze
+     * @param ContentType|null $contentType Optional content type for language
+     * @param Audience|null $audience Optional audience type for threshold adjustment
+     * @return Result Analysis result
+     * @throws ClientException When API request fails
+     */
+    public function analyze(string $text, ?Language $language = null, ?ContentType $contentType = null, ?Audience $audience = null): Result
+    {
+        $language ??= app(LanguageCollection::class)->bestFor($text);
+        $requestedAttributes = $this->getRequestedAttributes($contentType, $audience);
+
+        $params = [
+            'comment' => ['text' => $text],
+            'languages' => $language ? [$language->code()] : config('sentinel.languages', [LanguageCode::English]),
+            'requestedAttributes' => $requestedAttributes,
+        ];
+
+        // Make the API request
+        $response = $this->post(sprintf('comments:analyze?key=%s', $this->key), $params);
+
+        // Process through adapter and pipeline
+        $result = $this->pipeline->process(
+            $this->adapter->adapt($text, $response),
+        );
+
+        // If contextual parameters were provided, include them in the result
+        if (null !== $contentType || null !== $audience) {
+            // The result already contains all analysis data, but we need to
+            // add content type and audience information, and potentially
+            // adjust the offensive flag based on contextual thresholds
+
+            $builder = ResultBuilder::withResult($result);
+
+            $builder->withLanguage($language?->code() ?? LanguageCode::English);
+
+            // Determine if content is offensive based on contextual thresholds
+            $isOffensive = $result->offensive($contentType, $audience);
+            $builder = $builder->withOffensive($isOffensive);
+
+            // Set content type and audience
+            if (null !== $contentType) {
+                $builder = $builder->withContentType($contentType);
+            }
+
+            if (null !== $audience) {
+                $builder = $builder->withAudience($audience);
+            }
+
+            return $builder->build();
+        }
+
+        return $result;
+    }
+
+    protected function baseUri(): string
+    {
+        return 'https://commentanalyzer.googleapis.com/v1alpha1/';
+    }
+
+    /**
+     * Get requested attributes based on content type and audience
+     *
+     * @param ContentType|null $contentType Content type
+     * @param Audience|null $audience Audience
+     * @return array<string, array<string, mixed>> Requested attributes
+     */
+    private function getRequestedAttributes(?ContentType $contentType, ?Audience $audience): array
+    {
+        // Base attributes to always request
+        $attributes = [
+            'TOXICITY' => ['scoreType' => 'PROBABILITY', 'scoreThreshold' => 0],
+            'SEVERE_TOXICITY' => ['scoreType' => 'PROBABILITY', 'scoreThreshold' => 0],
+            'IDENTITY_ATTACK' => ['scoreType' => 'PROBABILITY', 'scoreThreshold' => 0],
+            'INSULT' => ['scoreType' => 'PROBABILITY', 'scoreThreshold' => 0],
+            'THREAT' => ['scoreType' => 'PROBABILITY', 'scoreThreshold' => 0],
+            'PROFANITY' => ['scoreType' => 'PROBABILITY', 'scoreThreshold' => 0],
+        ];
+
+        // Adjust thresholds based on content type
+        if (null !== $contentType) {
+            switch ($contentType) {
+                case ContentType::Educational:
+                case ContentType::Research:
+                case ContentType::Medical:
+                    // More permissive for educational/research/medical content
+                    $attributes['PROFANITY']['scoreThreshold'] = 0.7;
+                    break;
+
+                case ContentType::Legal:
+                    // More permissive for legal content
+                    $attributes['PROFANITY']['scoreThreshold'] = 0.6;
+                    break;
+
+                case ContentType::News:
+                    // News might contain quotes of offensive content
+                    $attributes['TOXICITY']['scoreThreshold'] = 0.6;
+                    break;
+
+                case ContentType::Chat:
+                    // More strict for chat content
+                    $attributes['TOXICITY']['scoreThreshold'] = 0.4;
+                    $attributes['PROFANITY']['scoreThreshold'] = 0.4;
+                    break;
+
+                default:
+                    // Use default thresholds
+                    break;
+            }
+        }
+
+        // Adjust thresholds based on audience
+        if (null !== $audience) {
+            switch ($audience) {
+                case Audience::Children:
+                    // Much stricter for children's content
+                    $attributes['TOXICITY']['scoreThreshold'] = 0.3;
+                    $attributes['PROFANITY']['scoreThreshold'] = 0.3;
+                    $attributes['SEXUALLY_EXPLICIT'] = ['scoreType' => 'PROBABILITY', 'scoreThreshold' => 0.3];
+                    break;
+
+                case Audience::Teen:
+                    // Moderately strict
+                    $attributes['TOXICITY']['scoreThreshold'] = 0.5;
+                    $attributes['PROFANITY']['scoreThreshold'] = 0.5;
+                    break;
+
+                case Audience::Adult:
+                    // Standard thresholds
+                    break;
+
+                case Audience::Professional:
+                    // Focus on professional contexts
+                    $attributes['TOXICITY']['scoreThreshold'] = 0.6;
+                    $attributes['PROFANITY']['scoreThreshold'] = 0.6;
+                    break;
+
+            }
+        }
+
+        // Add additional attributes if appropriate for content type
+        if (ContentType::SocialMedia === $contentType) {
+            $attributes['FLIRTATION'] = ['scoreType' => 'PROBABILITY', 'scoreThreshold' => 0];
+        }
+
+        return $attributes;
+    }
+
+}

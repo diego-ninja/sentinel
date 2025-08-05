@@ -24,7 +24,7 @@ abstract class TestCase extends BaseTestCase
         // Base configuration
         $app['config']->set('sentinel.mask_char', '*');
         $app['config']->set('sentinel.whitelist', []);
-        $app['config']->set('sentinel.languages', ['en']);
+        $app['config']->set('sentinel.languages', ['en','es','pt']);
         $app['config']->set('sentinel.dictionary_path', __DIR__ . '/../resources/dict');
         $app['config']->set('sentinel.default_service', 'local');
         $app['config']->set('sentinel.cache.enabled', false);
@@ -34,7 +34,7 @@ abstract class TestCase extends BaseTestCase
             'e' => '(e|e\.|e\-|3|€|È|è|É|é|Ê|ê|∑|ë|Ë|Σ|Ē|ē|Ĕ|ĕ|Ė|ė|Ę|ę|Ě|ě|Ȅ|ȅ|Ȇ|ȇ|Ẹ|ẹ|Ẻ|ẻ|Ẽ|ẽ|Ế|ế|Ề|ề|Ể|ể|Ễ|ễ|Ệ|ệ|Е|Э|Ε|έ|Έ)',
             'i' => '(i|i\.|i\-|!|\||\]\[|]|1|∫|Ì|Í|Î|Ï|ì|í|î|ï|Ī|ī|Ĭ|ĭ|Į|į|İ|ı|Ǐ|ǐ|Ȉ|ȉ|Ȋ|ȋ|Ḭ|ḭ|Ḯ|ḯ|Ỉ|ỉ|Ị|ị|Ι|Í|Ì|Ĩ|Ī|ι|í|ì|ĩ|ī|И|Й|1|!|¡|∣|ﺍ)',
             'o' => '(o|o\.|o\-|0|Ο|ο|Φ|¤|°|ø|ô|ö|ò|ó|õ|Ō|ō|Ŏ|ŏ|Ő|ő|Œ|œ|Ơ|ơ|Ǒ|ǒ|Ǫ|ǫ|Ǭ|ǭ|Ȍ|ȍ|Ȏ|ȏ|Ọ|ọ|Ỏ|ỏ|Ố|ố|Ồ|ồ|Ổ|ổ|Ỗ|ỗ|Ộ|ộ|Ớ|ớ|Ờ|ờ|Ở|ở|Ỡ|ỡ|Ợ|ợ|О|Θ|Ο|ό|Ό|0|°|º|⊕|☺|☻)',
-            'u' => '(u|u\.|u\-|υ|µ|û|ü|ù|ú|ū|ů|Ū|ū|Ŭ|ŭ|Ů|ů|Ű|ű|Ų|ų|Ư|ư|Ǔ|ǔ|Ǖ|ǖ|Ǘ|ǘ|Ǚ|ǚ|Ǜ|ǜ|Ȕ|ȕ|Ȗ|ȗ|Ụ|ụ|Ủ|ủ|Ứ|ứ|Ừ|ừ|Ử|ử|Ữ|ữ|Ự|ự|Ũ|ũ|У|Υ|Ц|v|V)',
+            'u' => '(u|u\.|u\-|υ|µ|û|ü|ù|ú|ū|ů|Ū|ū|Ŭ|ŭ|Ů|ů|Ű|ű|Ų|ų|Ư|ư|Ǔ|ǔ|Ǖ|ǖ|Ǘ|ǘ|Ǚ|ǚ|Ǜ|ǜ|Ȕ|ȕ|Ȗ|ȗ|Ụ|ụ|Ủ|ủ|Ứ|ứ|Ừ|ừ|Ử|ử|Ữ|ữ|Ự|ự|Ũ|ũ|У|Υ|Ц|v|V|♥)',
             'y' => '(y|y\.|y\-|¥|γ|ÿ|ý|Ÿ|Ý|Ŷ|ŷ|Ÿ|Ƴ|ƴ|Ȳ|ȳ|Ẏ|ẏ|ʏ|Ỳ|ỳ|Ỵ|ỵ|Ỷ|ỷ|Ỹ|ỹ|Υ|γ|У|￥)',
 
             // Consonants
@@ -105,16 +105,19 @@ abstract class TestCase extends BaseTestCase
                     \Ninja\Sentinel\Detection\Strategy\IndexStrategy::class,
                     \Ninja\Sentinel\Detection\Strategy\PatternStrategy::class,
                     \Ninja\Sentinel\Detection\Strategy\NGramStrategy::class,
-                    \Ninja\Sentinel\Detection\Strategy\AffixStrategy::class,
+                    //\Ninja\Sentinel\Detection\Strategy\AffixStrategy::class,
                     \Ninja\Sentinel\Detection\Strategy\VariationStrategy::class,
                     \Ninja\Sentinel\Detection\Strategy\RepeatedCharStrategy::class,
                     \Ninja\Sentinel\Detection\Strategy\LevenshteinStrategy::class,
                     \Ninja\Sentinel\Detection\Strategy\AlphanumericVariationStrategy::class,
                     \Ninja\Sentinel\Detection\Strategy\ReversedWordsStrategy::class,
                     \Ninja\Sentinel\Detection\Strategy\ZeroWidthStrategy::class,
+                    \Ninja\Sentinel\Detection\Strategy\SafeContextStrategy::class,
                 ],
             ],
         ]);
+
+        createContextFiles();
     }
 
     protected function getMockedHttpClient(array $responses = []): Client

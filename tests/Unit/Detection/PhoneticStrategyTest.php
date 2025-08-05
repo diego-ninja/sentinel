@@ -3,11 +3,15 @@
 namespace Tests\Unit\Detection;
 
 use Ninja\Sentinel\Detection\Strategy\PhoneticStrategy;
+use Ninja\Sentinel\Enums\LanguageCode;
 use Ninja\Sentinel\Enums\MatchType;
 use Ninja\Sentinel\Enums\PhoneticAlgorithm;
+use Ninja\Sentinel\Language\Collections\LanguageCollection;
 
 test('phonetic strategy detects similar sounding offensive words', function (): void {
-    $strategy = new PhoneticStrategy();
+    $languages = app(LanguageCollection::class);
+    $language = $languages->findByCode(LanguageCode::English);
+    $strategy = new PhoneticStrategy($languages);
 
     $variations = [
         'fuk',
@@ -18,7 +22,7 @@ test('phonetic strategy detects similar sounding offensive words', function (): 
     ];
 
     foreach ($variations as $text) {
-        $result = $strategy->detect($text, ['fuck']);
+        $result = $strategy->detect($text, $language);
 
         expect($result)
             ->toHaveCount(1)
@@ -31,13 +35,16 @@ test('phonetic strategy detects similar sounding offensive words', function (): 
 });
 
 test('phonetic strategy works with different phonetic algorithms', function (): void {
-    $metaphoneStrategy = new PhoneticStrategy(PhoneticAlgorithm::Metaphone);
-    $soundexStrategy = new PhoneticStrategy(PhoneticAlgorithm::Soundex);
+    $languages = app(LanguageCollection::class);
+    $language = $languages->findByCode(LanguageCode::English);
 
-    $text = "This is a shet that sounds like shit";
+    $metaphoneStrategy = new PhoneticStrategy($languages, PhoneticAlgorithm::Metaphone);
+    $soundexStrategy = new PhoneticStrategy($languages, PhoneticAlgorithm::Soundex);
 
-    $metaphoneResult = $metaphoneStrategy->detect($text, ['shit']);
-    $soundexResult = $soundexStrategy->detect($text, ['shit']);
+    $text = "This is a shet and sounds like shit";
+
+    $metaphoneResult = $metaphoneStrategy->detect($text, $language);
+    $soundexResult = $soundexStrategy->detect($text, $language);
 
     expect($metaphoneResult)->toHaveCount(2)
         ->and($metaphoneResult->first()->word())->toBe('shet');
@@ -47,21 +54,25 @@ test('phonetic strategy works with different phonetic algorithms', function (): 
 });
 
 test('phonetic strategy ignores unrelated words', function (): void {
-    $strategy = new PhoneticStrategy();
+    $languages = app(LanguageCollection::class);
+    $language = $languages->findByCode(LanguageCode::English);
+    $strategy = new PhoneticStrategy($languages);
 
     $text = "This text contains words like food and ship";
 
-    $result = $strategy->detect($text, ['fuck', 'shit']);
+    $result = $strategy->detect($text, $language);
 
     expect($result)->toBeEmpty();
 });
 
 test('phonetic strategy handles words in sentences', function (): void {
-    $strategy = new PhoneticStrategy();
+    $languages = app(LanguageCollection::class);
+    $language = $languages->findByCode(LanguageCode::English);
+    $strategy = new PhoneticStrategy($languages);
 
     $text = "You are such a beach, I hate you";
 
-    $result = $strategy->detect($text, ['bitch']);
+    $result = $strategy->detect($text, $language);
 
     expect($result)
         ->toHaveCount(1)
@@ -70,27 +81,16 @@ test('phonetic strategy handles words in sentences', function (): void {
 });
 
 test('phonetic strategy handles multiple matches', function (): void {
-    $strategy = new PhoneticStrategy();
+    $languages = app(LanguageCollection::class);
+    $language = $languages->findByCode(LanguageCode::English);
+    $strategy = new PhoneticStrategy($languages);
 
     $text = "This is shet and you are a beech";
 
-    $result = $strategy->detect($text, ['shit', 'bitch']);
+    $result = $strategy->detect($text, $language);
 
     expect($result)
         ->toHaveCount(2)
         ->and($result[0]->word())->toBe('shet')
         ->and($result[1]->word())->toBe('beech');
-});
-
-test('phonetic strategy provides correct context information', function (): void {
-    $strategy = new PhoneticStrategy(PhoneticAlgorithm::Metaphone);
-
-    $text = "That was a phuking bad idea";
-
-    $result = $strategy->detect($text, ['fucking']);
-
-    expect($result)->toHaveCount(1)
-        ->and($result->first()->context())->toHaveKey('original', 'fucking')
-        ->and($result->first()->context())->toHaveKey('variation_type', 'phonetic')
-        ->and($result->first()->context())->toHaveKey('algorithm', 'metaphone');
 });

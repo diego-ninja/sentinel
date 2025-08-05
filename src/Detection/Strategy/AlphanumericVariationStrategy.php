@@ -5,24 +5,35 @@ namespace Ninja\Sentinel\Detection\Strategy;
 use Ninja\Sentinel\Collections\MatchCollection;
 use Ninja\Sentinel\Collections\OccurrenceCollection;
 use Ninja\Sentinel\Enums\MatchType;
+use Ninja\Sentinel\Language\Collections\LanguageCollection;
+use Ninja\Sentinel\Language\Language;
 use Ninja\Sentinel\Support\Calculator;
 use Ninja\Sentinel\ValueObject\Coincidence;
 use Ninja\Sentinel\ValueObject\Position;
 
 final class AlphanumericVariationStrategy extends AbstractStrategy
 {
+    public const float STRATEGY_EFFICIENCY = 2.5;
+
     public function __construct(
+        protected LanguageCollection $languages,
         private readonly int $maxAffixLength = 5,
-    ) {}
+    ) {
+        parent::__construct($languages);
+    }
 
-    public function detect(string $text, iterable $words): MatchCollection
+    public function detect(string $text, ?Language $language = null): MatchCollection
     {
+        $language ??= $this->languages->bestFor($text);
         $matches = new MatchCollection();
-        $dictionary = is_array($words) ? $words : iterator_to_array($words);
 
-        $prefixPattern = '/(\d*|[_\-\.]+)(%s)/iu';   // Para 123fuck
-        $suffixPattern = '/(%s)(\d*|[_\-\.]+)/iu';   // Para fuck123, fuck_88
-        $mixedPattern = '/(\d*|[_\-\.]+)(%s)(\d*|[_\-\.]+)/iu';   // Para 123fuck456
+        if (null === $language) {
+            return $matches;
+        }
+
+        $dictionary = iterator_to_array($language->words());
+
+        $basePattern = '/([\d_\-\.]*)?(%s)([\d_\-\.]*)?/iu';
 
         foreach ($dictionary as $word) {
             if (mb_strlen($word) < 3) {
@@ -30,15 +41,48 @@ final class AlphanumericVariationStrategy extends AbstractStrategy
             }
 
             $escapedWord = preg_quote($word, '/');
+            $currentPattern = sprintf($basePattern, $escapedWord);
 
-            $currentPattern = sprintf($prefixPattern, $escapedWord);
-            $this->findMatches($text, $currentPattern, $word, $matches);
+            if (preg_match_all($currentPattern, $text, $found, PREG_OFFSET_CAPTURE)) {
+                foreach ($found[0] as $index => [$match, $offset]) {
+                    $prefix = $found[1][$index][0];
+                    $suffix = $found[3][$index][0];
 
-            $currentPattern = sprintf($suffixPattern, $escapedWord);
-            $this->findMatches($text, $currentPattern, $word, $matches);
+                    // Solo procesar si hay alfijos alfanuméricos
+                    if ('' === $prefix && '' === $suffix) {
+                        continue;
+                    }
 
-            $currentPattern = sprintf($mixedPattern, $escapedWord);
-            $this->findMatches($text, $currentPattern, $word, $matches);
+                    // Verificar que al menos uno de los alfijos contenga números
+                    if ( ! preg_match('/\d/', $prefix . $suffix)) {
+                        continue;
+                    }
+
+                    $affixLength = mb_strlen($match) - mb_strlen($word);
+                    if ($affixLength > $this->maxAffixLength) {
+                        continue;
+                    }
+
+                    $occurrences = new OccurrenceCollection([
+                        new Position($offset, mb_strlen($match)),
+                    ]);
+
+                    $matches->addCoincidence(
+                        new Coincidence(
+                            word: $match,
+                            type: MatchType::Variation,
+                            score: Calculator::score($text, $match, MatchType::Variation, $occurrences, $language),
+                            confidence: Calculator::confidence($text, $match, MatchType::Variation, $occurrences),
+                            occurrences: $occurrences,
+                            language: $language->code(),
+                            context: [
+                                'original' => $word,
+                                'variation_type' => 'alphanumeric',
+                            ],
+                        ),
+                    );
+                }
+            }
         }
 
         return $matches;
@@ -49,43 +93,4 @@ final class AlphanumericVariationStrategy extends AbstractStrategy
         return MatchType::Variation->weight() - 0.05;
     }
 
-    /**
-     * @param string $text
-     * @param string $pattern
-     * @param string $baseWord
-     * @param MatchCollection $matches
-     */
-    private function findMatches(
-        string $text,
-        string $pattern,
-        string $baseWord,
-        MatchCollection $matches,
-    ): void {
-        if (preg_match_all($pattern, $text, $found, PREG_OFFSET_CAPTURE)) {
-            foreach ($found[0] as [$match, $offset]) {
-                $affixLength = mb_strlen($match) - mb_strlen($baseWord);
-                if ($affixLength > $this->maxAffixLength) {
-                    continue;
-                }
-
-                $occurrences = new OccurrenceCollection([
-                    new Position($offset, mb_strlen($match)),
-                ]);
-
-                $matches->addCoincidence(
-                    new Coincidence(
-                        word: $match,
-                        type: MatchType::Variation,
-                        score: Calculator::score($text, $match, MatchType::Variation, $occurrences),
-                        confidence: Calculator::confidence($text, $match, MatchType::Variation, $occurrences),
-                        occurrences: $occurrences,
-                        context: [
-                            'original' => $baseWord,
-                            'variation_type' => 'alphanumeric',
-                        ],
-                    ),
-                );
-            }
-        }
-    }
 }

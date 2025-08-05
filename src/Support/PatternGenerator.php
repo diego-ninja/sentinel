@@ -14,61 +14,29 @@ final class PatternGenerator
     /**
      * @param array<string, string> $replacements
      */
-    public function __construct(private array $replacements = [], private bool $fullWords = true) {}
+    public function __construct(private readonly array $replacements = [], private readonly bool $fullWords = true) {}
 
     public static function withDictionary(LazyDictionary $dictionary): self
     {
         /** @var array<string, string> $replacements */
         $replacements = config('sentinel.replacements', []);
-
         $generator = new self($replacements);
 
         foreach ($dictionary as $word) {
-            if ( ! empty($word)) {
-                $generator->patterns = array_merge(
-                    $generator->patterns,
-                    $generator->forWord($word),
-                );
+            if (mb_strlen($word) < 3) {
+                continue;
+            }
+            $pattern = $generator->generatePatternForWord($word);
+            if ($pattern) {
+                $generator->patterns[] = $pattern;
             }
         }
-
         return $generator;
     }
 
     /**
-     * @return array<int, string>
-     */
-    public function forWord(string $word): array
-    {
-        $basePattern = $this->createBasePattern($word);
-        $patterns = [];
-
-        if ($this->fullWords) {
-            $patterns[] = '/\b' . $basePattern . '\b/iu'; // Con límites de palabra
-        } else {
-            $patterns[] = '/' . $basePattern . '/iu'; // Sin límites de palabra
-            $patterns[] = '/' . implode('\s+', mb_str_split($basePattern)) . '/iu';
-            $patterns[] = '/' . implode('[.\-_]+', mb_str_split($basePattern)) . '/iu';
-            $patterns[] = '/' . implode('[.\-_\d]*', mb_str_split($basePattern)) . '/iu';
-        }
-
-        return array_filter($patterns, fn($pattern) => $this->isValidPattern($pattern));
-    }
-
-    /**
-     * @param array<int|string, string> $words
-     * @return array<int|string, string>
-     */
-    public function forWords(array $words): array
-    {
-        foreach ($words as $word) {
-            $this->patterns = array_merge($this->patterns, $this->forWord($word));
-        }
-
-        return array_unique($this->patterns);
-    }
-
-    /**
+     * Get generated patterns
+     *
      * @return array<int|string, string>
      */
     public function getPatterns(): array
@@ -76,33 +44,36 @@ final class PatternGenerator
         return $this->patterns;
     }
 
-    public function setFullWords(bool $fullWords): self
+    private function generatePatternForWord(string $word): ?string
     {
-        $this->fullWords = $fullWords;
+        if (empty($word)) {
+            return null;
+        }
 
-        return $this;
-    }
+        $basePattern = $this->createBasePattern($word);
 
-    /**
-     * @param array<string, string> $replacements
-     */
-    public function setReplacements(array $replacements): self
-    {
-        $this->replacements = $replacements;
+        // Usamos límites de palabra que respetan Unicode para TODOS los patrones.
+        // (?<!\p{L}) = No precedido por una letra Unicode.
+        // (?!\p{L})  = No seguido por una letra Unicode.
+        $pattern = '/(?<!\p{L})' . $basePattern . '(?!\p{L})/ui';
 
-        return $this;
+        if ($this->isValidPattern($pattern)) {
+            return $pattern;
+        }
+
+        return null;
     }
 
     private function createBasePattern(string $word): string
     {
         $escaped = preg_quote($word, '/');
 
-        if ($this->fullWords) {
+        if ( ! $this->fullWords) {
             return $escaped;
         }
 
         return str_ireplace(
-            array_map(fn($key) => preg_quote($key, '/'), array_keys($this->replacements)),
+            array_keys($this->replacements),
             array_values($this->replacements),
             $escaped,
         );

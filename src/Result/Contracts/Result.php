@@ -3,13 +3,17 @@
 namespace Ninja\Sentinel\Result\Contracts;
 
 use Ninja\Sentinel\Collections\MatchCollection;
+use Ninja\Sentinel\Enums\Audience;
 use Ninja\Sentinel\Enums\Category;
+use Ninja\Sentinel\Enums\ContentType;
+use Ninja\Sentinel\Enums\LanguageCode;
 use Ninja\Sentinel\ValueObject\Confidence;
 use Ninja\Sentinel\ValueObject\Score;
 use Ninja\Sentinel\ValueObject\Sentiment;
 
 interface Result
 {
+    public function language(): LanguageCode;
     public function offensive(): bool;
 
     /**
@@ -26,6 +30,10 @@ interface Result
     public function confidence(): ?Confidence;
 
     public function sentiment(): ?Sentiment;
+
+    public function audience(): ?Audience;
+
+    public function contentType(): ?ContentType;
 
     /**
      * @return Category[]

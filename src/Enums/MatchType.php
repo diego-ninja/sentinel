@@ -11,6 +11,7 @@ enum MatchType: string
     case Pattern = 'pattern';
     case Repeated = 'repeated';
     case NGram = 'ngram';
+    case SafeContext = 'safe_context';
 
     public function weight(): float
     {
@@ -18,7 +19,8 @@ enum MatchType: string
             self::Exact,
             self::Trie => 1.0,
             self::Pattern,
-            self::NGram => 0.9,
+            self::NGram,
+            self::SafeContext => 0.9,
             self::Variation => 0.8,
             self::Levenshtein => 0.7,
             self::Repeated => 0.6,

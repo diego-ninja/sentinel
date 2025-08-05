@@ -3,10 +3,13 @@
 namespace Tests\Unit\Detection;
 
 use Ninja\Sentinel\Detection\Strategy\AlphanumericVariationStrategy;
+use Ninja\Sentinel\Enums\LanguageCode;
 use Ninja\Sentinel\Enums\MatchType;
+use Ninja\Sentinel\Language\Collections\LanguageCollection;
 
 test('alphanumeric variation strategy detects numbers mixed with offensive words', function (): void {
-    $strategy = new AlphanumericVariationStrategy();
+    $languages = app(LanguageCollection::class);
+    $strategy = new AlphanumericVariationStrategy($languages);
 
     $variations = [
         'fuck88',
@@ -16,7 +19,7 @@ test('alphanumeric variation strategy detects numbers mixed with offensive words
     ];
 
     foreach ($variations as $text) {
-        $result = $strategy->detect($text, ['fuck', 'shit']);
+        $result = $strategy->detect($text, $languages->findByCode(LanguageCode::English));
 
         expect($result)
             ->toHaveCount(1)
@@ -29,24 +32,26 @@ test('alphanumeric variation strategy detects numbers mixed with offensive words
 });
 
 test('alphanumeric variation strategy respects max affix length', function (): void {
-    $strategy = new AlphanumericVariationStrategy(2); // Máximo 2 caracteres de prefijo/sufijo
+    $languages = app(LanguageCollection::class);
+    $strategy = new AlphanumericVariationStrategy($languages, 2);
 
-    $result1 = $strategy->detect('fuck88', ['fuck']);
+    $result1 = $strategy->detect('fuck88', $languages->findByCode(LanguageCode::English));
     expect($result1)->toHaveCount(1);
 
-    $result2 = $strategy->detect('fuck12345', ['fuck']);
+    $result2 = $strategy->detect('fuck12345', $languages->findByCode(LanguageCode::English));
     expect($result2)->toBeEmpty();
 
-    $result3 = $strategy->detect('12345fuck', ['fuck']);
+    $result3 = $strategy->detect('12345fuck', $languages->findByCode(LanguageCode::English));
     expect($result3)->toBeEmpty();
 });
 
 test('alphanumeric variation strategy handles edge cases', function (): void {
-    $strategy = new AlphanumericVariationStrategy();
+    $languages = app(LanguageCollection::class);
+    $strategy = new AlphanumericVariationStrategy($languages, 2);
 
-    $result = $strategy->detect('this fuck88 should be detected', ['fuck']);
+    $result = $strategy->detect('this fuck88 should be detected', $languages->findByCode(LanguageCode::English));
     expect($result)->toHaveCount(1);
 
-    $result3 = $strategy->detect('classification', ['ass']);
+    $result3 = $strategy->detect('classification', $languages->findByCode(LanguageCode::English));
     expect($result3)->toBeEmpty();
 });

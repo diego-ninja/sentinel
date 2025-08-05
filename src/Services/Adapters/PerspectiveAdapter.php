@@ -5,7 +5,9 @@ namespace Ninja\Sentinel\Services\Adapters;
 use Ninja\Sentinel\Collections\MatchCollection;
 use Ninja\Sentinel\Collections\OccurrenceCollection;
 use Ninja\Sentinel\Enums\Category;
+use Ninja\Sentinel\Enums\LanguageCode;
 use Ninja\Sentinel\Enums\MatchType;
+use Ninja\Sentinel\Language\Collections\LanguageCollection;
 use Ninja\Sentinel\Services\Contracts\ServiceResponse;
 use Ninja\Sentinel\ValueObject\Coincidence;
 use Ninja\Sentinel\ValueObject\Confidence;
@@ -44,6 +46,8 @@ final readonly class PerspectiveAdapter extends AbstractAdapter
         $avgConfidence = 0.0;
         $categories = [];
 
+        $language = app(LanguageCollection::class)->bestFor($text);
+
         foreach ($response['attributeScores'] as $attribute => $data) {
             $weight = self::RELEVANT_ATTRIBUTES[$attribute] ?? 0.0;
             $score = $data['summaryScore']['value'] * $weight;
@@ -71,6 +75,7 @@ final readonly class PerspectiveAdapter extends AbstractAdapter
                             score: new Score($span['score']['value']),
                             confidence: new Confidence(($data['summaryScore']['confidence'] ?? 0.7)),
                             occurrences: $occurrences,
+                            language: $language?->code() ?? LanguageCode::English,
                             context: [
                                 'attribute' => $attribute,
                                 'score' => $span['score']['value'],
@@ -85,7 +90,7 @@ final readonly class PerspectiveAdapter extends AbstractAdapter
             ? $avgConfidence / count($response['attributeScores'])
             : 0.0;
 
-        return new readonly class ($text, $matches, new Score($maxScore), new Confidence($confidenceValue), $categories) implements ServiceResponse {
+        return new readonly class ($text, $matches, new Score($maxScore), new Confidence($confidenceValue), $categories, $language?->code() ?? LanguageCode::English) implements ServiceResponse {
             public function __construct(
                 private string          $original,
                 private MatchCollection $matches,
@@ -93,6 +98,7 @@ final readonly class PerspectiveAdapter extends AbstractAdapter
                 private Confidence      $confidence,
                 /** @var array<Category> */
                 private array           $categories,
+                private LanguageCode    $language,
             ) {}
 
             public function original(): string
@@ -129,6 +135,11 @@ final readonly class PerspectiveAdapter extends AbstractAdapter
             public function sentiment(): ?Sentiment
             {
                 return null;
+            }
+
+            public function language(): LanguageCode
+            {
+                return $this->language;
             }
         };
     }

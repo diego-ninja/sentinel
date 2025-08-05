@@ -16,6 +16,7 @@ class SentinelPrismSchema extends ObjectSchema
             name: 'profanity_analysis',
             description: 'Profanity, sentiment and content analysis',
             properties: [
+                new StringSchema('detected_language', 'Detected language of the text'),
                 // Base analysis properties
                 new BooleanSchema('is_offensive', 'Whether the text contains offensive content'),
                 new ArraySchema(
@@ -89,11 +90,12 @@ class SentinelPrismSchema extends ObjectSchema
                                 requiredFields: [],
                             ),
                         ],
-                        requiredFields: ['text', 'match_type', 'score', 'confidence', 'occurrences'],
+                        requiredFields: ['text', 'match_type', 'score', 'confidence', 'occurrences', 'context'],
                     ),
                 ),
             ],
             requiredFields: [
+                'detected_language',
                 'is_offensive',
                 'offensive_words',
                 'categories',

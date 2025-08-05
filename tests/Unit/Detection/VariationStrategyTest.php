@@ -3,11 +3,16 @@
 namespace Tests\Unit\Detection;
 
 use Ninja\Sentinel\Detection\Strategy\VariationStrategy;
+use Ninja\Sentinel\Enums\LanguageCode;
 use Ninja\Sentinel\Enums\MatchType;
+use Ninja\Sentinel\Language\Collections\LanguageCollection;
 
 test('variation strategy detects separated characters', function (): void {
-    $strategy = new VariationStrategy(true);
-    $result = $strategy->detect('f u c k this', ['fuck']);
+    $languages = app(LanguageCollection::class);
+    $language = $languages->findByCode(LanguageCode::English);
+    $strategy = new VariationStrategy($languages, true);
+
+    $result = $strategy->detect('f u c k this', $language);
 
     expect($result)
         ->toHaveCount(1)
@@ -20,7 +25,10 @@ test('variation strategy detects separated characters', function (): void {
 });
 
 test('variation strategy handles multiple separators', function (): void {
-    $strategy = new VariationStrategy(false);
+    $languages = app(LanguageCollection::class);
+    $language = $languages->findByCode(LanguageCode::English);
+    $strategy = new VariationStrategy($languages, false);
+
     $variations = [
         'f.u.c.k',
         'f-u-c-k',
@@ -29,7 +37,7 @@ test('variation strategy handles multiple separators', function (): void {
     ];
 
     foreach ($variations as $text) {
-        $result = $strategy->detect($text, ['fuck']);
+        $result = $strategy->detect($text, $language);
 
         expect($result)
             ->toHaveCount(1);
@@ -37,16 +45,22 @@ test('variation strategy handles multiple separators', function (): void {
 });
 
 test('variation strategy handles multiple spaces between characters', function (): void {
-    $strategy = new VariationStrategy(true);
-    $result = $strategy->detect('f  u  c  k', ['fuck']);
+    $languages = app(LanguageCollection::class);
+    $language = $languages->findByCode(LanguageCode::English);
+    $strategy = new VariationStrategy($languages, true);
+
+    $result = $strategy->detect('f  u  c  k', $language);
 
     expect($result)
         ->toHaveCount(1);
 });
 
 test('variation strategy preserves other words', function (): void {
-    $strategy = new VariationStrategy(false);
-    $result = $strategy->detect('this f.u.c.k test and fuck88 as well', ['fuck']);
+    $languages = app(LanguageCollection::class);
+    $language = $languages->findByCode(LanguageCode::English);
+    $strategy = new VariationStrategy($languages, false);
+
+    $result = $strategy->detect('this f.u.c.k test and fuck88 as well', $language);
 
     expect($result)
         ->toHaveCount(2);

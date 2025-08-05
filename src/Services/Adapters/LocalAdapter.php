@@ -4,6 +4,7 @@ namespace Ninja\Sentinel\Services\Adapters;
 
 use Ninja\Sentinel\Collections\MatchCollection;
 use Ninja\Sentinel\Enums\Category;
+use Ninja\Sentinel\Enums\LanguageCode;
 use Ninja\Sentinel\Result\Result;
 use Ninja\Sentinel\Services\Contracts\ServiceResponse;
 use Ninja\Sentinel\ValueObject\Confidence;
@@ -61,6 +62,11 @@ final readonly class LocalAdapter extends AbstractAdapter
             public function sentiment(): ?Sentiment
             {
                 return $this->result->sentiment();
+            }
+
+            public function language(): LanguageCode
+            {
+                return $this->result->language();
             }
         };
     }

@@ -4,6 +4,7 @@ namespace Ninja\Sentinel\Services\Contracts;
 
 use Ninja\Sentinel\Collections\MatchCollection;
 use Ninja\Sentinel\Enums\Category;
+use Ninja\Sentinel\Enums\LanguageCode;
 use Ninja\Sentinel\ValueObject\Confidence;
 use Ninja\Sentinel\ValueObject\Score;
 use Ninja\Sentinel\ValueObject\Sentiment;
@@ -24,4 +25,5 @@ interface ServiceResponse
     public function categories(): ?array;
 
     public function sentiment(): ?Sentiment;
+    public function language(): LanguageCode;
 }
