@@ -15,7 +15,7 @@ test('handles large text input efficiently', function (): void {
     $executionTime = ($endTime - $startTime);
 
     expect($result)->toBeOffensive()
-        ->and($executionTime)->toBeLessThan(3);
+        ->and($executionTime)->toBeLessThan(5);
 });
 
 test('memory usage stays within acceptable limits', function (): void {

@@ -33,9 +33,7 @@ final class AlphanumericVariationStrategy extends AbstractStrategy
 
         $dictionary = iterator_to_array($language->words());
 
-        $prefixPattern = '/(\d*|[_\-\.]+)(%s)/iu';   // Para 123fuck
-        $suffixPattern = '/(%s)(\d*|[_\-\.]+)/iu';   // Para fuck123, fuck_88
-        $mixedPattern = '/(\d*|[_\-\.]+)(%s)(\d*|[_\-\.]+)/iu';   // Para 123fuck456
+        $basePattern = '/([\d_\-\.]*)?(%s)([\d_\-\.]*)?/iu';
 
         foreach ($dictionary as $word) {
             if (mb_strlen($word) < 3) {
@@ -43,15 +41,42 @@ final class AlphanumericVariationStrategy extends AbstractStrategy
             }
 
             $escapedWord = preg_quote($word, '/');
+            $currentPattern = sprintf($basePattern, $escapedWord);
 
-            $currentPattern = sprintf($prefixPattern, $escapedWord);
-            $this->findMatches($text, $currentPattern, $word, $matches, $language);
+            if (preg_match_all($currentPattern, $text, $found, PREG_OFFSET_CAPTURE)) {
+                foreach ($found[0] as $index => [$match, $offset]) {
+                    $prefix = $found[1][$index][0];
+                    $suffix = $found[3][$index][0];
 
-            $currentPattern = sprintf($suffixPattern, $escapedWord);
-            $this->findMatches($text, $currentPattern, $word, $matches, $language);
+                    if ('' === $prefix && '' === $suffix) {
+                        continue;
+                    }
 
-            $currentPattern = sprintf($mixedPattern, $escapedWord);
-            $this->findMatches($text, $currentPattern, $word, $matches, $language);
+                    $affixLength = mb_strlen($match) - mb_strlen($word);
+                    if ($affixLength > $this->maxAffixLength) {
+                        continue;
+                    }
+
+                    $occurrences = new OccurrenceCollection([
+                        new Position($offset, mb_strlen($match)),
+                    ]);
+
+                    $matches->addCoincidence(
+                        new Coincidence(
+                            word: $match,
+                            type: MatchType::Variation,
+                            score: Calculator::score($text, $match, MatchType::Variation, $occurrences, $language),
+                            confidence: Calculator::confidence($text, $match, MatchType::Variation, $occurrences),
+                            occurrences: $occurrences,
+                            language: $language->code(),
+                            context: [
+                                'original' => $word,
+                                'variation_type' => 'alphanumeric',
+                            ],
+                        ),
+                    );
+                }
+            }
         }
 
         return $matches;

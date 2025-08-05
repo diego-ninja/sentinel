@@ -46,19 +46,21 @@ final class SafeContextStrategy extends AbstractStrategy
         if (null === $language) {
             return $matches;
         }
-        $textWords = preg_split('/\s+/', $text);
 
-        if (empty($textWords)) {
+        // 1. Usamos preg_match_all para obtener todas las "palabras" y su posición (offset) exacta.
+        // Esto soluciona el problema de las palabras repetidas.
+        preg_match_all('/[\p{L}\p{N}]+/u', $text, $textWords, PREG_OFFSET_CAPTURE);
+
+        if (empty($textWords[0])) {
             return $matches;
         }
 
-        foreach ($textWords as $position => $textWord) {
-            $cleanWord = preg_replace('/[^\p{L}\p{N}]+/u', '', $textWord);
-            if (empty($cleanWord)) {
-                continue;
-            }
+        // Creamos un array de palabras para pasarlo a isSafe
+        $allWords = array_column($textWords[0], 0);
 
-            $cleanWord = mb_strtolower($cleanWord);
+        // Iteramos sobre las palabras encontradas con su offset
+        foreach ($textWords[0] as $position => [$textWord, $startPos]) {
+            $cleanWord = mb_strtolower($textWord);
 
             if (mb_strlen($cleanWord) < 3) {
                 continue;
@@ -68,38 +70,39 @@ final class SafeContextStrategy extends AbstractStrategy
             foreach ($language->words() as $offensiveWord) {
                 $offensiveWord = mb_strtolower($offensiveWord);
 
+                // Comprobamos si la palabra limpia es o contiene una palabra ofensiva
                 if ($cleanWord === $offensiveWord || false !== mb_strpos($cleanWord, $offensiveWord)) {
-                    // Check all language detectors
+                    // Si es potencialmente ofensiva, revisamos los contextos de lenguaje seguro
                     foreach ($language->contexts() as $context) {
                         /** @var Context $context */
-                        if ($context->isSafe($text, $cleanWord, $position, $textWords)) {
-                            $startPos = mb_strpos($text, $textWord);
+                        if ($context->isSafe($text, $cleanWord, $position, $allWords)) {
+                            $occurrences = new OccurrenceCollection([
+                                // Usamos la posición y longitud correctas obtenidas de preg_match_all
+                                new Position($startPos, mb_strlen($textWord)),
+                            ]);
 
-                            if (false !== $startPos) {
-                                $occurrences = new OccurrenceCollection([
-                                    new Position($startPos, mb_strlen($textWord)),
-                                ]);
+                            // Add as a match with safe language flag and negative score to counteract
+                            $matches->addCoincidence(
+                                new Coincidence(
+                                    word: $textWord,
+                                    type: MatchType::SafeContext,
+                                    score: new Score(self::SAFE_CONTEXT_SCORE),
+                                    confidence: new Confidence(self::SAFE_CONTEXT_CONFIDENCE),
+                                    occurrences: $occurrences,
+                                    language: $language->code(),
+                                    context: [
+                                        'safe_context' => true,
+                                        'original' => $offensiveWord,
+                                        'context_type' => $context->getContextType(),
+                                    ],
+                                ),
+                            );
 
-                                // Add as a match with safe language flag and negative score to counteract
-                                $matches->addCoincidence(
-                                    new Coincidence(
-                                        word: $textWord,
-                                        type: MatchType::SafeContext,
-                                        score: new Score(self::SAFE_CONTEXT_SCORE),
-                                        confidence: new Confidence(self::SAFE_CONTEXT_CONFIDENCE),
-                                        occurrences: $occurrences,
-                                        language: $language->code(),
-                                        context: [
-                                            'safe_context' => true,
-                                            'original' => $offensiveWord,
-                                            'context_type' => $context->getContextType(),
-                                        ],
-                                    ),
-                                );
-
-                                // Once we find a language match, no need to check other detectors
-                                break;
-                            }
+                            // 2. **LA CLAVE DEL ARREGLO**:
+                            // Una vez encontrada una coincidencia segura para $textWord,
+                            // salimos de los bucles de `contexts` y `words` para pasar
+                            // a la siguiente palabra del texto. Esto evita duplicados.
+                            continue 3;
                         }
                     }
                 }
