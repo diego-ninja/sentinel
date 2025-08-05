@@ -15,7 +15,9 @@ final readonly class VerbConjugationRule implements Rule
         $variants->push($this->generateRegularParticiple($word));
         $variants->push($this->generateRegularGerund($word));
 
-        return $variants->unique();
+        /** @var Collection<int,string> $uniqueVariants */
+        $uniqueVariants = $variants->unique()->values();
+        return $uniqueVariants;
     }
     public function name(): string
     {

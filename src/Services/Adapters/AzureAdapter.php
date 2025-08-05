@@ -44,7 +44,11 @@ final readonly class AzureAdapter extends AbstractAdapter
     {
         $language = app(LanguageCollection::class)->bestFor($text);
 
-        $matches = $this->createMatches($text, $response['blocklistsMatch'] ?? [], $language);
+        if ($language) {
+            $matches = $this->createMatches($text, $response['blocklistsMatch'] ?? [], $language);
+        } else {
+            $matches = new MatchCollection();
+        }
         $categories = [];
         $maxScore = 0.0;
         $avgConfidence = 0.0;

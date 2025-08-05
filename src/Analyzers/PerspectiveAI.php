@@ -175,25 +175,4 @@ final class PerspectiveAI extends AbstractAnalyzer
         return $attributes;
     }
 
-    /**
-     * Get language description for content type
-     *
-     * @param ContentType $contentType The content type
-     * @return string Context description
-     */
-    private function getContentTypeContext(ContentType $contentType): string
-    {
-        return match ($contentType) {
-            ContentType::Educational => "This is educational content, which may include terms used in an academic language.",
-            ContentType::Research => "This is research content, which may include discussion of sensitive topics in a scholarly language.",
-            ContentType::Medical => "This is medical content, which may include clinical terminology and discussions of the human body.",
-            ContentType::Legal => "This is legal content, which may include quotations or case discussions with potentially offensive language.",
-            ContentType::Blog => "This is blog content, which represents personal opinion.",
-            ContentType::News => "This is news content, which may include quotes and reporting on sensitive topics.",
-            ContentType::Forum => "This is forum content from an online discussion.",
-            ContentType::SocialMedia => "This is social media content.",
-            ContentType::Gaming => "This is gaming-related content.",
-            ContentType::Chat => "This is from a chat or messaging conversation.",
-        };
-    }
 }

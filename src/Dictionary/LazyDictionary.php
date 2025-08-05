@@ -38,10 +38,15 @@ final class LazyDictionary implements IteratorAggregate
         return $dictionary;
     }
 
+    /**
+     * @param Collection<int, string> $collection
+     */
     public static function withCollection(Collection $collection): self
     {
         $dictionary = new self(new LanguageCollection());
-        $dictionary->addWords($collection->unique()->all());
+        /** @var array<string> $words */
+        $words = $collection->unique()->all();
+        $dictionary->addWords($words);
 
         return $dictionary;
     }

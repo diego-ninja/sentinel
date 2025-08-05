@@ -39,22 +39,19 @@ final class LevenshteinStrategy extends AbstractStrategy
         $dictionary = iterator_to_array($language->words());
         $levenshtein = new OptimizedLevenshtein($dictionary);
 
-        $textWords = preg_split('/\s+/', $text);
-        if (false === $textWords) {
+        // Usamos preg_match_all para obtener palabras y sus posiciones originales
+        preg_match_all('/[\p{L}\p{N}]+/u', $text, $textWords, PREG_OFFSET_CAPTURE);
+        if (empty($textWords[0])) {
             return $matches;
         }
 
-        foreach ($textWords as $textWord) {
+        foreach ($textWords[0] as [$textWord, $offset]) {
+            // Comparamos la palabra limpia con el diccionario
             $similarWords = $levenshtein->findSimilar($textWord, $this->threshold);
-            if ( ! empty($similarWords)) {
-                $positions = [];
-                $pos = 0;
-                while (($pos = mb_stripos($text, $textWord, $pos)) !== false) {
-                    $positions[] = new Position($pos, mb_strlen($textWord));
-                    $pos += mb_strlen($textWord);
-                }
-
-                $occurrences = new OccurrenceCollection($positions);
+            if (! empty($similarWords)) {
+                $occurrences = new OccurrenceCollection([
+                    new Position($offset, mb_strlen($textWord))
+                ]);
 
                 $matches->addCoincidence(
                     new Coincidence(

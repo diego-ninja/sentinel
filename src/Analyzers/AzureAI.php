@@ -165,11 +165,11 @@ final class AzureAI extends AbstractAnalyzer
         if (isset($defaultThresholds[$category])) {
             $baseThreshold = $defaultThresholds[$category];
 
-            if (ContentType::Educational === $contentType && isset($educationalModifiers[$category])) {
+            if (ContentType::Educational === $contentType) {
                 return min(0.9, $baseThreshold + $educationalModifiers[$category]);
             }
 
-            if (ContentType::Research === $contentType && isset($researchModifiers[$category])) {
+            if (ContentType::Research === $contentType) {
                 return min(0.9, $baseThreshold + $researchModifiers[$category]);
             }
 

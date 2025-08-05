@@ -4,13 +4,18 @@
     <img src="./.github/assets/logo.png" alt="Sentinel Logo"/>
 </p>
 
-[![Laravel Package](https://img.shields.io/badge/Laravel%2010+%20Package-red?logo=laravel&logoColor=white)](https://www.laravel.com)
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/diego-ninja/sentinel.svg?style=flat&color=blue)](https://packagist.org/packages/diego-ninja/sentinel)
-[![Total Downloads](https://img.shields.io/packagist/dt/diego-ninja/sentinel.svg?style=flat&color=blue)](https://packagist.org/packages/diego-ninja/sentinel)
-![PHP Version](https://img.shields.io/packagist/php-v/diego-ninja/sentinel.svg?style=flat&color=blue)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-![GitHub last commit](https://img.shields.io/github/last-commit/diego-ninja/sentinel?color=blue)
-[![PHPStan Level](https://img.shields.io/badge/phpstan-level%2010-blue?logo=php)]()
+[![Laravel Package](https://img.shields.io/badge/Laravel%2010+%20Package-red?logo=laravel&logoColor=white&style=flat-square)](https://www.laravel.com)
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/diego-ninja/sentinel.svg?style=flat-square&color=blue&logoColor=%23949ca4&labelColor=%233f4750)](https://packagist.org/packages/diego-ninja/sentinel)
+[![Total Downloads](https://img.shields.io/packagist/dt/diego-ninja/sentinel.svg?style=flat-square&color=blue&logoColor=%23949ca4&labelColor=%233f4750)](https://packagist.org/packages/diego-ninja/sentinel)
+![PHP Version](https://img.shields.io/packagist/php-v/diego-ninja/sentinel.svg?style=flat-square&color=blue&logoColor=%23949ca4&labelColor=%233f4750)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square&color=blue&logoColor=%23949ca4&labelColor=%233f4750)](https://opensource.org/licenses/MIT)
+![GitHub last commit](https://img.shields.io/github/last-commit/diego-ninja/sentinel?style=flat-square&color=blue&logoColor=%23949ca4&labelColor=%233f4750)
+[![wakatime](https://wakatime.com/badge/user/bd65f055-c9f3-4f73-92aa-3c9810f70cc3/project/7b950600-2e9e-4660-906a-e8f65f555778.svg?style=flat-square&color=blue&logoColor=%23949ca4&labelColor=%233f4750)](https://wakatime.com/badge/user/bd65f055-c9f3-4f73-92aa-3c9810f70cc3/project/7b950600-2e9e-4660-906a-e8f65f555778)
+
+[![Tests](https://img.shields.io/github/actions/workflow/status/diego-ninja/sentinel/tests.yml?branch=main&style=flat-square&logo=github&label=Pest%20Tests&logoColor=%23949ca4&labelColor=%233f4750)]()
+[![Static Analysis](https://img.shields.io/github/actions/workflow/status/diego-ninja/sentinel/static-analysis.yml?branch=main&style=flat-square&logo=github&label=PHPStan%2010&logoColor=%23949ca4&labelColor=%233f4750)]()
+[![Code Style](https://img.shields.io/github/actions/workflow/status/diego-ninja/sentinel/code-style.yml?branch=main&style=flat-square&logo=github&label=Pint%3A%20PER&logoColor=%23949ca4&labelColor=%233f4750)]()
+[![Coveralls](https://img.shields.io/coverallsCoverage/github/diego-ninja/sentinel?branch=main&style=flat-square&logo=coveralls&logoColor=%23949ca4&labelColor=%233f4750&link=https%3A%2F%2Fcoveralls.io%2Fgithub%2Fdiego-ninja%2Fgranite)]()
 
 ## 🚀 Introduction
 
@@ -22,7 +27,6 @@ This documentation has been generated almost in its entirety using 🦠 [Claude 
 
 - Multiple service providers support:
     - Local dictionary-based analysis
-    - [PurgoMalum](https://www.purgomalum.com/)
     - [Tisane AI](https://tisane.ai/)
     - [Prism LLM](https://prism.echolabs.dev/) (with support for multiple LLMs)
     - [Azure AI](https://azure.microsoft.com/en-us/pricing/details/cognitive-services/content-safety/)

@@ -120,8 +120,50 @@ final readonly class StrategyVotingSystem
     private function combineVotedMatches(array $matchesByWord, float $totalWeight, string $text): MatchCollection
     {
         $finalCollection = new MatchCollection();
+        $processedPositions = [];
+        
+        // First, collect all SafeContext positions
+        $safeContextPositions = [];
+        foreach ($matchesByWord as $matches) {
+            foreach ($matches as $matchData) {
+                $match = $matchData['match'];
+                if ($match->type() === MatchType::SafeContext) {
+                    foreach ($match->occurrences() as $occurrence) {
+                        $safeContextPositions[] = [$occurrence->start(), $occurrence->start() + $occurrence->length() - 1];
+                    }
+                }
+            }
+        }
 
         foreach ($matchesByWord as $matches) {
+            // Skip SafeContext matches - they shouldn't appear in final results
+            $firstMatch = $matches[0]['match'];
+            if ($firstMatch->type() === MatchType::SafeContext) {
+                continue;
+            }
+            
+            // Check if this match overlaps with any SafeContext position
+            $overlapsWithSafeContext = false;
+            foreach ($matches as $matchData) {
+                $match = $matchData['match'];
+                foreach ($match->occurrences() as $occurrence) {
+                    $start = $occurrence->start();
+                    $end = $start + $occurrence->length() - 1;
+                    
+                    foreach ($safeContextPositions as [$safeStart, $safeEnd]) {
+                        if ($start <= $safeEnd && $end >= $safeStart) {
+                            $overlapsWithSafeContext = true;
+                            break 3;
+                        }
+                    }
+                }
+            }
+            
+            // If this match overlaps with a safe context, skip it
+            if ($overlapsWithSafeContext) {
+                continue;
+            }
+
             // Skip words with low confidence from all strategies
             if ($this->calculateAggregateConfidence($matches, $totalWeight) < self::MIN_CONFIDENCE_THRESHOLD) {
                 continue;
@@ -129,6 +171,38 @@ final readonly class StrategyVotingSystem
 
             // Find the match with highest original confidence
             $bestMatch = $this->getBestMatch($matches);
+            
+            // Check for overlapping positions to avoid duplicate detections
+            $shouldSkip = false;
+            foreach ($bestMatch->occurrences() as $occurrence) {
+                $start = $occurrence->start();
+                $end = $start + $occurrence->length() - 1;
+                
+                // Check if this position overlaps with any already processed position
+                foreach ($processedPositions as $processedRange) {
+                    [$processedStart, $processedEnd] = $processedRange;
+                    if ($start <= $processedEnd && $end >= $processedStart) {
+                        // There's an overlap, skip this match if it's shorter or same length
+                        if ($occurrence->length() <= ($processedEnd - $processedStart + 1)) {
+                            $shouldSkip = true;
+                            break 2;
+                        }
+                    }
+                }
+            }
+            
+            if (!$shouldSkip) {
+                foreach ($bestMatch->occurrences() as $occurrence) {
+                    $start = $occurrence->start();
+                    $end = $start + $occurrence->length() - 1;
+                    $processedPositions[] = [$start, $end];
+                }
+            }
+            
+            if ($shouldSkip) {
+                continue;
+            }
+
             $matchCount = count($matches);
 
             // Boost score based on agreement between strategies

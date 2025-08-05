@@ -160,6 +160,10 @@ class LanguageCollection extends Collection
          * }
          * } $data */
         $data = include $languagePath;
+        // Ensure rules field exists, initialize as empty array if missing
+        if (!isset($data['rules'])) {
+            $data['rules'] = [];
+        }
         return new Language($data, $code);
     }
 }

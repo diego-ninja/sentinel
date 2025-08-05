@@ -140,8 +140,8 @@ final readonly class Language implements LanguageContract
             'quotes' => [],
             'excuses' => [],
             'common_words' => [],
-            'word_count' => $words->count(),
-            'unique_word_count' => $words->unique()->count(),
+            'word_count' => (int) $words->count(),
+            'unique_word_count' => (int) $words->unique()->count(),
             'total_language_elements' => 0,
             'percentage_of_language_elements' => 0.0,
             'raw_score' => 0,
@@ -153,7 +153,7 @@ final readonly class Language implements LanguageContract
         }, 0);
 
         foreach ($details as $key => $detail) {
-            if (is_array($detail)) {
+            if (is_array($detail) && !in_array($key, ['word_count', 'unique_word_count', 'total_language_elements', 'percentage_of_language_elements', 'raw_score'])) {
                 $details[$key] = array_unique($detail);
             }
         }
@@ -176,12 +176,12 @@ final readonly class Language implements LanguageContract
         $after = mb_substr($text, $position + $length, min(100, mb_strlen($text) - $position - $length));
 
         $beforeWords = array_map(
-            fn(string $word) => mb_strtolower(preg_replace('/[^\p{L}\p{N}]+/u', '', $word)),
+            fn(string $word) => mb_strtolower((string) preg_replace('/[^\p{L}\p{N}]+/u', '', $word)),
             array_filter(explode(' ', $before), fn($word) => mb_strlen($word) > 0),
         );
 
         $afterWords = array_map(
-            fn(string $word) => mb_strtolower(preg_replace('/[^\p{L}\p{N}]+/u', '', $word)),
+            fn(string $word) => mb_strtolower((string) preg_replace('/[^\p{L}\p{N}]+/u', '', $word)),
             array_filter(explode(' ', $after), fn($word) => mb_strlen($word) > 0),
         );
 
@@ -337,8 +337,13 @@ final readonly class Language implements LanguageContract
 
     private function loadRules(): void
     {
+        if (!isset($this->data['rules']) || !is_array($this->data['rules'])) {
+            return;
+        }
+        
         foreach ($this->data['rules'] as $rule) {
-            if (is_callable($rule)) {
+            if (is_callable($rule) && $rule instanceof Rule) {
+                /** @var Rule $rule */
                 $this->rules->add($rule);
                 continue;
             }
@@ -348,6 +353,7 @@ final readonly class Language implements LanguageContract
                 $rule = new $rule();
             }
 
+            /** @var Rule $rule */
             $this->rules->add($rule);
         }
     }

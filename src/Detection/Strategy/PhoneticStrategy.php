@@ -21,10 +21,6 @@ final class PhoneticStrategy extends AbstractStrategy
      */
     private array $phoneticIndex = [];
 
-    /**
-     * @param LanguageCollection $languages
-     * @param PhoneticAlgorithm $algorithm
-     */
     public function __construct(
         protected LanguageCollection $languages,
         private readonly PhoneticAlgorithm $algorithm = PhoneticAlgorithm::Metaphone,
@@ -52,31 +48,35 @@ final class PhoneticStrategy extends AbstractStrategy
 
         foreach ($textWords as $textWord) {
             $cleanWord = preg_replace('/[^\p{L}\p{N}]+/u', '', $textWord);
-            if (null === $cleanWord) {
-                continue;
-            }
-
-            if (mb_strlen($cleanWord) < 3) {
+            if (empty($cleanWord) || mb_strlen($cleanWord) < 3) {
                 continue;
             }
 
             $phoneticKey = $this->getPhoneticKey($cleanWord);
-            if ( ! $phoneticKey || ! isset($this->phoneticIndex[$phoneticKey])) {
+            if (empty($phoneticKey) || ! isset($this->phoneticIndex[$phoneticKey])) {
                 continue;
             }
 
+            $originalWordMatch = null;
             foreach ($this->phoneticIndex[$phoneticKey] as $originalWord) {
+                // AÑADIDO: Comprobación Levenshtein para mayor precisión.
+                // Solo es una coincidencia si suena parecido Y se escribe parecido.
+                if (levenshtein(mb_strtolower($cleanWord), mb_strtolower($originalWord)) <= 2) {
+                    $originalWordMatch = $originalWord;
+                    break;
+                }
+            }
+
+            if ($originalWordMatch) {
                 $positions = [];
                 $pos = 0;
-
                 while (($pos = mb_stripos($text, $textWord, $pos)) !== false) {
                     $positions[] = new Position($pos, mb_strlen($textWord));
                     $pos += mb_strlen($textWord);
                 }
 
-                if ( ! empty($positions)) {
+                if (!empty($positions)) {
                     $occurrences = new OccurrenceCollection($positions);
-
                     $matches->addCoincidence(
                         new Coincidence(
                             word: $textWord,
@@ -86,7 +86,7 @@ final class PhoneticStrategy extends AbstractStrategy
                             occurrences: $occurrences,
                             language: $language->code(),
                             context: [
-                                'original' => $originalWord,
+                                'original' => $originalWordMatch,
                                 'variation_type' => 'phonetic',
                                 'algorithm' => $this->algorithm->value,
                                 'clean_word' => $cleanWord,
@@ -107,32 +107,29 @@ final class PhoneticStrategy extends AbstractStrategy
 
     /**
      * @param iterable<string> $words
-     * @return void
      */
     private function buildPhoneticIndex(iterable $words): void
     {
         foreach ($words as $word) {
             $cleanWord = preg_replace('/[^\p{L}\p{N}]+/u', '', $word);
-
-            if (null === $cleanWord) {
+            if (!is_string($cleanWord)) {
                 continue;
             }
 
-            if (mb_strlen($cleanWord) < 3) {
+            if (empty($cleanWord) || mb_strlen($cleanWord) < 3) {
                 continue;
             }
 
             $phoneticKey = $this->getPhoneticKey($cleanWord);
             if ($phoneticKey) {
+                if (!isset($this->phoneticIndex[$phoneticKey])) {
+                    $this->phoneticIndex[$phoneticKey] = [];
+                }
                 $this->phoneticIndex[$phoneticKey][] = $word;
             }
         }
     }
 
-    /**
-     * @param string $word
-     * @return string
-     */
     private function getPhoneticKey(string $word): string
     {
         $word = mb_strtolower($word);

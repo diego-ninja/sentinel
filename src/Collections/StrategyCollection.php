@@ -326,9 +326,4 @@ final class StrategyCollection extends Collection implements DetectionStrategy
         $this->items = $sorted->values()->all();
     }
 
-    private function orderByWeight(): void
-    {
-        $sorted = $this->sortByDesc(fn(DetectionStrategy $strategy) => $strategy->weight());
-        $this->items = $sorted->values()->all();
-    }
 }

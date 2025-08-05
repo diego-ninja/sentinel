@@ -45,6 +45,7 @@ final readonly class AffixRule implements Rule
      */
     private function addPrefixVariants(string $word, Collection $prefixes, Collection $variants): Collection
     {
+        /** @var Collection<int, string> $prefixedVariants */
         $prefixedVariants = collect();
 
         foreach ($prefixes as $prefix) {
@@ -54,6 +55,8 @@ final readonly class AffixRule implements Rule
             }
         }
 
-        return $variants->merge($prefixedVariants);
+        /** @var Collection<int,string> $merged */
+        $merged = $variants->merge($prefixedVariants);
+        return $merged;
     }
 }

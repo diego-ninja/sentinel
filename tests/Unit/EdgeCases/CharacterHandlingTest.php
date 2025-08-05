@@ -11,7 +11,7 @@ test('handles unicode characters correctly', function (): void {
         'fūćk' => '****',
         'シット' => 'シット',
         'мат' => 'мат',
-        'f♥ck' => '****',
+        'f♥ck' => '****', // El ♥ DEBE detectarse como substitución de 'u'
         'sh!t' => '****',
         'fück' => '****',
         'fûck' => '****',

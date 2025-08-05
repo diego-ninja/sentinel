@@ -48,7 +48,13 @@ final class AlphanumericVariationStrategy extends AbstractStrategy
                     $prefix = $found[1][$index][0];
                     $suffix = $found[3][$index][0];
 
+                    // Solo procesar si hay alfijos alfanuméricos
                     if ('' === $prefix && '' === $suffix) {
+                        continue;
+                    }
+                    
+                    // Verificar que al menos uno de los alfijos contenga números
+                    if (!preg_match('/\d/', $prefix . $suffix)) {
                         continue;
                     }
 
@@ -87,46 +93,4 @@ final class AlphanumericVariationStrategy extends AbstractStrategy
         return MatchType::Variation->weight() - 0.05;
     }
 
-    /**
-     * @param string $text
-     * @param string $pattern
-     * @param string $baseWord
-     * @param MatchCollection $matches
-     * @param Language $language
-     */
-    private function findMatches(
-        string $text,
-        string $pattern,
-        string $baseWord,
-        MatchCollection $matches,
-        Language $language,
-    ): void {
-        if (preg_match_all($pattern, $text, $found, PREG_OFFSET_CAPTURE)) {
-            foreach ($found[0] as [$match, $offset]) {
-                $affixLength = mb_strlen($match) - mb_strlen($baseWord);
-                if ($affixLength > $this->maxAffixLength) {
-                    continue;
-                }
-
-                $occurrences = new OccurrenceCollection([
-                    new Position($offset, mb_strlen($match)),
-                ]);
-
-                $matches->addCoincidence(
-                    new Coincidence(
-                        word: $match,
-                        type: MatchType::Variation,
-                        score: Calculator::score($text, $match, MatchType::Variation, $occurrences, $language),
-                        confidence: Calculator::confidence($text, $match, MatchType::Variation, $occurrences),
-                        occurrences: $occurrences,
-                        language: $language->code(),
-                        context: [
-                            'original' => $baseWord,
-                            'variation_type' => 'alphanumeric',
-                        ],
-                    ),
-                );
-            }
-        }
-    }
 }

@@ -42,35 +42,37 @@ final readonly class TisaneAdapter extends AbstractAdapter
 
         $language = app(LanguageCollection::class)->bestFor($text);
 
-        foreach ($response['abuse'] ?? [] as $abuse) {
-            $occurrences = new OccurrenceCollection([
-                new Position($abuse['offset'], $abuse['length']),
-            ]);
+        if ($language) {
+            foreach ($response['abuse'] ?? [] as $abuse) {
+                $occurrences = new OccurrenceCollection([
+                    new Position($abuse['offset'], $abuse['length']),
+                ]);
 
-            try {
-                $category = Category::fromTisane($abuse['type']);
-                if ( ! in_array($category, $categories)) {
-                    $categories[] = $category;
+                try {
+                    $category = Category::fromTisane($abuse['type']);
+                    if ( ! in_array($category, $categories)) {
+                        $categories[] = $category;
+                    }
+                } catch (InvalidArgumentException) {
+                    continue;
                 }
-            } catch (InvalidArgumentException) {
-                continue;
+
+                $matches->addCoincidence(
+                    new Coincidence(
+                        word: $abuse['text'],
+                        type: MatchType::Exact,
+                        score: Calculator::score($text, $abuse['text'], MatchType::Exact, $occurrences, $language),
+                        confidence: Calculator::confidence($text, $abuse['text'], MatchType::Exact, $occurrences),
+                        occurrences: $occurrences,
+                        language: $language->code(),
+                        context: [
+                            'type' => $abuse['type'],
+                            'severity' => $abuse['severity'],
+                        ],
+                    ),
+                );
+
             }
-
-            $matches->addCoincidence(
-                new Coincidence(
-                    word: $abuse['text'],
-                    type: MatchType::Exact,
-                    score: Calculator::score($text, $abuse['text'], MatchType::Exact, $occurrences, $language),
-                    confidence: Calculator::confidence($text, $abuse['text'], MatchType::Exact, $occurrences),
-                    occurrences: $occurrences,
-                    language: $language?->code() ?? LanguageCode::English,
-                    context: [
-                        'type' => $abuse['type'],
-                        'severity' => $abuse['severity'],
-                    ],
-                ),
-            );
-
         }
 
         $sentiment = $this->createSentiment($response['sentiment']);

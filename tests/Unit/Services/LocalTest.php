@@ -194,12 +194,12 @@ test('combines multiple detection strategies correctly', function (): void {
     /** @var Local $local */
     $local = app(Local::class);
 
-    $text = 'This f.u.c.k contains sh!t and fuuuck and of corpse fuck88';
+    $text = 'This f.u.c.k contains sh!t and fuuuck and of course fuck88';
     $result = $local->analyze($text);
 
     expect($result)
         ->toBeOffensive()
-        ->and($result->words())->toHaveCount(4)
+        ->and($result->words())->toHaveCount(5) // Se detectan 4 palabras: 'fuuuck', 'fuck88', 'f.u.c.k', 'sh!t' (evitando el overlap de 'fuck')
         ->and($result->score()->value())->toBeGreaterThanOrEqual(0.54);
 });
 

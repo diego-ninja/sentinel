@@ -41,6 +41,15 @@
         "laravel/octane": "^2.6",
         "wulfheart/laravel-actions-ide-helper": "^0.8.0"
     },
+    "scripts": {
+      "test": "pest",
+      "test:unit": "pest --testsuite=Unit",
+      "test:coverage": "pest --coverage-clover coverage/clover.xml --coverage-html coverage/html --coverage-text coverage/coverage.txt",
+      "test:coverage-clover": "pest --coverage-clover coverage/clover.xml",
+      "analyse": "phpstan analyse",
+      "cs:check": "pint --test src tests",
+      "cs:fix": "pint src tests"
+    },
     "autoload": {
         "psr-4": {
             "Ninja\\Sentinel\\": "src/"
