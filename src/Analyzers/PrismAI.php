@@ -15,7 +15,6 @@ use Ninja\Sentinel\Analyzers\Contracts\Analyzer;
 use Ninja\Sentinel\Enums\Audience;
 use Ninja\Sentinel\Enums\ContentType;
 use Ninja\Sentinel\Enums\LanguageCode;
-use Ninja\Sentinel\Language\Collections\LanguageCollection;
 use Ninja\Sentinel\Language\Language;
 use Ninja\Sentinel\Result\Builder\ResultBuilder;
 use Ninja\Sentinel\Result\Contracts\Result;

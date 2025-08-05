@@ -6,10 +6,8 @@ use Lorisleiva\Actions\Concerns\AsAction;
 use Ninja\Sentinel\Analyzers\Contracts\Analyzer;
 use Ninja\Sentinel\Enums\Audience;
 use Ninja\Sentinel\Enums\ContentType;
-use Ninja\Sentinel\Enums\LanguageCode;
 use Ninja\Sentinel\Http\Requests\TextAnalysisRequest;
 use Ninja\Sentinel\Http\Resources\ResultResource;
-use Ninja\Sentinel\Language\Collections\LanguageCollection;
 use Ninja\Sentinel\Language\Language;
 use Ninja\Sentinel\Result\Contracts\Result;
 

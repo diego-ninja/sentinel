@@ -52,9 +52,9 @@ final class AlphanumericVariationStrategy extends AbstractStrategy
                     if ('' === $prefix && '' === $suffix) {
                         continue;
                     }
-                    
+
                     // Verificar que al menos uno de los alfijos contenga números
-                    if (!preg_match('/\d/', $prefix . $suffix)) {
+                    if ( ! preg_match('/\d/', $prefix . $suffix)) {
                         continue;
                     }
 

@@ -2,12 +2,12 @@
 
 use Ninja\Sentinel\Cache\RedisPatternCache;
 
-describe('RedisPatternCache', function () {
-    beforeEach(function () {
+describe('RedisPatternCache', function (): void {
+    beforeEach(function (): void {
         $this->cache = new RedisPatternCache();
     });
 
-    it('can instantiate cache without errors', function () {
+    it('can instantiate cache without errors', function (): void {
         $cache = new RedisPatternCache();
         expect($cache)->toBeInstanceOf(RedisPatternCache::class);
     });

@@ -48,9 +48,9 @@ final class LevenshteinStrategy extends AbstractStrategy
         foreach ($textWords[0] as [$textWord, $offset]) {
             // Comparamos la palabra limpia con el diccionario
             $similarWords = $levenshtein->findSimilar($textWord, $this->threshold);
-            if (! empty($similarWords)) {
+            if ( ! empty($similarWords)) {
                 $occurrences = new OccurrenceCollection([
-                    new Position($offset, mb_strlen($textWord))
+                    new Position($offset, mb_strlen($textWord)),
                 ]);
 
                 $matches->addCoincidence(

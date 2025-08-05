@@ -68,19 +68,19 @@ final class PatternGenerator
     {
         $escaped = preg_quote($word, '/');
 
-        if (! $this->fullWords) {
+        if ( ! $this->fullWords) {
             return $escaped;
         }
 
         return str_ireplace(
             array_keys($this->replacements),
             array_values($this->replacements),
-            $escaped
+            $escaped,
         );
     }
 
     private function isValidPattern(string $pattern): bool
     {
-        return @preg_match($pattern, '') !== false;
+        return false !== @preg_match($pattern, '');
     }
 }

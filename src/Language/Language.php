@@ -153,7 +153,7 @@ final readonly class Language implements LanguageContract
         }, 0);
 
         foreach ($details as $key => $detail) {
-            if (is_array($detail) && !in_array($key, ['word_count', 'unique_word_count', 'total_language_elements', 'percentage_of_language_elements', 'raw_score'])) {
+            if (is_array($detail) && ! in_array($key, ['word_count', 'unique_word_count', 'total_language_elements', 'percentage_of_language_elements', 'raw_score'])) {
                 $details[$key] = array_unique($detail);
             }
         }
@@ -337,10 +337,10 @@ final readonly class Language implements LanguageContract
 
     private function loadRules(): void
     {
-        if (!isset($this->data['rules']) || !is_array($this->data['rules'])) {
+        if ( ! isset($this->data['rules']) || ! is_array($this->data['rules'])) {
             return;
         }
-        
+
         foreach ($this->data['rules'] as $rule) {
             if (is_callable($rule) && $rule instanceof Rule) {
                 /** @var Rule $rule */

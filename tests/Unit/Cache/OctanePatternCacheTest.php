@@ -2,17 +2,17 @@
 
 use Ninja\Sentinel\Cache\OctanePatternCache;
 
-describe('OctanePatternCache', function () {
-    beforeEach(function () {
+describe('OctanePatternCache', function (): void {
+    beforeEach(function (): void {
         $this->cache = new OctanePatternCache();
     });
 
-    it('can instantiate cache without errors', function () {
+    it('can instantiate cache without errors', function (): void {
         $cache = new OctanePatternCache();
         expect($cache)->toBeInstanceOf(OctanePatternCache::class);
     });
 
-    it('stores and retrieves patterns correctly', function () {
+    it('stores and retrieves patterns correctly', function (): void {
         $key = 'test_pattern';
         $pattern = 'test_pattern_value';
 

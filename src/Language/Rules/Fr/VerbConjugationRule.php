@@ -27,7 +27,7 @@ final readonly class VerbConjugationRule implements Rule
     private function generateRegularParticiple(string $word): string
     {
         // Para verbos terminados en "-er": quitar "-er" y añadir "-é"
-        if (mb_substr($word, -2) === 'er') {
+        if ('er' === mb_substr($word, -2)) {
             return mb_substr($word, 0, -2) . 'é';
         }
         // Regla general: añadir "-é"
@@ -37,10 +37,10 @@ final readonly class VerbConjugationRule implements Rule
     private function generateRegularGerund(string $word): string
     {
         // Para verbos terminados en "-er": quitar "-er" y añadir "-ant"
-        if (mb_substr($word, -2) === 'er') {
+        if ('er' === mb_substr($word, -2)) {
             $stem = mb_substr($word, 0, -2);
             // Verbos terminados en "-ger": añadir "e" antes de "-ant"
-            if (mb_substr($stem, -1) === 'g') {
+            if ('g' === mb_substr($stem, -1)) {
                 return $stem . 'eant';
             }
             return $stem . 'ant';

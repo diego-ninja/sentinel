@@ -23,7 +23,7 @@ final readonly class PluralizeRule implements Rule
             'man' => 'men',
             'woman' => 'women',
             'goose' => 'geese',
-            'person' => 'people'
+            'person' => 'people',
         ];
 
         if (isset($irregulars[$word])) {

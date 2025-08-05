@@ -75,7 +75,7 @@ final class PhoneticStrategy extends AbstractStrategy
                     $pos += mb_strlen($textWord);
                 }
 
-                if (!empty($positions)) {
+                if ( ! empty($positions)) {
                     $occurrences = new OccurrenceCollection($positions);
                     $matches->addCoincidence(
                         new Coincidence(
@@ -112,7 +112,7 @@ final class PhoneticStrategy extends AbstractStrategy
     {
         foreach ($words as $word) {
             $cleanWord = preg_replace('/[^\p{L}\p{N}]+/u', '', $word);
-            if (!is_string($cleanWord)) {
+            if ( ! is_string($cleanWord)) {
                 continue;
             }
 
@@ -122,7 +122,7 @@ final class PhoneticStrategy extends AbstractStrategy
 
             $phoneticKey = $this->getPhoneticKey($cleanWord);
             if ($phoneticKey) {
-                if (!isset($this->phoneticIndex[$phoneticKey])) {
+                if ( ! isset($this->phoneticIndex[$phoneticKey])) {
                     $this->phoneticIndex[$phoneticKey] = [];
                 }
                 $this->phoneticIndex[$phoneticKey][] = $word;

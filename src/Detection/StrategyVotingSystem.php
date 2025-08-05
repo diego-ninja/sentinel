@@ -121,13 +121,13 @@ final readonly class StrategyVotingSystem
     {
         $finalCollection = new MatchCollection();
         $processedPositions = [];
-        
+
         // First, collect all SafeContext positions
         $safeContextPositions = [];
         foreach ($matchesByWord as $matches) {
             foreach ($matches as $matchData) {
                 $match = $matchData['match'];
-                if ($match->type() === MatchType::SafeContext) {
+                if (MatchType::SafeContext === $match->type()) {
                     foreach ($match->occurrences() as $occurrence) {
                         $safeContextPositions[] = [$occurrence->start(), $occurrence->start() + $occurrence->length() - 1];
                     }
@@ -138,10 +138,10 @@ final readonly class StrategyVotingSystem
         foreach ($matchesByWord as $matches) {
             // Skip SafeContext matches - they shouldn't appear in final results
             $firstMatch = $matches[0]['match'];
-            if ($firstMatch->type() === MatchType::SafeContext) {
+            if (MatchType::SafeContext === $firstMatch->type()) {
                 continue;
             }
-            
+
             // Check if this match overlaps with any SafeContext position
             $overlapsWithSafeContext = false;
             foreach ($matches as $matchData) {
@@ -149,7 +149,7 @@ final readonly class StrategyVotingSystem
                 foreach ($match->occurrences() as $occurrence) {
                     $start = $occurrence->start();
                     $end = $start + $occurrence->length() - 1;
-                    
+
                     foreach ($safeContextPositions as [$safeStart, $safeEnd]) {
                         if ($start <= $safeEnd && $end >= $safeStart) {
                             $overlapsWithSafeContext = true;
@@ -158,7 +158,7 @@ final readonly class StrategyVotingSystem
                     }
                 }
             }
-            
+
             // If this match overlaps with a safe context, skip it
             if ($overlapsWithSafeContext) {
                 continue;
@@ -171,13 +171,13 @@ final readonly class StrategyVotingSystem
 
             // Find the match with highest original confidence
             $bestMatch = $this->getBestMatch($matches);
-            
+
             // Check for overlapping positions to avoid duplicate detections
             $shouldSkip = false;
             foreach ($bestMatch->occurrences() as $occurrence) {
                 $start = $occurrence->start();
                 $end = $start + $occurrence->length() - 1;
-                
+
                 // Check if this position overlaps with any already processed position
                 foreach ($processedPositions as $processedRange) {
                     [$processedStart, $processedEnd] = $processedRange;
@@ -190,15 +190,15 @@ final readonly class StrategyVotingSystem
                     }
                 }
             }
-            
-            if (!$shouldSkip) {
+
+            if ( ! $shouldSkip) {
                 foreach ($bestMatch->occurrences() as $occurrence) {
                     $start = $occurrence->start();
                     $end = $start + $occurrence->length() - 1;
                     $processedPositions[] = [$start, $end];
                 }
             }
-            
+
             if ($shouldSkip) {
                 continue;
             }
