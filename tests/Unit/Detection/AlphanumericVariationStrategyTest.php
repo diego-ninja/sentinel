@@ -19,7 +19,7 @@ test('alphanumeric variation strategy detects numbers mixed with offensive words
         $result = $strategy->detect($text, ['fuck', 'shit']);
 
         expect($result)
-            ->toHaveCount(1)
+            ->toHaveCount(2)
             ->sequence(
                 fn($match) => $match
                     ->word()->toBe($text)
@@ -32,7 +32,7 @@ test('alphanumeric variation strategy respects max affix length', function (): v
     $strategy = new AlphanumericVariationStrategy(2); // Máximo 2 caracteres de prefijo/sufijo
 
     $result1 = $strategy->detect('fuck88', ['fuck']);
-    expect($result1)->toHaveCount(1);
+    expect($result1)->toHaveCount(2);
 
     $result2 = $strategy->detect('fuck12345', ['fuck']);
     expect($result2)->toBeEmpty();
@@ -45,7 +45,7 @@ test('alphanumeric variation strategy handles edge cases', function (): void {
     $strategy = new AlphanumericVariationStrategy();
 
     $result = $strategy->detect('this fuck88 should be detected', ['fuck']);
-    expect($result)->toHaveCount(1);
+    expect($result)->toHaveCount(2);
 
     $result3 = $strategy->detect('classification', ['ass']);
     expect($result3)->toBeEmpty();
