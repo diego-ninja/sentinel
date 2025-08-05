@@ -33,9 +33,9 @@ final class AlphanumericVariationStrategy extends AbstractStrategy
 
         $dictionary = iterator_to_array($language->words());
 
-        $prefixPattern = '/(\d+|[_\-\.]+)(%s)/iu';   // Para 123fuck
-        $suffixPattern = '/(%s)(\d+|[_\-\.]+)/iu';   // Para fuck123, fuck_88
-        $mixedPattern = '/(\d+|[_\-\.]+)(%s)(\d+|[_\-\.]+)/iu';   // Para 123fuck456
+        $prefixPattern = '/(\d*|[_\-\.]+)(%s)/iu';   // Para 123fuck
+        $suffixPattern = '/(%s)(\d*|[_\-\.]+)/iu';   // Para fuck123, fuck_88
+        $mixedPattern = '/(\d*|[_\-\.]+)(%s)(\d*|[_\-\.]+)/iu';   // Para 123fuck456
 
         foreach ($dictionary as $word) {
             if (mb_strlen($word) < 3) {
