@@ -237,7 +237,7 @@ return [
     */
     'services' => [
         'prism_ai' => [
-            'provider' => EchoLabs\Prism\Enums\Provider::from(env('PRISM_PROVIDER', EchoLabs\Prism\Enums\Provider::Anthropic->value)),
+            'provider' => Prism\Prism\Enums\Provider::from(env('PRISM_PROVIDER', Prism\Prism\Enums\Provider::Anthropic->value)),
             'model' => env('PRISM_MODEL', 'claude-3-5-sonnet-20241022'),
         ],
         'perspective_ai' => [

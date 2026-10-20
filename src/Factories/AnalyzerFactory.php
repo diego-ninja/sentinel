@@ -2,7 +2,6 @@
 
 namespace Ninja\Sentinel\Factories;
 
-use EchoLabs\Prism\Prism;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Ninja\Sentinel\Analyzers\AzureAI;
 use Ninja\Sentinel\Analyzers\Contracts\Analyzer;
@@ -15,6 +14,7 @@ use Ninja\Sentinel\Enums\Provider;
 use Ninja\Sentinel\Processors\Contracts\Processor;
 use Ninja\Sentinel\Services\Contracts\ServiceAdapter;
 use Ninja\Sentinel\Services\Pipeline\TransformationPipeline;
+use Prism\Prism\Prism;
 use RuntimeException;
 
 final readonly class AnalyzerFactory

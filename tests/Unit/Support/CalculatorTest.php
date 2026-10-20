@@ -19,9 +19,9 @@ test('calculator applies text length normalization for long texts', function ():
     ]);
 
     // Long text (same offensive word, but in a much longer language)
-    $longText = str_repeat('This is some innocent content. ', 100) .
-        'This has the word fuck in it. ' .
-        str_repeat('More innocent content here. ', 100);
+    $longText = str_repeat('This is some innocent content. ', 100)
+        . 'This has the word fuck in it. '
+        . str_repeat('More innocent content here. ', 100);
     $longOccurrences = new OccurrenceCollection([
         new Position(2400, 4), // approximate position in the long text
     ]);
@@ -59,11 +59,11 @@ test('calculator applies higher scores for multiple occurrences in long text', f
     $language = app(Language::class);
 
     // Long text with multiple occurrences of the same word
-    $longText = str_repeat('This is some innocent content. ', 50) .
-        'This has the word fuck in it. ' .
-        str_repeat('More innocent content. ', 20) .
-        'Another occurrence of fuck here. ' .
-        str_repeat('Final innocent content. ', 50);
+    $longText = str_repeat('This is some innocent content. ', 50)
+        . 'This has the word fuck in it. '
+        . str_repeat('More innocent content. ', 20)
+        . 'Another occurrence of fuck here. '
+        . str_repeat('Final innocent content. ', 50);
 
     $multipleOccurrences = new OccurrenceCollection([
         new Position(1000, 4), // First "fuck"

@@ -152,13 +152,11 @@ final readonly class Language implements LanguageContract
             return $carry + $wordScore;
         }, 0);
 
-        foreach ($details as $key => $detail) {
-            if (is_array($detail) && ! in_array($key, ['word_count', 'unique_word_count', 'total_language_elements', 'percentage_of_language_elements', 'raw_score'])) {
-                $details[$key] = array_unique($detail);
-            }
+        foreach (['pronouns', 'markers', 'intensifiers', 'modifiers', 'quotes', 'excuses', 'common_words'] as $key) {
+            $details[$key] = array_values(array_unique($details[$key]));
         }
 
-        $details["total_language_elements"] = (fn(array $details): int => array_reduce($details, fn($carry, $item) => $carry + (is_array($item) ? count($item) : 0), 0))($details);
+        $details["total_language_elements"] = array_reduce($details, fn(int $carry, array|int|float $item): int => $carry + (is_array($item) ? count($item) : 0), 0);
         $details["percentage_of_language_elements"] = $words->count() > 0 ? ($details["total_language_elements"] / $words->count()) * 100 : 0;
         $details["raw_score"] = $rawScore;
 
@@ -286,8 +284,8 @@ final readonly class Language implements LanguageContract
     public function isModifier(string $word): bool
     {
         return
-            $this->positive_modifiers->contains($word) ||
-            $this->negative_modifiers->contains($word);
+            $this->positive_modifiers->contains($word)
+            || $this->negative_modifiers->contains($word);
     }
 
     public function isPositive(string $word): bool

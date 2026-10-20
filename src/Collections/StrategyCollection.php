@@ -237,8 +237,8 @@ final class StrategyCollection extends Collection implements DetectionStrategy
         }
 
         // If high confidence and score found, terminate
-        if ($matches->confidence()->value() > $threshold &&
-            $matches->score()->value() > $threshold) {
+        if ($matches->confidence()->value() > $threshold
+            && $matches->score()->value() > $threshold) {
             return true;
         }
 

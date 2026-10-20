@@ -1,6 +1,6 @@
 {
     "name": "diego-ninja/sentinel",
-    "description": "A content moderation and sentiment analysis library for Laravel 10+",
+    "description": "A content moderation and sentiment analysis library for Laravel 11+",
 	"keywords": ["profanity", "filter", "strings", "swear", "language", "laravel", "content", "moderation"],
 	"license": "MIT",
     "homepage": "https://github.com/diego-ninja/sentinel",
@@ -18,28 +18,27 @@
         "ext-intl": "*",
         "ext-mbstring": "*",
         "guzzlehttp/guzzle": "^7",
-        "illuminate/contracts": "^10.0|^11.0|^12.0",
-        "illuminate/http": "^10.0|^11.0|^12.0",
-        "illuminate/support": "^10.0|^11.0|^12.0",
-        "symfony/string": "^7.2",
+        "illuminate/contracts": "^11.0|^12.0|^13.0",
+        "illuminate/http": "^11.0|^12.0|^13.0",
+        "illuminate/support": "^11.0|^12.0|^13.0",
+        "symfony/string": "^7.2|^8.0",
         "google/cloud-language": "^0.34.1",
         "aws/aws-sdk-php": "^3.334",
-        "echolabsdev/prism": "^0.40.0",
-        "lorisleiva/laravel-actions": "^2.8"
+        "prism-php/prism": "^0.100.1",
+        "lorisleiva/laravel-actions": "^2.12"
     },
     "require-dev": {
-        "phpunit/phpunit": "^11",
+        "phpunit/phpunit": "^11|^12",
         "barryvdh/laravel-ide-helper": "^3.1",
         "larastan/larastan": "^3.0",
         "laravel/pint": "^1.18",
         "mockery/mockery": "^1.4.4",
-        "orchestra/testbench": "^9.6",
-        "pestphp/pest": "^2 || ^3",
+        "orchestra/testbench": "^9.6|^10.0|^11.0",
+        "pestphp/pest": "^3|^4",
         "phpstan/phpstan": "^2",
         "phpstan/phpstan-deprecation-rules": "^2",
         "phpstan/phpstan-strict-rules": "^2",
-        "laravel/octane": "^2.6",
-        "wulfheart/laravel-actions-ide-helper": "^0.8.0"
+        "laravel/octane": "^2.6"
     },
     "scripts": {
       "test": "pest",

@@ -2,11 +2,11 @@
 
 namespace Ninja\Sentinel\Schemas;
 
-use EchoLabs\Prism\Schema\ArraySchema;
-use EchoLabs\Prism\Schema\BooleanSchema;
-use EchoLabs\Prism\Schema\NumberSchema;
-use EchoLabs\Prism\Schema\ObjectSchema;
-use EchoLabs\Prism\Schema\StringSchema;
+use Prism\Prism\Schema\ArraySchema;
+use Prism\Prism\Schema\BooleanSchema;
+use Prism\Prism\Schema\NumberSchema;
+use Prism\Prism\Schema\ObjectSchema;
+use Prism\Prism\Schema\StringSchema;
 
 class SentinelPrismSchema extends ObjectSchema
 {

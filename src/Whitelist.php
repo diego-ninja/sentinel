@@ -53,9 +53,9 @@ final class Whitelist
                         'word' => $word,
                     ];
 
-                    $processed = mb_substr($processed, 0, $pos) .
-                        $placeholder .
-                        mb_substr($processed, $pos + mb_strlen($word));
+                    $processed = mb_substr($processed, 0, $pos)
+                        . $placeholder
+                        . mb_substr($processed, $pos + mb_strlen($word));
 
                     $pos += mb_strlen($placeholder);
                 } else {

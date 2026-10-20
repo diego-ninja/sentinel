@@ -45,7 +45,7 @@ describe('StrategyVotingSystem', function (): void {
 
     it('works with mock strategy that returns matches', function (): void {
         // Create a mock strategy that always returns a match for 'fuck'
-        $mockStrategy = new class () implements DetectionStrategy {
+        $mockStrategy = new class implements DetectionStrategy {
             public function detect(string $text, ?Language $language = null): MatchCollection
             {
                 $matches = new MatchCollection();
@@ -94,7 +94,7 @@ describe('StrategyVotingSystem', function (): void {
     });
 
     it('works with clean text and mock strategy', function (): void {
-        $mockStrategy = new class () implements DetectionStrategy {
+        $mockStrategy = new class implements DetectionStrategy {
             public function detect(string $text, ?Language $language = null): MatchCollection
             {
                 return new MatchCollection(); // Always return empty for clean text
@@ -128,7 +128,7 @@ describe('StrategyVotingSystem', function (): void {
 
     it('handles multiple strategies with voting', function (): void {
         // First strategy that detects 'fuck'
-        $strategy1 = new class () implements DetectionStrategy {
+        $strategy1 = new class implements DetectionStrategy {
             public function detect(string $text, ?Language $language = null): MatchCollection
             {
                 $matches = new MatchCollection();
@@ -163,7 +163,7 @@ describe('StrategyVotingSystem', function (): void {
         };
 
         // Second strategy that detects 'shit'
-        $strategy2 = new class () implements DetectionStrategy {
+        $strategy2 = new class implements DetectionStrategy {
             public function detect(string $text, ?Language $language = null): MatchCollection
             {
                 $matches = new MatchCollection();
@@ -210,7 +210,7 @@ describe('StrategyVotingSystem', function (): void {
     });
 
     it('works without language parameter', function (): void {
-        $mockStrategy = new class () implements DetectionStrategy {
+        $mockStrategy = new class implements DetectionStrategy {
             public function detect(string $text, ?Language $language = null): MatchCollection
             {
                 $matches = new MatchCollection();
@@ -255,7 +255,7 @@ describe('StrategyVotingSystem', function (): void {
     });
 
     it('handles empty text', function (): void {
-        $mockStrategy = new class () implements DetectionStrategy {
+        $mockStrategy = new class implements DetectionStrategy {
             public function detect(string $text, ?Language $language = null): MatchCollection
             {
                 return new MatchCollection();

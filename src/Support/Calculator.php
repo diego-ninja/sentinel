@@ -153,8 +153,8 @@ final readonly class Calculator
         }
 
         // Logarithmic scaling for longer texts
-        return self::SHORT_TEXT_THRESHOLD +
-            (log10(max(1, $totalWords - self::SHORT_TEXT_THRESHOLD)) * self::NORMALIZATION_FACTOR);
+        return self::SHORT_TEXT_THRESHOLD
+            + (log10(max(1, $totalWords - self::SHORT_TEXT_THRESHOLD)) * self::NORMALIZATION_FACTOR);
     }
 
     /**

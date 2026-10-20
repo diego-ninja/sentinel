@@ -11,6 +11,14 @@ jobs:
     strategy:
       matrix:
         php-version: ['8.3', '8.4']
+        laravel: ['11.*', '12.*', '13.*']
+        include:
+          - laravel: '11.*'
+            testbench: '^9.6'
+          - laravel: '12.*'
+            testbench: '^10.0'
+          - laravel: '13.*'
+            testbench: '^11.0'
 
     steps:
       - name: Checkout code
@@ -20,7 +28,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-version }}
-          extensions: mbstring, dom, fileinfo, mysql, redis
+          extensions: intl, mbstring, dom, fileinfo, mysql, redis
           coverage: xdebug
 
       - name: Validate composer.json and composer.lock
@@ -31,12 +39,14 @@ jobs:
         uses: actions/cache@v4
         with:
           path: vendor
-          key: ${{ runner.os }}-php-${{ matrix.php-version }}-composer-${{ hashFiles('**/composer.lock') }}
+          key: ${{ runner.os }}-php-${{ matrix.php-version }}-laravel-${{ matrix.laravel }}-composer-${{ hashFiles('**/composer.json') }}
           restore-keys: |
             ${{ runner.os }}-php-${{ matrix.php-version }}-composer-
 
       - name: Install dependencies
-        run: composer install --prefer-dist --no-progress --no-suggest
+        run: |
+          composer require --dev "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" --no-update --no-interaction
+          composer update --prefer-dist --no-progress --no-interaction
 
       - name: Run PEST tests
         run: composer run test

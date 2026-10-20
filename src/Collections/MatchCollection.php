@@ -159,9 +159,9 @@ class MatchCollection extends Collection
 
         foreach ($positions as $position) {
             $replacement = str_repeat($replacer, $position['length']);
-            $result = mb_substr($result, 0, $position['start']) .
-                $replacement .
-                mb_substr($result, $position['start'] + $position['length']);
+            $result = mb_substr($result, 0, $position['start'])
+                . $replacement
+                . mb_substr($result, $position['start'] + $position['length']);
         }
 
         return $result;
